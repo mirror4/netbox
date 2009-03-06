@@ -1,0 +1,61 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetBox2", "NetBox2.vcproj", "{1251DFBB-FD94-406D-ADA7-5642C722654B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1FCADE1B-1E5B-4937-9FF3-49827D484A7A} = {1FCADE1B-1E5B-4937-9FF3-49827D484A7A}
+		{BCAEF854-F49D-481E-A9DD-59DA4B03DEDD} = {BCAEF854-F49D-481E-A9DD-59DA4B03DEDD}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoxLib", "..\BoxLib\BoxLib.vcproj", "{1FCADE1B-1E5B-4937-9FF3-49827D484A7A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NBR", "..\NBR\NBR.vcproj", "{BCAEF854-F49D-481E-A9DD-59DA4B03DEDD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1FCADE1B-1E5B-4937-9FF3-49827D484A7A} = {1FCADE1B-1E5B-4937-9FF3-49827D484A7A}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 4
+		SccProjectName0 = \u0022$/NetBox2.root/NetBox2\u0022,\u0020ZHAAAAAA
+		SccLocalPath0 = ..
+		SccProvider0 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
+		CanCheckoutShared = false
+		SccProjectFilePathRelativizedFromConnection0 = NetBox2\\
+		SolutionUniqueID = {F8086437-3F41-4732-8294-5120E175CF9F}
+		SccProjectUniqueName1 = ..\\BoxLib\\BoxLib.vcproj
+		SccLocalPath1 = ..
+		CanCheckoutShared = false
+		SccProjectFilePathRelativizedFromConnection1 = BoxLib\\
+		SccProjectUniqueName2 = NetBox2.vcproj
+		SccLocalPath2 = ..
+		CanCheckoutShared = false
+		SccProjectFilePathRelativizedFromConnection2 = NetBox2\\
+		SccProjectUniqueName3 = ..\\NBR\\NBR.vcproj
+		SccLocalPath3 = ..
+		CanCheckoutShared = false
+		SccProjectFilePathRelativizedFromConnection3 = NBR\\
+	EndGlobalSection
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{1251DFBB-FD94-406D-ADA7-5642C722654B}.Debug.ActiveCfg = Debug|Win32
+		{1251DFBB-FD94-406D-ADA7-5642C722654B}.Debug.Build.0 = Debug|Win32
+		{1251DFBB-FD94-406D-ADA7-5642C722654B}.Release.ActiveCfg = Release|Win32
+		{1251DFBB-FD94-406D-ADA7-5642C722654B}.Release.Build.0 = Release|Win32
+		{1FCADE1B-1E5B-4937-9FF3-49827D484A7A}.Debug.ActiveCfg = Debug|Win32
+		{1FCADE1B-1E5B-4937-9FF3-49827D484A7A}.Debug.Build.0 = Debug|Win32
+		{1FCADE1B-1E5B-4937-9FF3-49827D484A7A}.Release.ActiveCfg = Release|Win32
+		{1FCADE1B-1E5B-4937-9FF3-49827D484A7A}.Release.Build.0 = Release|Win32
+		{BCAEF854-F49D-481E-A9DD-59DA4B03DEDD}.Debug.ActiveCfg = Debug|Win32
+		{BCAEF854-F49D-481E-A9DD-59DA4B03DEDD}.Debug.Build.0 = Debug|Win32
+		{BCAEF854-F49D-481E-A9DD-59DA4B03DEDD}.Release.ActiveCfg = Release|Win32
+		{BCAEF854-F49D-481E-A9DD-59DA4B03DEDD}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
