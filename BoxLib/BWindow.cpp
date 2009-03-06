@@ -184,6 +184,24 @@ LRESULT CBWindow::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandle
 		return 0;
 	}
 
+	CComPtr<IWebBrowser2> pWebBrowser2;
+	HRESULT hr = QueryControl(IID_IWebBrowser2, (void**)&pWebBrowser2);
+	if(FAILED(hr)) return hr;
+
+	VARIANT vOut;
+	VariantInit(&vOut);
+	hr = pWebBrowser2->ExecWB(OLECMDID_ONUNLOAD, OLECMDEXECOPT_DODEFAULT, NULL, &vOut);
+	if (!SUCCEEDED(hr)) 
+	{
+		bHandled = TRUE;
+		return 0;
+	}
+    if (vOut.bVal == FALSE) 
+	{
+		bHandled = TRUE;
+		return 0;
+	}
+
 	if(th_pRunWindow == this && m_hWnds.GetCount())
 	{
 		::EnableWindow(m_hWnds[0], TRUE);
@@ -194,7 +212,7 @@ LRESULT CBWindow::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandle
 
 	CBComPtr<IOleObject> pObj;
 
-	HRESULT hr = QueryControl(IID_IOleObject, (void**)&pObj);
+	hr = QueryControl(IID_IOleObject, (void**)&pObj);
 	if(FAILED(hr))return 0;
 
 	pObj->Close(0);

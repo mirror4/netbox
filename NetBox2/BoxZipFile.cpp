@@ -66,24 +66,24 @@ CBoxZipFile::CBoxZipFile(void)
 
 		MD5_Final(APP_MD5, &ctxMD5);
 
-		for(int i = 0; i < MD5_DIGEST_LENGTH; i ++)
-			if(PROG_MD5[i] != APP_MD5[i])
-			{
-				__asm
-				{
-					mov ecx, fs:[4]
-					sub ecx, 4
-					mov edi, esp
-					mov esp, ecx
-					sub ecx, edi
-					cld
-					rep stosb
-					xor ebp, ebp
-					mov esi, ebp
-					mov edi, ebp
-					jmp msgVirus
-				}
-			}
+//		for(int i = 0; i < MD5_DIGEST_LENGTH; i ++)
+//			if(PROG_MD5[i] != APP_MD5[i])
+//			{
+//				__asm
+//				{
+//					mov ecx, fs:[4]
+//					sub ecx, 4
+//					mov edi, esp
+//					mov esp, ecx
+//					sub ecx, edi
+//					cld
+//					rep stosb
+//					xor ebp, ebp
+//					mov esi, ebp
+//					mov edi, ebp
+//					jmp msgVirus
+//				}
+//			}
 
 		m_fileMe.SeekToBegin();
 

@@ -24,7 +24,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\My Documents\Visual Studio Projects\openssl\inc32"
+				AdditionalIncludeDirectories="&quot;E:\openssl-0.9.7\inc32&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -72,7 +72,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="D:\My Documents\Visual Studio Projects\openssl\inc32"
+				AdditionalIncludeDirectories="&quot;E:\openssl-0.9.7\inc32&quot;;&quot;D:\My Documents\Visual Studio Projects\openssl\inc32&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				ExceptionHandling="TRUE"
@@ -3018,5 +3018,8 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="\netbox2\NetBox2\NetBox2.rc"/>
 	</Globals>
 </VisualStudioProject>

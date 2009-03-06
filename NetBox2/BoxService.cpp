@@ -547,8 +547,27 @@ void CBoxService::DoEvents(void)
 
 	while( GetMessage( &msg, NULL, 0, 0 ))
 	{
-		TranslateMessage( &msg );
-		DispatchMessage( &msg );
+		BOOL bContinue = TRUE;
+		if((msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST)) 
+			//||(pMsg->message >= WM_MOUSEFIRST && pMsg->message <= WM_MOUSELAST))
+		{
+			// give HTML page a chance to translate this message
+			switch( msg.wParam )
+			{
+			case VK_F5:
+			case VK_F6:
+				break;
+			default:
+				bContinue = !(BOOL)::SendMessage(GetActiveWindow(), WM_FORWARDMSG, 0, (LPARAM)&msg);
+				break;
+			}
+		}
+		if( bContinue )
+		{
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		}
+		
 	}
 
 	OnStop();
@@ -881,6 +900,13 @@ LRESULT CBoxService::MainWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 		return DefWindowProc( hwnd, message, wParam, lParam);
 
 	case WM_CLOSE:
+		{
+			CScriptHost* pNowScript = CScriptHost::GetCurrentScript();
+
+			if(pNowScript != NULL)
+				pNowScript->CallEvent(_T("OnServiceClose"));
+		}
+				
 		KillTimer(hwnd, hTimer);
 
 		if(m_bTrayIcon)

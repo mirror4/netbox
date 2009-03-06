@@ -483,8 +483,26 @@ BSTR CNetBox2App::DoFileDialog(VARIANT* initFile, VARIANT* initDir, VARIANT* fil
 
 	if(bOpen)
 	{
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-		if(!GetOpenFileName(&ofn))szFile[0] = 0;
+		if (szFile[0] == ',')
+		{
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
+			szFile[0] = 0;
+		}
+		else
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+		if(!GetOpenFileName(&ofn))
+			szFile[0] = 0;
+		else
+		{
+			for (int x =0; x < 1023; x++)
+			{
+				if ((szFile[x] == NULL) && (szFile[x + 1] == NULL))
+					break;
+				if (szFile[x] == NULL)
+					szFile[x] = ',';
+			}
+		}
+
 	}else
 	{
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
