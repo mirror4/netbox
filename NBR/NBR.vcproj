@@ -1,137 +1,198 @@
 <?xml version="1.0" encoding="gb2312"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8.00"
 	Name="NBR"
 	ProjectGUID="{BCAEF854-F49D-481E-A9DD-59DA4B03DEDD}"
 	RootNamespace="NBR"
-	SccProjectName="SAK"
-	SccAuxPath="SAK"
-	SccLocalPath="SAK"
-	SccProvider="SAK"
-	Keyword="MFCProj">
+	Keyword="MFCProj"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="1"
-			CharacterSet="2">
+			UseOfATL="1"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="false"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;E:\openssl-0.9.7\inc32&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
-				MinimalRebuild="TRUE"
+				AdditionalIncludeDirectories="&quot;D:\My Documents\Visual Studio Projects\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_DEPRECATE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				TreatWChar_tAsBuiltInType="FALSE"
-				UsePrecompiledHeader="3"
+				TreatWChar_tAsBuiltInType="false"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="d:\share\nbdw.exe"
 				LinkIncremental="2"
 				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL;MSIMG32.DLL"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				SubSystem="2"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="FALSE"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="1"
 			CharacterSet="2"
-			WholeProgramOptimization="TRUE">
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="false"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="0"
-				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="&quot;E:\openssl-0.9.7\inc32&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
-				StringPooling="TRUE"
-				MinimalRebuild="FALSE"
+				OmitFramePointers="true"
+				AdditionalIncludeDirectories="&quot;D:\My Documents\Visual Studio Projects\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
+				StringPooling="true"
+				MinimalRebuild="false"
 				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="TRUE"
-				TreatWChar_tAsBuiltInType="FALSE"
-				UsePrecompiledHeader="3"
+				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="false"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="d:\share\nbdw.exe"
 				LinkIncremental="1"
 				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL;MSIMG32.DLL"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="FALSE"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -139,125 +200,180 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
+			>
 			<File
-				RelativePath=".\BuildBtn.cpp">
+				RelativePath=".\BuildBtn.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgLang.cpp">
+				RelativePath=".\DlgLang.cpp"
+				>
 			</File>
 			<File
-				RelativePath="LogDialog.cpp">
+				RelativePath="LogDialog.cpp"
+				>
 			</File>
 			<File
-				RelativePath="NBR.cpp">
+				RelativePath="NBR.cpp"
+				>
 			</File>
 			<File
-				RelativePath="NBRDlg.cpp">
+				RelativePath="NBRDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\SiDlg.cpp">
+				RelativePath=".\SiDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="stdafx.cpp">
+				RelativePath="stdafx.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
+						UsePrecompiledHeader="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
+						UsePrecompiledHeader="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Worker.cpp">
+				RelativePath="Worker.cpp"
+				>
 			</File>
 			<File
-				RelativePath="ZipFile.cpp">
+				RelativePath="ZipFile.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc">
+			Filter="h;hpp;hxx;hm;inl;inc"
+			>
 			<File
-				RelativePath=".\BuildBtn.h">
+				RelativePath=".\BuildBtn.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgLang.h">
+				RelativePath=".\DlgLang.h"
+				>
 			</File>
 			<File
-				RelativePath="LogDialog.h">
+				RelativePath="LogDialog.h"
+				>
 			</File>
 			<File
-				RelativePath="NBR.h">
+				RelativePath="NBR.h"
+				>
 			</File>
 			<File
-				RelativePath="NBRDlg.h">
+				RelativePath="NBRDlg.h"
+				>
 			</File>
 			<File
-				RelativePath="Resource.h">
+				RelativePath="Resource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\SiDlg.h">
+				RelativePath=".\SiDlg.h"
+				>
 			</File>
 			<File
-				RelativePath="stdafx.h">
+				RelativePath="stdafx.h"
+				>
 			</File>
 			<File
-				RelativePath="Worker.h">
+				RelativePath="Worker.h"
+				>
 			</File>
 			<File
-				RelativePath="ZipFile.h">
+				RelativePath="ZipFile.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest">
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
+			>
 			<File
-				RelativePath=".\res\build.bmp">
+				RelativePath=".\res\build.bmp"
+				>
 			</File>
 			<File
-				RelativePath=".\res\icon1.ico">
+				RelativePath=".\res\icon1.ico"
+				>
 			</File>
 			<File
-				RelativePath=".\res\logo.bmp">
+				RelativePath=".\res\logo.bmp"
+				>
 			</File>
 			<File
-				RelativePath=".\res\name.bmp">
+				RelativePath=".\res\name.bmp"
+				>
 			</File>
 			<File
-				RelativePath=".\res\nbFile.ico">
+				RelativePath=".\res\nbFile.ico"
+				>
 			</File>
 			<File
-				RelativePath=".\res\nbLib.ico">
+				RelativePath=".\res\nbLib.ico"
+				>
 			</File>
 			<File
-				RelativePath="res\NBR.ico">
+				RelativePath="res\NBR.ico"
+				>
 			</File>
 			<File
-				RelativePath="res\NBR.manifest">
+				RelativePath="res\NBR.manifest"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="NBR.rc">
+				RelativePath="NBR.rc"
+				>
 			</File>
 			<File
-				RelativePath="res\NBR.rc2">
+				RelativePath="res\NBR.rc2"
+				>
 			</File>
 			<File
-				RelativePath=".\res\pbnb.bmp">
+				RelativePath=".\res\pbnb.bmp"
+				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="ReadMe.txt">
+			RelativePath="ReadMe.txt"
+			>
 		</File>
 	</Files>
 	<Globals>
 		<Global
 			Name="RESOURCE_FILE"
-			Value="NBR.rc"/>
+			Value="NBR.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

@@ -40,8 +40,8 @@
 #define new DEBUG_NEW
 #endif
 
-#pragma comment(lib, "E:\\openssl-0.9.7\\out32\\libeay32.lib")
-#pragma comment(lib, "E:\\openssl-0.9.7\\out32\\ssleay32.lib")
+#pragma comment(lib, "D:\\My Documents\\Visual Studio Projects\\openssl\\out32\\libeay32.lib")
+#pragma comment(lib, "D:\\My Documents\\Visual Studio Projects\\openssl\\out32\\ssleay32.lib")
 
 // TODO: reference additional headers your program requires here
 

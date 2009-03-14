@@ -180,7 +180,7 @@ bool CxImage::RotateLeft(CxImage* iDst)
 		imgDest.Clear(0);
 		for (y = 0; y < head.biHeight; y++) {
 			// Figure out the Column we are going to be copying to
-			div_r = div(y + dlineup, 8);
+			div_r = div((int)(y + dlineup), (int)8);
 			// set bit pos of src column byte				
 			bitpos = 1 << div_r.rem;
 			srcdisp = bsrc + y * info.dwEffWidth;
@@ -298,7 +298,7 @@ bool CxImage::RotateRight(CxImage* iDst)
 		imgDest.Clear(0);
 		for (y = 0; y < head.biHeight; y++) {
 			// Figure out the Column we are going to be copying to
-			div_r = div(y, 8);
+			div_r = div((int)y, 8);
 			// set bit pos of src column byte				
 			bitpos = 128 >> div_r.rem;
 			srcdisp = bsrc + y * info.dwEffWidth;
@@ -861,7 +861,7 @@ bool CxImage::Resample(long newx, long newy, int mode, CxImage* iDst)
 	}
 	default: // bilinear interpolation
 		if (!(head.biWidth>newx && head.biHeight>newy && head.biBitCount==24)) {
-			//© 1999 Steve McMahon (steve@dogma.demon.co.uk)
+			//?1999 Steve McMahon (steve@dogma.demon.co.uk)
 			long ifX, ifY, ifX1, ifY1, xmax, ymax;
 			float ir1, ir2, ig1, ig2, ib1, ib2, dx, dy;
 			BYTE r,g,b;

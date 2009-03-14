@@ -1,157 +1,214 @@
 <?xml version="1.0" encoding="gb2312"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8.00"
 	Name="NetBox2"
 	ProjectGUID="{1251DFBB-FD94-406D-ADA7-5642C722654B}"
-	SccProjectName="SAK"
-	SccAuxPath="SAK"
-	SccLocalPath="SAK"
-	SccProvider="SAK"
-	Keyword="MFCProj">
+	Keyword="MFCProj"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="1"
 			UseOfATL="1"
-			CharacterSet="2">
+			CharacterSet="2"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="&quot;E:\openssl-0.9.7\inc32&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
-				MinimalRebuild="TRUE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				TreatWChar_tAsBuiltInType="FALSE"
-				UsePrecompiledHeader="3"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="4"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="Netapi32.lib"
-				OutputFile="d:\share\NetBox.exe"
-				LinkIncremental="2"
-				IgnoreAllDefaultLibraries="FALSE"
-				DelayLoadDLLs="OLEACC.DLL;WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;WS2_32.DLL;iphlpapi.dll;URLMON.DLL;WININET.DLL"
-				GenerateDebugInformation="TRUE"
-				SubSystem="2"
-				StackReserveSize="0"
-				TargetMachine="1"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="FALSE"/>
+				MkTypLibCompatible="false"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Sign"
-				CommandLine="d:\nbsign"/>
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;D:\My Documents\Visual Studio Projects\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_DEPRECATE"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				TreatWChar_tAsBuiltInType="false"
+				UsePrecompiledHeader="2"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				AdditionalOptions="Netapi32.lib"
+				AdditionalDependencies="wininet.lib"
+				OutputFile="d:\share\NetBox.exe"
+				LinkIncremental="2"
+				IgnoreAllDefaultLibraries="false"
+				DelayLoadDLLs="OLEACC.DLL;WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;WS2_32.DLL;iphlpapi.dll;URLMON.DLL;WININET.DLL"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				StackReserveSize="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Sign"
+				CommandLine="d:\nbsign"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="1"
 			UseOfATL="1"
 			CharacterSet="2"
-			WholeProgramOptimization="TRUE">
+			WholeProgramOptimization="1"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="0"
-				EnableIntrinsicFunctions="TRUE"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="FALSE"
-				OptimizeForProcessor="0"
-				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="&quot;E:\openssl-0.9.7\inc32&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
-				StringPooling="TRUE"
-				MinimalRebuild="FALSE"
-				ExceptionHandling="TRUE"
-				RuntimeLibrary="0"
-				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="TRUE"
-				TreatWChar_tAsBuiltInType="FALSE"
-				UsePrecompiledHeader="3"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCLinkerTool"
-				OutputFile="d:\share\NetBox.exe"
-				LinkIncremental="1"
-				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames=""
-				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;netapi32.DLL;WS2_32.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL"
-				GenerateDebugInformation="TRUE"
-				SubSystem="2"
-				StackReserveSize="0"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="FALSE"/>
+				MkTypLibCompatible="false"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				Description="zip"
-				CommandLine="d:\share\upx --best --compress-resources=0 d:\share\netbox.exe d:\share\nbdw.exe
-d:\nbsign
-"/>
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="0"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="false"
+				AdditionalIncludeDirectories="&quot;D:\My Documents\Visual Studio Projects\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
+				StringPooling="true"
+				MinimalRebuild="false"
+				ExceptionHandling="1"
+				RuntimeLibrary="0"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="false"
+				UsePrecompiledHeader="2"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				AdditionalDependencies="wininet.lib"
+				OutputFile="d:\share\NetBox.exe"
+				LinkIncremental="1"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
+				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;netapi32.DLL;WS2_32.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				StackReserveSize="0"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description=""
+				CommandLine=""
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -159,323 +216,444 @@ d:\nbsign
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
+			>
 			<File
-				RelativePath="BoxApplication.cpp">
+				RelativePath="BoxApplication.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxCachePool.cpp">
+				RelativePath="BoxCachePool.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxCommand.cpp">
+				RelativePath="BoxCommand.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxContents.cpp">
+				RelativePath="BoxContents.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxDictEnum.cpp">
+				RelativePath="BoxDictEnum.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxDictionary.cpp">
+				RelativePath="BoxDictionary.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxFactory.cpp">
+				RelativePath="BoxFactory.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxFile.cpp">
+				RelativePath="BoxFile.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpAccept.cpp">
+				RelativePath="BoxHttpAccept.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpContext.cpp">
+				RelativePath="BoxHttpContext.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpHost.cpp">
+				RelativePath="BoxHttpHost.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpRequest.cpp">
+				RelativePath="BoxHttpRequest.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpResponse.cpp">
+				RelativePath="BoxHttpResponse.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpScript.cpp">
+				RelativePath="BoxHttpScript.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpServer.cpp">
+				RelativePath="BoxHttpServer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpSession.cpp">
+				RelativePath="BoxHttpSession.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxJobServer.cpp">
+				RelativePath="BoxJobServer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxProtocol.cpp">
+				RelativePath="BoxProtocol.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxSafeObject.cpp">
+				RelativePath="BoxSafeObject.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxScript.cpp">
+				RelativePath="BoxScript.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\BoxScriptContext.cpp">
+				RelativePath=".\BoxScriptContext.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxScriptError.cpp">
+				RelativePath="BoxScriptError.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxScriptObject.cpp">
+				RelativePath="BoxScriptObject.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxService.cpp">
+				RelativePath="BoxService.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxSimpleXml.cpp">
+				RelativePath="BoxSimpleXml.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxSmtp.cpp">
+				RelativePath="BoxSmtp.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxSocket.cpp">
+				RelativePath="BoxSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxStream.cpp">
+				RelativePath="BoxStream.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxString.cpp">
+				RelativePath="BoxString.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxSystem.cpp">
+				RelativePath="BoxSystem.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxTcpServer.cpp">
+				RelativePath="BoxTcpServer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxTimeCache.cpp">
+				RelativePath="BoxTimeCache.cpp"
+				>
 			</File>
 			<File
-				RelativePath="BoxZipFile.cpp">
+				RelativePath="BoxZipFile.cpp"
+				>
 			</File>
 			<File
-				RelativePath="NetBox2.cpp">
+				RelativePath="NetBox2.cpp"
+				>
 			</File>
 			<File
-				RelativePath="PubFun.cpp">
+				RelativePath="PubFun.cpp"
+				>
 			</File>
 			<File
-				RelativePath="ScriptHost.cpp">
+				RelativePath="ScriptHost.cpp"
+				>
 			</File>
 			<File
-				RelativePath="stdafx.cpp">
+				RelativePath="stdafx.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
+						UsePrecompiledHeader="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
+						UsePrecompiledHeader="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="ZipFile.cpp">
+				RelativePath="ZipFile.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc">
+			Filter="h;hpp;hxx;hm;inl;inc"
+			>
 			<File
-				RelativePath=".\activdbg.h">
+				RelativePath=".\activdbg.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxApplication.h">
+				RelativePath="BoxApplication.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxArray.h">
+				RelativePath="BoxArray.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxBinPtr.h">
+				RelativePath="BoxBinPtr.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxCacheNode.h">
+				RelativePath="BoxCacheNode.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxCachePool.h">
+				RelativePath="BoxCachePool.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxCommand.h">
+				RelativePath="BoxCommand.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxContents.h">
+				RelativePath="BoxContents.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxDictEnum.h">
+				RelativePath="BoxDictEnum.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxDictionary.h">
+				RelativePath="BoxDictionary.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxFactory.h">
+				RelativePath="BoxFactory.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxFile.h">
+				RelativePath="BoxFile.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxFixString.h">
+				RelativePath="BoxFixString.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpAccept.h">
+				RelativePath="BoxHttpAccept.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpContext.h">
+				RelativePath="BoxHttpContext.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpHost.h">
+				RelativePath="BoxHttpHost.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpRequest.h">
+				RelativePath="BoxHttpRequest.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpResponse.h">
+				RelativePath="BoxHttpResponse.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpScript.h">
+				RelativePath="BoxHttpScript.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpServer.h">
+				RelativePath="BoxHttpServer.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxHttpSession.h">
+				RelativePath="BoxHttpSession.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxJobServer.h">
+				RelativePath="BoxJobServer.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxLink.h">
+				RelativePath="BoxLink.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxLRUCache.h">
+				RelativePath="BoxLRUCache.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxMemFile.h">
+				RelativePath="BoxMemFile.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxMemStream.h">
+				RelativePath="BoxMemStream.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxObject.h">
+				RelativePath="BoxObject.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxPath.h">
+				RelativePath="BoxPath.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxProtocol.h">
+				RelativePath="BoxProtocol.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxSafeObject.h">
+				RelativePath="BoxSafeObject.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxScript.h">
+				RelativePath="BoxScript.h"
+				>
 			</File>
 			<File
-				RelativePath=".\BoxScriptContext.h">
+				RelativePath=".\BoxScriptContext.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxScriptError.h">
+				RelativePath="BoxScriptError.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxScriptObject.h">
+				RelativePath="BoxScriptObject.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxService.h">
+				RelativePath="BoxService.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxSimpleXml.h">
+				RelativePath="BoxSimpleXml.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxSmtp.h">
+				RelativePath="BoxSmtp.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxSocket.h">
+				RelativePath="BoxSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxStream.h">
+				RelativePath="BoxStream.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxString.h">
+				RelativePath="BoxString.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxSystem.h">
+				RelativePath="BoxSystem.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxTcpServer.h">
+				RelativePath="BoxTcpServer.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxTimeCache.h">
+				RelativePath="BoxTimeCache.h"
+				>
 			</File>
 			<File
-				RelativePath="BoxZipFile.h">
+				RelativePath="BoxZipFile.h"
+				>
 			</File>
 			<File
-				RelativePath="NetBox2.h">
+				RelativePath="NetBox2.h"
+				>
 			</File>
 			<File
-				RelativePath="resource.h">
+				RelativePath="resource.h"
+				>
 			</File>
 			<File
-				RelativePath="ScriptHost.h">
+				RelativePath="ScriptHost.h"
+				>
 			</File>
 			<File
-				RelativePath=".\sice.h">
+				RelativePath=".\sice.h"
+				>
 			</File>
 			<File
-				RelativePath="SSLConnect.h">
+				RelativePath="SSLConnect.h"
+				>
 			</File>
 			<File
-				RelativePath="SSLContext.h">
+				RelativePath="SSLContext.h"
+				>
 			</File>
 			<File
-				RelativePath="stdafx.h">
+				RelativePath="stdafx.h"
+				>
 			</File>
 			<File
-				RelativePath="X509Certificate.h">
+				RelativePath="X509Certificate.h"
+				>
 			</File>
 			<File
-				RelativePath="ZipFile.h">
+				RelativePath="ZipFile.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest">
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
+			>
 			<File
-				RelativePath=".\bin1.bin">
+				RelativePath=".\bin1.bin"
+				>
 			</File>
 			<File
-				RelativePath="NetBox.ico">
+				RelativePath="NetBox.ico"
+				>
 			</File>
 			<File
-				RelativePath=".\NetBox.manifest">
+				RelativePath=".\NetBox.manifest"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="NetBox2.rc">
+				RelativePath="NetBox2.rc"
+				>
 			</File>
 			<File
-				RelativePath=".\small.ico">
+				RelativePath=".\small.ico"
+				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\ReadMe.txt">
+			RelativePath=".\ReadMe.txt"
+			>
 		</File>
 	</Files>
 	<Globals>
 		<Global
 			Name="RESOURCE_FILE"
-			Value="NetBox2.rc"/>
+			Value="NetBox2.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

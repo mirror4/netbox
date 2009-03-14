@@ -30,11 +30,11 @@ public:
 		operator=(d);
 	}
 
-	CBDate(__time64_t d)
+/*	CBDate(__time64_t d)
 	{
 		operator=(d);
 	}
-
+*/
 	operator DATE() const throw()
 	{
 		return m_d;
@@ -69,11 +69,11 @@ public:
 		return (time_t)(m_d * 86400) - 2209161600;
 	}
 
-	operator __time64_t() const throw()
+/*	operator __time64_t() const throw()
 	{
 		return (__time64_t)(m_d * 86400) - 2209161600;
 	}
-
+*/
 	DATE* operator&() throw()
 	{
 		return &m_d;
@@ -156,12 +156,12 @@ public:
 		return m_d;
 	}
 
-	DATE operator=(__time64_t d) throw()
+/*	DATE operator=(__time64_t d) throw()
 	{
 		m_d = (d + 2209161600) / 86400.0;
 		return m_d;
 	}
-
+*/
 	DATE operator=(const CBStringA& date) throw()
 	{
 		return operator=((LPCSTR)date);

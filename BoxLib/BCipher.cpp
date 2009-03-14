@@ -30,8 +30,7 @@ static struct
 	{L"RC2-40", EVP_rc2_40_cbc, EVP_rc2_40_cbc, EVP_rc2_40_cbc, EVP_rc2_40_cbc},
 	{L"RC2-64", EVP_rc2_64_cbc, EVP_rc2_64_cbc, EVP_rc2_64_cbc, EVP_rc2_64_cbc},
 	{L"RC4", EVP_rc4, EVP_rc4, EVP_rc4, EVP_rc4},
-	{L"RC4-40", EVP_rc4_40, EVP_rc4_40, EVP_rc4_40, EVP_rc4_40},
-	{L"RC5", EVP_rc5_32_12_16_ecb, EVP_rc5_32_12_16_cbc, EVP_rc5_32_12_16_cfb, EVP_rc5_32_12_16_ofb}
+	{L"RC4-40", EVP_rc4_40, EVP_rc4_40, EVP_rc4_40, EVP_rc4_40}
 };
 
 extern WCHAR s_strAlgoError[];
@@ -256,10 +255,12 @@ STDMETHODIMP CBCipher::put_Padding(short Val)
 
 STDMETHODIMP CBCipher::Create(BSTR bstrAlgo, short iMode)
 {
+	int i;
+
 	EVP_CIPHER_CTX_cleanup(&m_ctx);
 
 	int iAlgo = -1;
-	for(int i = 0; i < sizeof(s_CipherAlgos) / sizeof(s_CipherAlgos[0]); i ++)
+	for(i = 0; i < sizeof(s_CipherAlgos) / sizeof(s_CipherAlgos[0]); i ++)
 		if(!wcsicmp(s_CipherAlgos[i].Name, bstrAlgo))
 		{
 			iAlgo = i;

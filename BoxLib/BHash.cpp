@@ -6,10 +6,8 @@
 #include <openssl\md2.h>
 #include <openssl\MD4.h>
 #include <openssl\md5.h>
-#include <openssl\MDC2.h>
 #include <openssl\ripemd.h>
 #include <openssl\SHA.h>
-#include "SHA2.h"
 
 WCHAR s_strAlgoError[] = L"Algorithm not initialized.";
 static struct
@@ -35,11 +33,6 @@ static struct
 		(int (*)(void *))MD5_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))MD5_Update,
 		(int (*)(unsigned char *, void *))MD5_Final
-	},
-	{L"MDC2", MDC2_DIGEST_LENGTH,
-		(int (*)(void *))MDC2_Init,
-		(int (*)(void *, const unsigned char *, unsigned long))MDC2_Update,
-		(int (*)(unsigned char *, void *))MDC2_Final
 	},
 	{L"RIPEMD160", RIPEMD160_DIGEST_LENGTH,
 		(int (*)(void *))RIPEMD160_Init,
