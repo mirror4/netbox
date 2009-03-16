@@ -3373,9 +3373,9 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							Description="Generating lexer... "
-							CommandLine="flex -i -Pfht_ -ofmtHTML\fmtlex.cpp fmtHTML\fmtHTML.lex&#x0D;&#x0A;"
-							Outputs="fmtHTML\fmtlex.cpp"
+							Description=""
+							CommandLine=""
+							Outputs=""
 						/>
 					</FileConfiguration>
 					<FileConfiguration

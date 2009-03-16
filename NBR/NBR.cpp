@@ -84,7 +84,7 @@ void CNBRApp::LoadLic(void)
 
 BOOL CNBRApp::InitInstance()
 {
-	if(__argc == 2 && (!stricmp(__targv[1], "/REGSERVER") || !stricmp(__targv[1], "/UNREGSERVER")))
+	if(__argc == 2 && (!_stricmp(__targv[1], "/REGSERVER") || !_stricmp(__targv[1], "/UNREGSERVER")))
 	{
 		SHChangeNotify(SHCNE_ASSOCCHANGED,SHCNF_FLUSHNOWAIT,0, 0);
 		return false;

@@ -109,7 +109,7 @@ STDMETHODIMP CBHash::Create(BSTR bstrAlgo)
 {
 	m_iAlgo = -1;
 	for(int i = 0; i < sizeof(s_HashAlgos) / sizeof(s_HashAlgos[0]); i ++)
-		if(!wcsicmp(s_HashAlgos[i].Name, bstrAlgo))
+		if(!_wcsicmp(s_HashAlgos[i].Name, bstrAlgo))
 		{
 			m_iAlgo = i;
 			break;

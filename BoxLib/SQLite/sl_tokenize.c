@@ -117,7 +117,7 @@ int sqlite3KeywordCode(const char *z, int n){
       sqlite3UpperToLower[((unsigned char*)z)[n-1]]*3 +
       n) % 154;
   for(i=((int)aHash[h])-1; i>=0; i=((int)aNext[i])-1){
-    if( aLen[i]==n && sqlite3StrNICmp(&zText[aOffset[i]],z,n)==0 ){
+    if( aLen[i]==n && sqlite3_strnicmp(&zText[aOffset[i]],z,n)==0 ){
       return aCode[i];
     }
   }
@@ -638,7 +638,7 @@ int sqlite3_complete(const char *zSql){
           for(nId=1; IdChar(zSql[nId]); nId++){}
           switch( *zSql ){
             case 'c': case 'C': {
-              if( nId==6 && sqlite3StrNICmp(zSql, "create", 6)==0 ){
+              if( nId==6 && sqlite3_strnicmp(zSql, "create", 6)==0 ){
                 token = tkCREATE;
               }else{
                 token = tkOTHER;
@@ -646,11 +646,11 @@ int sqlite3_complete(const char *zSql){
               break;
             }
             case 't': case 'T': {
-              if( nId==7 && sqlite3StrNICmp(zSql, "trigger", 7)==0 ){
+              if( nId==7 && sqlite3_strnicmp(zSql, "trigger", 7)==0 ){
                 token = tkTRIGGER;
-              }else if( nId==4 && sqlite3StrNICmp(zSql, "temp", 4)==0 ){
+              }else if( nId==4 && sqlite3_strnicmp(zSql, "temp", 4)==0 ){
                 token = tkTEMP;
-              }else if( nId==9 && sqlite3StrNICmp(zSql, "temporary", 9)==0 ){
+              }else if( nId==9 && sqlite3_strnicmp(zSql, "temporary", 9)==0 ){
                 token = tkTEMP;
               }else{
                 token = tkOTHER;
@@ -658,9 +658,9 @@ int sqlite3_complete(const char *zSql){
               break;
             }
             case 'e':  case 'E': {
-              if( nId==3 && sqlite3StrNICmp(zSql, "end", 3)==0 ){
+              if( nId==3 && sqlite3_strnicmp(zSql, "end", 3)==0 ){
                 token = tkEND;
-              }else if( nId==7 && sqlite3StrNICmp(zSql, "explain", 7)==0 ){
+              }else if( nId==7 && sqlite3_strnicmp(zSql, "explain", 7)==0 ){
                 token = tkEXPLAIN;
               }else{
                 token = tkOTHER;

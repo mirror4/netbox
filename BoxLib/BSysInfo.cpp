@@ -595,15 +595,15 @@ void CBSysInfo::determineScreenInfo(void)
 	LONG result;
 	char str[32];
 
-	itoa(GetSystemMetrics(SM_CXSCREEN), str, 10);
+	_itoa(GetSystemMetrics(SM_CXSCREEN), str, 10);
 	Append(L"Screen_Width", str);
 
-	itoa(GetSystemMetrics(SM_CYSCREEN), str, 10);
+	_itoa(GetSystemMetrics(SM_CYSCREEN), str, 10);
 	Append(L"Screen_Height", str);
 
 	HDC hDC = ::GetDC(NULL);
 
-	itoa(GetDeviceCaps(hDC, BITSPIXEL), str, 10);
+	_itoa(GetDeviceCaps(hDC, BITSPIXEL), str, 10);
 	strcat(str, " bit");
 	Append(L"Screen_Color", str);
 

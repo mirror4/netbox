@@ -90,7 +90,7 @@ LRESULT CLogDialog::OnWriteLog(WPARAM wParam, LPARAM lParam)
 {
 	if(*(LPCTSTR)lParam)
 	{
-		m_wndOutput.SetSel(((_osver & 0x8000) == 0) ? 0x7FFFFFFE : 0xFFFE, -1);
+		m_wndOutput.SetSel(IS_NT ? 0x7FFFFFFE : 0xFFFE, -1);
 		m_wndOutput.ReplaceSel((LPCTSTR)lParam);
 	}
 	return !m_bWantClose;

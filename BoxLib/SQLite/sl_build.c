@@ -487,7 +487,7 @@ int findDb(sqlite3 *db, Token *pName){
   Db *pDb;
   for(pDb=db->aDb, i=0; i<db->nDb; i++, pDb++){
     if( pName->n==strlen(pDb->zName) && 
-        0==sqlite3StrNICmp(pDb->zName, pName->z, pName->n) ){
+        0==sqlite3_strnicmp(pDb->zName, pName->z, pName->n) ){
       return i;
     }
   }
@@ -544,7 +544,7 @@ int sqlite3TwoPartName(
 ** is reserved for internal use.
 */
 int sqlite3CheckObjectName(Parse *pParse, const char *zName){
-  if( !pParse->db->init.busy && 0==sqlite3StrNICmp(zName, "sqlite_", 7) ){
+  if( !pParse->db->init.busy && 0==sqlite3_strnicmp(zName, "sqlite_", 7) ){
     sqlite3ErrorMsg(pParse, "object name reserved for internal use: %s", zName);
     return SQLITE_ERROR;
   }
@@ -1135,7 +1135,7 @@ char sqlite3AffinityType(const char *zType, int nType){
     for(n=0; n<=limit; n++){
       int c = zType[n];
       if( (c==c1 || c==c2)
-             && 0==sqlite3StrNICmp(&zType[n], z, substrings[i].nSub) ){
+             && 0==sqlite3_strnicmp(&zType[n], z, substrings[i].nSub) ){
         return substrings[i].affinity;
       }
     }

@@ -418,7 +418,7 @@ STDMETHODIMP CBoxScriptObject::XScriptDisp::GetIDsOfNames(REFIID riid, LPOLESTR 
 
 		for(UINT i = 0; i < cNames; i ++)
 			for(int j = 0; j < nCount; j ++)
-				if(!wcsicmp(rgszNames[i], ((LPWSTR*)pThis->m_pHost->m_arrayBlock[j])[0]))
+				if(!_wcsicmp(rgszNames[i], ((LPWSTR*)pThis->m_pHost->m_arrayBlock[j])[0]))
 				{
 					rgDispId[i] = j + 1;
 					break;

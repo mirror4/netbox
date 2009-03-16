@@ -2,6 +2,16 @@
 #include "BThread.h"
 #include "BMStream.h"
 
+BOOL _is_NT()
+{
+	static unsigned int s_osver = 0;
+
+	if(s_osver == 0)
+		_get_osver(&s_osver);
+
+	return ((s_osver & 0x8000) == 0);
+}
+
 __declspec(thread) EXCEPINFO* th_pExcepInfo = NULL;
 static CBCriticalSection s_csComObject;
 static CLSID CLSID_FreeThreadedMarshaler;
@@ -359,7 +369,7 @@ STDMETHODIMP CBTypeInfo::GetIDsOfNames(LPOLESTR *rgszNames, UINT cNames, MEMBERI
 		ULONG ulHashName = LHashValOfName(LOCALE_SYSTEM_DEFAULT, rgszNames[i]);
 
 		for(j = 0; j < m_nCount; j ++)
-			if(ulHashName == m_pEntry[j].ulNameHash && !wcsicmp(rgszNames[i], m_pEntry[j].szName))
+			if(ulHashName == m_pEntry[j].ulNameHash && !_wcsicmp(rgszNames[i], m_pEntry[j].szName))
 			{
 				pMemId[i] = m_pEntry[j].Function.memid;
 				break;

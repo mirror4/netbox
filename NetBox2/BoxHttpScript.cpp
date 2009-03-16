@@ -344,7 +344,7 @@ int CBoxHttpScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strSc
 						nTempCount --;
 					}
 
-					if(nTempCount > 7 && !strnicmp(pstrTemp1, "include", 7))
+					if(nTempCount > 7 && !_strnicmp(pstrTemp1, "include", 7))
 					{
 						pstrTemp1 += 7;
 						nTempCount -= 7;
@@ -355,12 +355,12 @@ int CBoxHttpScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strSc
 							nTempCount --;
 						}
 
-						if(nTempCount > 7 && !strnicmp(pstrTemp1, "virtual", 7))
+						if(nTempCount > 7 && !_strnicmp(pstrTemp1, "virtual", 7))
 						{
 							pstrTemp1 += 7;
 							nTempCount -= 7;
 							mInclude = 1;
-						}else if(nTempCount > 4 && !strnicmp(pstrTemp1, "file", 4))
+						}else if(nTempCount > 4 && !_strnicmp(pstrTemp1, "file", 4))
 						{
 							pstrTemp1 += 4;
 							nTempCount -= 4;

@@ -101,7 +101,7 @@ int CBoxScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strScript
 	{
 		for(i = 0; i < CMD_COUNT; i ++)
 			if(nCount > CmdName[i].nSize &&
-				!strnicmp(pstrText, CmdName[i].pstrName, CmdName[i].nSize) &&
+				!_strnicmp(pstrText, CmdName[i].pstrName, CmdName[i].nSize) &&
 				IsBlankChar(pstrText[CmdName[i].nSize]))
 				break;
 

@@ -103,8 +103,9 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Sign"
-				CommandLine="d:\nbsign"
+				Description=""
+				CommandLine=""
+				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -206,7 +207,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 		</Configuration>

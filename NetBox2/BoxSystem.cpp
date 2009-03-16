@@ -1164,7 +1164,7 @@ void CBoxSystem::LoadLibrary(LPCTSTR pstrFile, VARIANT& varRoot)
 			{
 				pPos = (DWORD*)(pstr + wcslen(pstr) + 1);
 
-				wcslwr(pstr);
+				_wcslwr(pstr);
 				strTemp = pstr;
 
 				if(*pPos != 0xFFFFFFFF)

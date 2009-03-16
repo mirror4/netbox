@@ -433,7 +433,7 @@ HRESULT STDMETHODCALLTYPE CScriptHost::GetItemInfo(LPCOLESTR pstrName, DWORD dwR
 
 	if(dwReturnMask & SCRIPTINFO_IUNKNOWN)
 	{
-		if(!wcsicmp(pstrName, L"Trace"))
+		if(!_wcsicmp(pstrName, L"Trace"))
 			return m_pErrorTrace.QueryInterface(ppiunkItem);
 
 		CComVariant var;

@@ -54,7 +54,7 @@ STDMETHODIMP CBFile::Open(BSTR pstrName, short nMode, short nShare)
 		if(nMode != modeRead)
 			return E_INVALIDARG;
 
-		if(!wcsnicmp(pstrName, L"netbox:/", 8))
+		if(!_wcsnicmp(pstrName, L"netbox:/", 8))
 			return GetBoxStream(pstrName + 7, &m_pStream);
 
 		return URLOpenBlockingStream(NULL, CString(pstrName), &m_pStream, 0, NULL); 

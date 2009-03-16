@@ -102,7 +102,7 @@ int sqlite3JoinType(Parse *pParse, Token *pA, Token *pB, Token *pC){
     p = apAll[i];
     for(j=0; j<sizeof(keywords)/sizeof(keywords[0]); j++){
       if( p->n==keywords[j].nChar 
-          && sqlite3StrNICmp(p->z, keywords[j].zKeyword, p->n)==0 ){
+          && sqlite3_strnicmp(p->z, keywords[j].zKeyword, p->n)==0 ){
         jointype |= keywords[j].code;
         break;
       }
@@ -2057,9 +2057,9 @@ static int simpleMinMaxQuery(Parse *pParse, Select *p, int eDest, int iParm){
   pList = pExpr->pList;
   if( pList==0 || pList->nExpr!=1 ) return 0;
   if( pExpr->token.n!=3 ) return 0;
-  if( sqlite3StrNICmp(pExpr->token.z,"min",3)==0 ){
+  if( sqlite3_strnicmp(pExpr->token.z,"min",3)==0 ){
     seekOp = OP_Rewind;
-  }else if( sqlite3StrNICmp(pExpr->token.z,"max",3)==0 ){
+  }else if( sqlite3_strnicmp(pExpr->token.z,"max",3)==0 ){
     seekOp = OP_Last;
   }else{
     return 0;

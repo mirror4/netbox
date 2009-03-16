@@ -406,7 +406,7 @@ static int nocaseCollatingFunc(
   int nKey1, const void *pKey1,
   int nKey2, const void *pKey2
 ){
-  int r = sqlite3StrNICmp(
+  int r = sqlite3_strnicmp(
       (const char *)pKey1, (const char *)pKey2, (nKey1<nKey2)?nKey1:nKey2);
   if( 0==r ){
     r = nKey1-nKey2;

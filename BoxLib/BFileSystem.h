@@ -40,7 +40,7 @@ public:
 			m_dateLastModified = pfd->ftLastWriteTime;
 			m_dateLastAccessed = pfd->ftLastAccessTime;
 
-			m_fSize = (pfd->nFileSizeHigh << 32) + pfd->nFileSizeLow;
+			m_fSize = (double)(((__int64)pfd->nFileSizeHigh << 32) + pfd->nFileSizeLow);
 		}
 
 		HRESULT GetFileInfo(BSTR FilePath);

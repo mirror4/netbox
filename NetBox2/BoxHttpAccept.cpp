@@ -1375,7 +1375,7 @@ void CBoxHttpAccept::SendHeader()
 		if(m_bBuffer)
 		{
 			str.Append("Content-Length: ", 16);
-			ltoa(m_nResponseContentLength, strContentLength, 10);
+			_ltoa(m_nResponseContentLength, strContentLength, 10);
 			str.Append(strContentLength);
 			str.Append("\r\n\r\n", 4);
 		}else str.Append("\r\n", 2);

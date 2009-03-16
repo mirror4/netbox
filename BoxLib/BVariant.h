@@ -145,7 +145,7 @@ public:
 		switch(vc)
 		{
 		case VT_UNKNOWN:return _check_value(_getobjaddr(punkVal) - _getobjaddr(varSrc->punkVal));
-		case VT_BSTR:	return wcsicmp(bstrVal, varSrc->bstrVal);
+		case VT_BSTR:	return _wcsicmp(bstrVal, varSrc->bstrVal);
 		case VT_DATE:	return _check_value(date - varSrc->date);
 		case VT_BOOL:	return _check_value(boolVal - varSrc->boolVal);
 		case VT_R8:		return _check_value(_get_float() - varSrc->_get_float());

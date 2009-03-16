@@ -261,7 +261,7 @@ STDMETHODIMP CBCipher::Create(BSTR bstrAlgo, short iMode)
 
 	int iAlgo = -1;
 	for(i = 0; i < sizeof(s_CipherAlgos) / sizeof(s_CipherAlgos[0]); i ++)
-		if(!wcsicmp(s_CipherAlgos[i].Name, bstrAlgo))
+		if(!_wcsicmp(s_CipherAlgos[i].Name, bstrAlgo))
 		{
 			iAlgo = i;
 			break;

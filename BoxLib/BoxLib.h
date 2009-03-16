@@ -11,8 +11,10 @@
 #define ASSERT(expr) _ASSERTE(expr)
 #endif
 
+BOOL _is_NT();
+
 #ifndef IS_NT
-#define IS_NT		((_osver & 0x8000) == 0)
+#define IS_NT		_is_NT()
 #endif
 
 #ifndef _countof

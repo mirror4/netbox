@@ -1730,7 +1730,7 @@ int sqlite3ExprCompare(Expr *pA, Expr *pB){
   if( pA->token.z ){
     if( pB->token.z==0 ) return 0;
     if( pB->token.n!=pA->token.n ) return 0;
-    if( sqlite3StrNICmp(pA->token.z, pB->token.z, pB->token.n)!=0 ) return 0;
+    if( sqlite3_strnicmp(pA->token.z, pB->token.z, pB->token.n)!=0 ) return 0;
   }
   return 1;
 }

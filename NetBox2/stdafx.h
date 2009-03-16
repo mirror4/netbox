@@ -68,7 +68,9 @@ void TimeToString(const SYSTEMTIME& st, CString &strTime);
 	#define BOX_CW2CT(str)		CString(str)
 #endif
 
-#define IS_WINNT	((_osver & 0x8000) == 0)
+BOOL _is_NT();
+
+#define IS_WINNT		_is_NT()
 
 #include "BoxSafeObject.h"
 

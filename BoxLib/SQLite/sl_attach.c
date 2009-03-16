@@ -167,7 +167,7 @@ void sqlite3Detach(Parse *pParse, Token *pDbname){
     pDb = &db->aDb[i];
     if( pDb->pBt==0 || pDb->zName==0 ) continue;
     if( strlen(pDb->zName)!=pDbname->n ) continue;
-    if( sqlite3StrNICmp(pDb->zName, pDbname->z, pDbname->n)==0 ) break;
+    if( sqlite3_strnicmp(pDb->zName, pDbname->z, pDbname->n)==0 ) break;
   }
   if( i>=db->nDb ){
     sqlite3ErrorMsg(pParse, "no such database: %T", pDbname);

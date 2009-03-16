@@ -293,16 +293,16 @@ HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 			if(p != p1)
 			{
 				//Content-Disposition: form-data; name="textfi&lg;<<sseld"
-				if(p1 + 20 < p && !strnicmp((char*)p1, "Content-Disposition:", 20))
+				if(p1 + 20 < p && !_strnicmp((char*)p1, "Content-Disposition:", 20))
 				{
 					p1 += 20;
 					while(p1 < p && *p1 == ' ')p1 ++;
-					if(p1 + 10 >= p || strnicmp((char*)p1, "form-data;", 10))
+					if(p1 + 10 >= p || _strnicmp((char*)p1, "form-data;", 10))
 						return S_OK;
 
 					p1 += 10;
 					while(p1 < p && *p1 == ' ')p1 ++;
-					if(p1 + 4 >= p || strnicmp((char*)p1, "name", 4))
+					if(p1 + 4 >= p || _strnicmp((char*)p1, "name", 4))
 						return S_OK;
 
 					p1 += 4;
@@ -328,7 +328,7 @@ HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 					if(p1 < p && *p1 == ';')p1 ++;
 
 					while(p1 < p && *p1 == ' ')p1 ++;
-					if(p1 + 8 < p && !strnicmp((char*)p1, "filename", 8))
+					if(p1 + 8 < p && !_strnicmp((char*)p1, "filename", 8))
 					{
 						p1 += 8;
 						while(p1 < p && *p1 == ' ')p1 ++;
@@ -350,7 +350,7 @@ HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 
 						strFileName.SetString((char*)p2, (int)(p1 - p2));
 					}
-				}else if(p1 + 13 < p && !strnicmp((char*)p1, "Content-Type:", 13))
+				}else if(p1 + 13 < p && !_strnicmp((char*)p1, "Content-Type:", 13))
 				{
 					p1 += 13;
 					while(p1 < p && *p1 == ' ')p1 ++;

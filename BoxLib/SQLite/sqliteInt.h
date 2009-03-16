@@ -1200,7 +1200,7 @@ extern int sqlite3_always_code_trigger_setup;
 ** Internal function prototypes
 */
 int sqlite3StrICmp(const char *, const char *);
-int sqlite3StrNICmp(const char *, const char *, int);
+int sqlite3_strnicmp(const char *, const char *, int);
 int sqlite3HashNoCase(const char *, int);
 int sqlite3IsNumber(const char*, int*, u8);
 int sqlite3Compare(const char *, const char *);
