@@ -52,6 +52,8 @@ public:
 
 	STDMETHOD(OpenModalDialog)(BSTR strUrl, short Width, short Height, VARIANT varArg, VARIANT *pVal);
 
+	static void AddTrustedSite(LPCTSTR str);
+
 private:
 	CComVariant m_varArgument;
 	CComPtr<IWebBrowser2> m_spBrowser;

@@ -126,6 +126,8 @@ const char* memfind(const void *buf, size_t count, const char* str, size_t scoun
 
 CBoxSystem::CBoxSystem(void)
 {
+	CBHtmlWindow::AddTrustedSite("netbox://");
+
 	m_pContents.CreateInstance();
 	m_pContents->put_ArrayMode(0);
 
@@ -302,6 +304,8 @@ BEGIN_DISPATCH_MAP(CBoxSystem, CBoxSafeObject)
 	DISP_FUNCTION(CBoxSystem, "LoadLibrary", LoadLibrary, VT_EMPTY, VTS_BSTR VTS_VARIANT)
 
 	DISP_FUNCTION(CBoxSystem, "Sleep", Sleep, VT_EMPTY, VTS_I4)
+
+	DISP_FUNCTION(CNetBox2App, "RegisterTrustedSite", RegisterTrustedSite, VT_EMPTY, VTS_BSTR)
 END_DISPATCH_MAP()
 
 // CBoxSystem message handlers
@@ -1275,3 +1279,8 @@ void CBoxSystem::Sleep(long nTime)
 	::Sleep(nTime);
 }
 
+
+void CBoxSystem::RegisterTrustedSite(LPCTSTR pstr)
+{
+	CBHtmlWindow::AddTrustedSite(pstr);
+}

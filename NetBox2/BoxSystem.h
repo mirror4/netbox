@@ -84,6 +84,8 @@ public:
 
 	afx_msg void Sleep(long nTime);
 
+	afx_msg void RegisterTrustedSite(LPCTSTR pstr);
+
 	DECLARE_DISPATCH_MAP()
 
 private:
