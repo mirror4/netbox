@@ -183,6 +183,9 @@ STDMETHODIMP CNetBox2App::XObjectSafety::QueryInterface(REFIID iid, LPVOID far* 
 
 STDMETHODIMP CNetBox2App::XObjectSafety::GetInterfaceSafetyOptions(REFIID riid, DWORD *pdwSupportedOptions, DWORD *pdwEnabledOptions)
 {
+	if (!s_bObjectSafety)
+		return E_NOINTERFACE;
+
 	if (pdwSupportedOptions == NULL || pdwEnabledOptions == NULL)
 		return E_POINTER;
 
@@ -194,6 +197,9 @@ STDMETHODIMP CNetBox2App::XObjectSafety::GetInterfaceSafetyOptions(REFIID riid, 
 
 STDMETHODIMP CNetBox2App::XObjectSafety::SetInterfaceSafetyOptions(REFIID riid, DWORD dwOptionSetMask, DWORD dwEnabledOptions)
 {
+	if (!s_bObjectSafety)
+		return E_NOINTERFACE;
+
 	return S_OK;
 }
 

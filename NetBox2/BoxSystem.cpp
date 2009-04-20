@@ -305,7 +305,8 @@ BEGIN_DISPATCH_MAP(CBoxSystem, CBoxSafeObject)
 
 	DISP_FUNCTION(CBoxSystem, "Sleep", Sleep, VT_EMPTY, VTS_I4)
 
-	DISP_FUNCTION(CNetBox2App, "RegisterTrustedSite", RegisterTrustedSite, VT_EMPTY, VTS_BSTR)
+	DISP_FUNCTION(CBoxSystem, "RegisterTrustedSite", RegisterTrustedSite, VT_EMPTY, VTS_BSTR)
+	DISP_PROPERTY_EX_ID(CBoxSystem, "ObjectSafety", 1001, get_ObjectSafety, put_ObjectSafety, VT_BOOL)
 END_DISPATCH_MAP()
 
 // CBoxSystem message handlers
@@ -1283,4 +1284,14 @@ void CBoxSystem::Sleep(long nTime)
 void CBoxSystem::RegisterTrustedSite(LPCTSTR pstr)
 {
 	CBHtmlWindow::AddTrustedSite(pstr);
+}
+
+BOOL CBoxSystem::get_ObjectSafety(void)
+{
+	return s_bObjectSafety;
+}
+
+void CBoxSystem::put_ObjectSafety(BOOL b)
+{
+	s_bObjectSafety = b;
 }

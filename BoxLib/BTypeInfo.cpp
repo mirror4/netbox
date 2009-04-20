@@ -90,9 +90,13 @@ STDMETHODIMP CBComObject::QueryClass(REFIID iid, void ** ppvObject) throw()
 	return E_NOTIMPL;
 }
 
+BOOL s_bObjectSafety = false;
 // IObjectSafety
 STDMETHODIMP CBComObject::GetInterfaceSafetyOptions(REFIID riid, DWORD *pdwSupportedOptions, DWORD *pdwEnabledOptions)
 {
+	if (!s_bObjectSafety)
+		return E_NOINTERFACE;
+	
 	if (pdwSupportedOptions == NULL || pdwEnabledOptions == NULL)
 		return E_POINTER;
 
@@ -104,6 +108,9 @@ STDMETHODIMP CBComObject::GetInterfaceSafetyOptions(REFIID riid, DWORD *pdwSuppo
 
 STDMETHODIMP CBComObject::SetInterfaceSafetyOptions(REFIID riid, DWORD dwOptionSetMask, DWORD dwEnabledOptions)
 {
+	if (!s_bObjectSafety)
+		return E_NOINTERFACE;
+
 	return S_OK;
 }
 

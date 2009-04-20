@@ -70,6 +70,9 @@ STDMETHODIMP CBoxStruct::Invoke(DISPID dispIdMember, REFIID riid, LCID lcid, WOR
 
 STDMETHODIMP CBoxStruct::GetInterfaceSafetyOptions(REFIID riid, DWORD *pdwSupportedOptions, DWORD *pdwEnabledOptions)
 {
+	if (!s_bObjectSafety)
+		return E_NOINTERFACE;
+
 	if (pdwSupportedOptions == NULL || pdwEnabledOptions == NULL)
 		return E_POINTER;
 
@@ -81,5 +84,8 @@ STDMETHODIMP CBoxStruct::GetInterfaceSafetyOptions(REFIID riid, DWORD *pdwSuppor
 
 STDMETHODIMP CBoxStruct::SetInterfaceSafetyOptions(REFIID riid, DWORD dwOptionSetMask, DWORD dwEnabledOptions)
 {
+	if (!s_bObjectSafety)
+		return E_NOINTERFACE;
+
 	return S_OK;
 }

@@ -85,6 +85,8 @@ public:
 	afx_msg void Sleep(long nTime);
 
 	afx_msg void RegisterTrustedSite(LPCTSTR pstr);
+	afx_msg BOOL get_ObjectSafety(void);
+	afx_msg void put_ObjectSafety(BOOL b);
 
 	DECLARE_DISPATCH_MAP()
 

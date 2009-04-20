@@ -551,6 +551,9 @@ STDMETHODIMP CBoxScriptObject::XObjectSafety1::QueryInterface(REFIID iid, LPVOID
 
 STDMETHODIMP CBoxScriptObject::XObjectSafety1::GetInterfaceSafetyOptions(REFIID riid, DWORD *pdwSupportedOptions, DWORD *pdwEnabledOptions)
 {
+	if (!s_bObjectSafety)
+		return E_NOINTERFACE;
+
 	if (pdwSupportedOptions == NULL || pdwEnabledOptions == NULL)
 		return E_POINTER;
 
@@ -562,5 +565,8 @@ STDMETHODIMP CBoxScriptObject::XObjectSafety1::GetInterfaceSafetyOptions(REFIID 
 
 STDMETHODIMP CBoxScriptObject::XObjectSafety1::SetInterfaceSafetyOptions(REFIID riid, DWORD dwOptionSetMask, DWORD dwEnabledOptions)
 {
+	if (!s_bObjectSafety)
+		return E_NOINTERFACE;
+
 	return S_OK;
 }

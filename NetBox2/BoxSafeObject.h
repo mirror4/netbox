@@ -3,6 +3,7 @@
 
 #include <objsafe.h>
 
+extern BOOL s_bObjectSafety;
 // CBoxSafeObject command target
 
 class CBoxSafeObject : public CCmdTarget
