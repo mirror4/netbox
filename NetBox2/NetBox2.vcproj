@@ -103,7 +103,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine=""
 				ExcludedFromBuild="true"
 			/>
@@ -608,10 +607,6 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
-			<File
-				RelativePath=".\bin1.bin"
-				>
-			</File>
 			<File
 				RelativePath="NetBox.ico"
 				>

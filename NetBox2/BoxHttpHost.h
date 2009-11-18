@@ -6,6 +6,7 @@
 #include "BoxHttpServer.h"
 #include "BoxLRUCache.h"
 #include "BoxHttpSession.h"
+#include <atlrx.h>
 
 #include <openssl\rand.h>
 
@@ -15,9 +16,49 @@ class CBoxHttpContext;
 
 class CBoxHttpHost : public CBoxContents
 {
+	class CURLRECharTraits : public CAtlRECharTraits
+	{
+	public:
+		static const TCHAR** GetAbbrevs()
+		{
+			static const TCHAR *s_szAbbrevs[] = 
+			{
+				_T("b([ \\t])"),		// white space (blank)
+				_T("B([^ \\t])"),		// not white space (blank)
+				_T("c([a-zA-Z])"),	// alpha
+				_T("C(^[a-zA-Z])"),	// not alpha
+				_T("d([0-9])"),		// digit
+				_T("D(^[0-9])"),		// not digit
+				_T("f(\f)"),		// form-feed
+				_T("h([0-9a-fA-F])"),	// hex digit
+				_T("n(\n)"),	// newline
+				_T("q(\"[^\"]*\")|(\'[^\']*\')"),	// quoted string
+				_T("r(\r))"),	// newline
+				_T("s([ \f\n\r\t\v])"),	// whitespace character
+				_T("S([^ \f\n\r\t\v])"),	// not whitespace character
+				_T("t(\t)"),	// tab
+				_T("v(\v)"),	// vertical tab
+				_T("w([A-Za-z0-9_])"),	// word
+				_T("W([^A-Za-z0-9_])"),	// word
+				_T("z([0-9]+)"),		// integer
+				NULL
+			};
+
+			return s_szAbbrevs;
+		}
+	};
+
 	DECLARE_DYNAMIC(CBoxHttpHost)
 public:
 	CBoxHttpHost(void);
+	~CBoxHttpHost(void)
+	{
+		int c = m_areUrl.GetCount();
+		for (int i=0;i<c;i++)
+		{
+			delete m_areUrl[i];
+		}
+	}
 
 	void InitHost(LPCTSTR pstrRoot)
 	{
@@ -43,6 +84,7 @@ public:
 	void ClearSession(__int64 nNowTime);
 	void OnStart(void);
 	void OnEnd(void);
+	BOOL URLRewrite(CString strURL, CString &strNewURL, CString &strNewQueryString);
 
 public:
 	CString m_strHostKey;
@@ -73,6 +115,9 @@ public:
 
 	BOOL m_bIsStart;
 
+	CAtlArray<CAtlRegExp<CURLRECharTraits> *> m_areUrl;
+	CAtlArray<CString> m_aUrl;
+
 public:
 	afx_msg long get_SessionTimeout(void);
 	afx_msg void put_SessionTimeout(long nSessionTimeout);
@@ -91,6 +136,8 @@ public:
 
 	afx_msg LPDISPATCH AddFolder(LPCTSTR pstrName, LPCTSTR pstrRoot);
 	afx_msg void AttachFolder(LPCTSTR pstrName, LPDISPATCH pdispHost);
+
+	afx_msg void AddURLRewriter(LPCTSTR pstrRE, LPCTSTR pstr);
 
 	DECLARE_DISPATCH_MAP()
 

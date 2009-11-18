@@ -309,6 +309,8 @@ BEGIN_DISPATCH_MAP(CBoxHttpHost, CBoxContents)
 
 	DISP_FUNCTION(CBoxHttpHost, "AddFolder", AddFolder, VT_DISPATCH, VTS_BSTR VTS_BSTR)
 	DISP_FUNCTION(CBoxHttpHost, "AttachFolder", AttachFolder, VT_EMPTY, VTS_BSTR VTS_DISPATCH)
+
+	DISP_FUNCTION(CBoxHttpHost, "AddURLRewriter", AddURLRewriter, VT_EMPTY, VTS_BSTR VTS_BSTR)
 END_DISPATCH_MAP()
 
 // CBoxHttpHost message handlers
@@ -425,4 +427,95 @@ void CBoxHttpHost::AttachFolder(LPCTSTR pstrName, LPDISPATCH pdispHost)
 	strName.Replace('/', '\\');
 
 	m_pContents->SetValue(strName, (LPDISPATCH)pHost);
+}
+
+void CBoxHttpHost::AddURLRewriter(LPCTSTR pstrRE, LPCTSTR pstr)
+{
+	HRESULT hr;
+	CAtlRegExp<CURLRECharTraits> *pre;
+
+	pre = new CAtlRegExp<CURLRECharTraits>;
+	hr = pre->Parse(pstrRE, false);
+	if(FAILED(hr))
+	{
+		delete pre;
+		AfxThrowOleException(hr);
+	}
+	m_areUrl.Add(pre);
+	m_aUrl.Add(pstr);
+}
+
+BOOL CBoxHttpHost::URLRewrite(CString strURL, CString &strNewURL, CString &strNewQueryString)
+{
+	UINT i, c;
+	int uNumGroups;
+	CAtlREMatchContext<CURLRECharTraits> mc;
+	LPCTSTR ptr, ptr1, ptrEnd;
+	CString *pstrRewrite;
+
+	c = m_areUrl.GetCount();
+	for (i=0;i<c;i++)
+		if (m_areUrl[i]->Match(strURL, &mc))
+			break;
+
+	if (i==c)
+	{
+		strNewURL = strURL;
+		return false;
+	}
+
+	pstrRewrite = &strNewURL;
+	uNumGroups = mc.m_uNumGroups;
+	ptr = m_aUrl[i];
+	ptrEnd = ptr + m_aUrl[i].GetLength();
+
+	while(ptr < ptrEnd)
+	{
+		ptr1 = ptr;
+		while(ptr1 < ptrEnd && *ptr1 != '$' && *ptr1 != '?')
+			ptr1 ++;
+
+		pstrRewrite->Append(ptr, ptr1 - ptr);
+		ptr = ptr1 + 1;
+
+		if (*ptr1 == '?')
+		{
+			pstrRewrite = &strNewQueryString;
+			continue;
+		}
+
+		if(ptr < ptrEnd)
+		{
+			int ch = *ptr - '1';
+
+			if(ch >= 0 && ch <= 9)
+			{
+				if (ch<uNumGroups)
+				{
+					const TCHAR* szStart = 0;
+					const TCHAR* szEnd = 0;
+
+					mc.GetMatch(ch, &szStart, &szEnd);
+					pstrRewrite->Append(szStart, szEnd - szStart);
+				}
+				ptr ++;
+			}
+			else if(*ptr == '0')
+			{
+				const TCHAR* szStart = 0;
+				const TCHAR* szEnd = 0;
+
+				mc.GetMatch(0, &szStart, &szEnd);
+				pstrRewrite->Append(szStart, szEnd - szStart);
+				ptr ++;
+			}
+			else if(*ptr == '$')
+			{
+				pstrRewrite->AppendChar('$');
+				ptr ++;
+			}
+		}
+	}
+
+	return (pstrRewrite == &strNewQueryString);
 }

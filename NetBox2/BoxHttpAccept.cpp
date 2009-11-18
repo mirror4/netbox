@@ -509,14 +509,14 @@ BOOL CBoxHttpAccept::MapRequestPath(BOOL bUTF8)
 		}
 
 		m_strPathInfo = strTemp;
-		str = m_strPathInfo;
+		//str = m_strPathInfo;
 	}else
 	{
 		m_strPathInfo = CBEncoding::UrlDecode(m_strUrl, m_strUrl.GetLength());
-		str = m_strPathInfo;
+		//str = m_strPathInfo;
 	}
 
-	path = str;
+	//path = str;
 
 	CComVariant var;
 
@@ -542,7 +542,17 @@ BOOL CBoxHttpAccept::MapRequestPath(BOOL bUTF8)
 
 	m_pApplicationHost = m_pHost;
 
-	m_strBaseUrl.Empty();
+	CString strQueryString;
+
+	str.Empty();
+	if (m_pHost->URLRewrite(m_strPathInfo, str, strQueryString))
+	{
+		if (m_strQueryString.GetLength())
+			m_strQueryString.Append('&');
+		m_strQueryString.Append(strQueryString);
+	}
+	m_strPathInfo = str;
+	path = m_strPathInfo;
 
 	if(m_pHost->m_pContents->get_Count())
 	{
@@ -636,6 +646,8 @@ void CBoxHttpAccept::FillServerVariables(CBRequestDictionary* pServerVariables)
 	pServerVariables->AddValue(L"SERVER_PROTOCOL", m_strProtocol);
 	pServerVariables->AddValue(L"SERVER_SOFTWARE", CBoxSystem::getVersion());
 	pServerVariables->AddValue(L"URL", m_strPathInfo);
+
+	//pServerVariables->AddValue(L"URL_ORIGINAL", m_strUrl);
 
 	for(i = 0; i < count; i ++)
 		pServerVariables->AddValue(CBString(m_astrRequestHeaderName[i]), m_astrRequestHeaderValue[i]);

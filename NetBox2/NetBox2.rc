@@ -77,8 +77,8 @@ IDR_MANIFEST            RT_MANIFEST             "NetBox.manifest"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,9,4129,0
- PRODUCTVERSION 2,9,4129,0
+ FILEVERSION 2,9,4200,0
+ PRODUCTVERSION 2,9,4200,0
  FILEFLAGSMASK 0x0L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -94,10 +94,10 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "Powered by NetBox"
-            VALUE "FileVersion", "2, 9, 4129, 0"
-            VALUE "LegalCopyright", "Copyright (C) 2005 Netbox Project."
-            VALUE "NetBox Homepage", "http://www.netbox.cn"
-            VALUE "ProductVersion", "2, 9, 4129, 0"
+            VALUE "FileVersion", "2, 9, 4200, 0"
+            VALUE "LegalCopyright", "Copyright (C) 2009 Netbox Project."
+            VALUE "NetBox Homepage", "http://www.9465.net"
+            VALUE "ProductVersion", "2, 9, 4200, 0"
             VALUE "Release DateTime", "Mmm dd hh:mm:ss yyyy"
         END
     END
