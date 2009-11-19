@@ -138,6 +138,7 @@ public:
 	afx_msg void AttachFolder(LPCTSTR pstrName, LPDISPATCH pdispHost);
 
 	afx_msg void AddURLRewriter(LPCTSTR pstrRE, LPCTSTR pstr);
+	afx_msg BSTR URLRewriteTest(LPCTSTR pstr);
 
 	DECLARE_DISPATCH_MAP()
 

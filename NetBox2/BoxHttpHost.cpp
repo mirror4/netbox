@@ -311,6 +311,7 @@ BEGIN_DISPATCH_MAP(CBoxHttpHost, CBoxContents)
 	DISP_FUNCTION(CBoxHttpHost, "AttachFolder", AttachFolder, VT_EMPTY, VTS_BSTR VTS_DISPATCH)
 
 	DISP_FUNCTION(CBoxHttpHost, "AddURLRewriter", AddURLRewriter, VT_EMPTY, VTS_BSTR VTS_BSTR)
+	DISP_FUNCTION(CBoxHttpHost, "URLRewrite", URLRewriteTest, VT_BSTR, VTS_BSTR)
 END_DISPATCH_MAP()
 
 // CBoxHttpHost message handlers
@@ -518,4 +519,30 @@ BOOL CBoxHttpHost::URLRewrite(CString strURL, CString &strNewURL, CString &strNe
 	}
 
 	return (pstrRewrite == &strNewQueryString);
+}
+
+BSTR CBoxHttpHost::URLRewriteTest(LPCTSTR pstr)
+{
+	CString strURL = pstr, strNewURL, strQueryString, strNewQueryString;
+
+	if (int p = strURL.ReverseFind('?'))
+	{
+		strQueryString = strURL.Mid(p+1);
+		strURL = strURL.Left(p);
+	}
+
+	if (URLRewrite(strURL, strNewURL, strNewQueryString))
+	{
+		if (strQueryString.GetLength())
+			strQueryString.AppendChar('&');
+		strQueryString.Append(strNewQueryString);
+	}
+
+	if (strQueryString.GetLength())
+	{
+		strNewURL.AppendChar('?');
+		strNewURL.Append(strQueryString);
+	}
+
+	return strNewURL.AllocSysString();
 }
