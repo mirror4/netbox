@@ -1,0 +1,30 @@
+NetBox更新
+
+2009-11-19
+HttpServerHost 对象
+	增加 AddURLRewriter 方法
+		Host.AddURLRewriter Regexp, RewriteURL
+		
+		为当前虚拟主机增加URLRewrite功能
+		
+		Regexp 使用ATL正则表达式
+		RewriteURL 可以用表达式匹配到的前9个字符串替换RewriteURL的中的$1 ~ $9
+	
+	增加 URLRewrite 方法
+		newurl = Host.URLRewrite(url)
+		
+		用于测试URLRewrite的功能
+
+2009-4-20
+NetBox 对象
+	增加 NetBox.ObjectSafety 属性
+		默认是False，即所有 NetBox 内置对象对 HTMLWindow 非安全。
+		对于 NetBox:// 协议不用考虑这个问题。
+		兼容性问题：低版本在非 NetBox:// 协议中使用NetBox内置对象时请设定 ObjectSafety 属性为 True，以解决不能在 HTMLWindow 中创建 NetBox 内置对象的问题。
+
+2009-4-2
+NetBox 对象
+	增加 NetBox.RegisterTrustedSite url
+		HTMLWindow 的信任站点注册。
+		不同与IE的 Trusted Zone，这个安全级别比 Local Machine Zone 还要低。
+
