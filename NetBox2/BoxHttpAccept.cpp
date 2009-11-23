@@ -307,6 +307,9 @@ long CBoxHttpAccept::OnAccept()
 
 int CBoxHttpAccept::BuildResponse(void)
 {
+	if (m_nStatusCode != 200)
+		return m_nStatusCode;
+	
 	switch(m_nMethod)
 	{
 	case HTTP_UNKNOWN:
@@ -551,6 +554,18 @@ BOOL CBoxHttpAccept::MapRequestPath(BOOL bUTF8)
 			m_strQueryString.Append('&');
 		m_strQueryString.Append(strQueryString);
 	}
+	if (str.GetLength()>0)
+	{
+		if (str[0] != '/')
+		{
+			m_nStatusCode = 302;
+			str.AppendChar('?');
+			str.Append(m_strQueryString);
+			AddHeader(_T("Location"), str);
+			return TRUE;
+		}
+	}
+
 	m_strPathInfo = str;
 	path = m_strPathInfo;
 
