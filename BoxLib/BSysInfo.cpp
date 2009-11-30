@@ -155,14 +155,28 @@ void CBSysInfo::determineOSInfo(void)
 
 	static WCHAR STR_WINDOWS_XP_HOME[] = L"Windows XP Home Edition";
 	static WCHAR STR_WINDOWS_XP_PROF[] = L"Windows XP Professional";
+	static WCHAR STR_WINDOWS_XP_x64[] = L"Windows XP Professional x64 Edition";
 
-	static WCHAR STR_WINDOWS_LH_HOME[] = L"Windows LongHorn Home Edition";
-	static WCHAR STR_WINDOWS_LH_PROF[] = L"Windows LongHorn Professional";
+	static WCHAR STR_WINDOWS_VISTA_HOME[] = L"Windows Vista Home Edition";
+	static WCHAR STR_WINDOWS_VISTA_PROF[] = L"Windows Vista Professional";
+
+	static WCHAR STR_WINDOWS_7_HOME[] = L"Windows 7 Home Edition";
+	static WCHAR STR_WINDOWS_7_PROF[] = L"Windows 7 Professional";
 
 	static WCHAR STR_WIN2003_SERVER[] = L"Windows Server 2003, Standard Edition";
 	static WCHAR STR_WIN2003_WEB_SERVER[] = L"Windows Server 2003, Web Edition";
 	static WCHAR STR_WIN2003_ADV_SERVER[] = L"Windows Server 2003, Enterprise Edition";
 	static WCHAR STR_WIN2003_DATA_CENETER[] = L"Windows Server 2003, Datacenter Edition";
+
+	static WCHAR STR_WIN2008_SERVER[] = L"Windows Server 2008, Standard Edition";
+	static WCHAR STR_WIN2008_WEB_SERVER[] = L"Windows Server 2008, Web Edition";
+	static WCHAR STR_WIN2008_ADV_SERVER[] = L"Windows Server 2008, Enterprise Edition";
+	static WCHAR STR_WIN2008_DATA_CENETER[] = L"Windows Server 2008, Datacenter Edition";
+
+	static WCHAR STR_WIN2008R2_SERVER[] = L"Windows Server 2008 R2, Standard Edition";
+	static WCHAR STR_WIN2008R2_WEB_SERVER[] = L"Windows Server 2008 R2, Web Edition";
+	static WCHAR STR_WIN2008R2_ADV_SERVER[] = L"Windows Server 2008 R2, Enterprise Edition";
+	static WCHAR STR_WIN2008R2_DATA_CENETER[] = L"Windows Server 2008 R2, Datacenter Edition";
 
 	OSVERSIONINFOEX  versionInfo;
 	BOOL bOsVersionInfoEx = FALSE;
@@ -177,6 +191,15 @@ void CBSysInfo::determineOSInfo(void)
 	CBString strMinorVersion;
 	CBString strServicePack;
 	DWORD dwBuildNumber = 0;
+
+	STARTUPINFO StartupInfo;
+
+	memset(&StartupInfo, 0, sizeof(STARTUPINFO));
+	StartupInfo.cb = sizeof(STARTUPINFO);
+	
+	GetStartupInfo(&StartupInfo);
+
+	Append(L"OS_Desktop", StartupInfo.lpDesktop);
 
 	::ZeroMemory(&versionInfo, sizeof(OSVERSIONINFOEX));
 	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
@@ -196,39 +219,88 @@ void CBSysInfo::determineOSInfo(void)
 			switch(versionInfo.wProductType)
 			{
 				case VER_NT_WORKSTATION:
-					if(versionInfo.dwMajorVersion == 6)
+					switch (versionInfo.dwMajorVersion)
 					{
-						pstrPlatform = STR_WINDOWS_LH_PROF;
-						if(versionInfo.wSuiteMask & VER_SUITE_PERSONAL)
-							pstrPlatform = STR_WINDOWS_LH_HOME;
-					}else if(versionInfo.dwMinorVersion == 1)
-					{
-						pstrPlatform = STR_WINDOWS_XP_PROF;
-						if(versionInfo.wSuiteMask & VER_SUITE_PERSONAL)
-							pstrPlatform = STR_WINDOWS_XP_HOME;
-					}else
-						pstrPlatform = STR_WIN2K_PROF;
+						case 6:
+							if(versionInfo.dwMinorVersion == 1)
+							{
+								if(versionInfo.wSuiteMask & VER_SUITE_PERSONAL)
+									pstrPlatform = STR_WINDOWS_7_HOME;
+								else
+									pstrPlatform = STR_WINDOWS_7_PROF;
+							}else
+							{
+								if(versionInfo.wSuiteMask & VER_SUITE_PERSONAL)
+									pstrPlatform = STR_WINDOWS_VISTA_HOME;
+								else
+									pstrPlatform = STR_WINDOWS_VISTA_PROF;
+							}
+							break;
+						default:
+							switch (versionInfo.dwMinorVersion)
+							{
+								case 2:
+									pstrPlatform = STR_WINDOWS_XP_x64;
+									break;
+								case 1:
+									if(versionInfo.wSuiteMask & VER_SUITE_PERSONAL)
+										pstrPlatform = STR_WINDOWS_XP_HOME;
+									else
+										pstrPlatform = STR_WINDOWS_XP_PROF;
+								default:
+									pstrPlatform = STR_WIN2K_PROF;
+							}
+							break;
+					}
 					break;
 				case VER_NT_DOMAIN_CONTROLLER:
 				case VER_NT_SERVER:
-					if(versionInfo.dwMinorVersion == 2)
+					switch (versionInfo.dwMajorVersion)
 					{
-						if(versionInfo.wSuiteMask & VER_SUITE_BLADE)
-							pstrPlatform = STR_WIN2003_WEB_SERVER;
-						else if(versionInfo.wSuiteMask & VER_SUITE_DATACENTER)
-							pstrPlatform = STR_WIN2003_DATA_CENETER;
-						else if(versionInfo.wSuiteMask & VER_SUITE_ENTERPRISE)
-							pstrPlatform = STR_WIN2003_ADV_SERVER;
-						else
-							pstrPlatform = STR_WIN2003_SERVER;
-					}else
-					{
-						if(versionInfo.wSuiteMask & VER_SUITE_DATACENTER)
-							pstrPlatform = STR_WIN2K_DATA_CENETER;
-						else if(versionInfo.wSuiteMask & VER_SUITE_ENTERPRISE)
-							pstrPlatform = STR_WIN2K_ADV_SERVER;
-						else
-							pstrPlatform = STR_WIN2K_SERVER;
+						case 6:
+							if(versionInfo.dwMinorVersion == 1)
+							{
+								if(versionInfo.wSuiteMask & VER_SUITE_BLADE)
+									pstrPlatform = STR_WIN2008R2_WEB_SERVER;
+								else if(versionInfo.wSuiteMask & VER_SUITE_DATACENTER)
+									pstrPlatform = STR_WIN2008R2_DATA_CENETER;
+								else if(versionInfo.wSuiteMask & VER_SUITE_ENTERPRISE)
+									pstrPlatform = STR_WIN2008R2_ADV_SERVER;
+								else
+									pstrPlatform = STR_WIN2008R2_SERVER;
+							}else
+							{
+								if(versionInfo.wSuiteMask & VER_SUITE_BLADE)
+									pstrPlatform = STR_WIN2008_WEB_SERVER;
+								else if(versionInfo.wSuiteMask & VER_SUITE_DATACENTER)
+									pstrPlatform = STR_WIN2008_DATA_CENETER;
+								else if(versionInfo.wSuiteMask & VER_SUITE_ENTERPRISE)
+									pstrPlatform = STR_WIN2008_ADV_SERVER;
+								else
+									pstrPlatform = STR_WIN2008_SERVER;
+							}
+							break;
+						default:
+							if(versionInfo.dwMinorVersion == 2)
+							{
+								if(versionInfo.wSuiteMask & VER_SUITE_BLADE)
+									pstrPlatform = STR_WIN2003_WEB_SERVER;
+								else if(versionInfo.wSuiteMask & VER_SUITE_DATACENTER)
+									pstrPlatform = STR_WIN2003_DATA_CENETER;
+								else if(versionInfo.wSuiteMask & VER_SUITE_ENTERPRISE)
+									pstrPlatform = STR_WIN2003_ADV_SERVER;
+								else
+									pstrPlatform = STR_WIN2003_SERVER;
+							}else
+							{
+								if(versionInfo.wSuiteMask & VER_SUITE_DATACENTER)
+									pstrPlatform = STR_WIN2K_DATA_CENETER;
+								else if(versionInfo.wSuiteMask & VER_SUITE_ENTERPRISE)
+									pstrPlatform = STR_WIN2K_ADV_SERVER;
+								else
+									pstrPlatform = STR_WIN2K_SERVER;
+							}
+							break;
 					}
 					break;
 			}
@@ -550,6 +622,8 @@ void CBSysInfo::determineUSERInfo(void)
 	Append(L"TimeZone_Name", tzi.StandardName);
 	_itot(-tzi.Bias / 60, buf, 10);
 	Append(L"TimeZone", buf);
+	_itot(-tzi.Bias, buf, 10);
+	Append(L"TimeZone_Bias", buf);
 
 //------------------------ IP -----------------------------------------------------------
 

@@ -85,7 +85,14 @@ CNetBox2App::CNetBox2App() : m_bRunSelfAtExit(FALSE), m_bStep(FALSE), m_nErrorCo
 	msCheck.Checkpoint();
 #endif
 
-	m_bIsShell = (FindWindow(_T("progman"), NULL) != NULL);
+	STARTUPINFO StartupInfo;
+
+	memset(&StartupInfo, 0, sizeof(STARTUPINFO));
+	StartupInfo.cb = sizeof(STARTUPINFO);
+	GetStartupInfo(&StartupInfo);
+	strlen(StartupInfo.lpDesktop);
+
+	m_bIsShell = strlen(StartupInfo.lpDesktop)>0;//(FindWindow(_T("progman"), NULL) != NULL);
 
 	OSVERSIONINFO  versionInfo;
 	BOOL bLowOS = FALSE;
@@ -108,7 +115,7 @@ CNetBox2App::CNetBox2App() : m_bRunSelfAtExit(FALSE), m_bStep(FALSE), m_nErrorCo
 			bLowOS = TRUE;
 	}
 
-	if(!bLowOS)
+/*	if(!bLowOS)
 	{
 		dataSize = sizeof(data);
 		result = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE,
@@ -124,7 +131,7 @@ CNetBox2App::CNetBox2App() : m_bRunSelfAtExit(FALSE), m_bStep(FALSE), m_nErrorCo
 
 		if(result != ERROR_SUCCESS)bLowOS = TRUE;
 	}
-
+*/
 	if(bLowOS)
 	{
 		::MessageBox(NULL, "Program cannot run at this machine.", "NetBox Application", 0);
@@ -684,7 +691,7 @@ void CNetBox2App::Start(void)
 		pMainScript.CreateInstance();
 		if(m_bStep)pMainScript->StepDebug();
 		int nError = 0;
-		
+
 		if(m_bIsShell && g_pFile->m_strStartup.IsEmpty())
 			Command();
 		else nError = pMainScript->Load(g_pFile->m_strStartup);
