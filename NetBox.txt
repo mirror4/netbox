@@ -1,5 +1,12 @@
 NetBox更新
 
+2009-12-2
+HttpServerHost 对象
+	修改 AddURLRewriter 方法
+		Host.AddURLRewriter Regexp, RewriteURL[, Action]
+		
+		Action 如果等于302，则自动发送HTTP 302跳转响应
+
 2009-11-19
 HttpServerHost 对象
 	增加 AddURLRewriter 方法
