@@ -682,7 +682,11 @@ int CBoxSocket::ReadString(CString &str)
 
 	if(m_nLastLineChar != 0)
 	{
-		if(!m_nSize)
+		//if(!m_nSize)
+		//包一：1234567890\r\n
+		//包二：123456789\r
+		//m_nPos > m_nSize 导致死循环
+		if (m_nPos == m_nSize)
 		{
 			m_nSize = Recv(m_buf, sizeof(m_buf));
 			if(m_nSize == 0 || m_nSize == SOCKET_ERROR)

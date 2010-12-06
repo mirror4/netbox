@@ -68,7 +68,10 @@ public:
 	int Recv(char *pbuf, int len)
 	{
 		if(m_SSLConnect != NULL)
-			return m_SSLConnect.read(pbuf, len);
+		{
+			int nRet = m_SSLConnect.read(pbuf, len);
+			return nRet<0?SOCKET_ERROR:nRet;
+		}
 		else return recv(m_hSocket, pbuf, len, 0);
 	}
 
