@@ -18,7 +18,9 @@ CBoxSocket::CBoxSocket() :
 	m_bEcho(FALSE),
 	m_nConnectLimit(0),
 	m_dwAcceptIP(0),
-	m_hSocket(INVALID_SOCKET)
+	m_hSocket(INVALID_SOCKET),
+	m_ulBindIP(INADDR_NONE),
+	m_usBindPort(0)
 {
 	ZeroMemory(&m_varCookie, sizeof(m_varCookie));
 	ZeroMemory(&m_pAsyn, sizeof(m_pAsyn));
@@ -31,6 +33,7 @@ CBoxSocket::~CBoxSocket()
 
 BEGIN_DISPATCH_MAP(CBoxSocket, CBoxSafeObject)
 	DISP_FUNCTION(CBoxSocket, "Close", Close, VT_EMPTY, VTS_NONE)
+	DISP_FUNCTION(CBoxSocket, "Bind", Bind, VT_I4, VTS_BSTR VTS_I4)
 	DISP_FUNCTION(CBoxSocket, "Connect", Connect, VT_I4, VTS_BSTR VTS_I4)
 	DISP_FUNCTION(CBoxSocket, "Listen", Listen, VT_I4, VTS_BSTR VTS_I4)
 	DISP_FUNCTION(CBoxSocket, "Accept", AcceptDispatch, VT_DISPATCH, VTS_NONE)
@@ -215,6 +218,22 @@ BSTR CBoxSocket::Resolve(LPCTSTR pstrHostAddress)
 	return str.AllocSysString();
 }
 
+long CBoxSocket::Bind(LPCTSTR pstrSocketAddress, UINT nSocketPort)
+{
+	CStringA str(pstrSocketAddress);
+	str.Trim();
+
+	if (!str.IsEmpty())
+	{
+		m_ulBindIP = inet_addr(str);
+		if (m_ulBindIP == INADDR_NONE)
+			return SOCKET_ERROR;
+	}
+
+	m_usBindPort = (u_short)nSocketPort;
+	return 0;
+}
+
 long CBoxSocket::Connect(LPCTSTR pstrHostAddress, UINT nHostPort)
 {
 	Close();
@@ -226,13 +245,23 @@ long CBoxSocket::Connect(LPCTSTR pstrHostAddress, UINT nHostPort)
 	BOOL bKeepAlive = TRUE;
 	setsockopt(m_hSocket, SOL_SOCKET, SO_KEEPALIVE, (const char*)&bKeepAlive, sizeof(bKeepAlive));
 
-	CStringA str(pstrHostAddress);
-	str.Trim();
-
 	SOCKADDR_IN sockAddr;
 	memset(&sockAddr,0,sizeof(sockAddr));
 
 	sockAddr.sin_family = AF_INET;
+
+	if (m_ulBindIP != INADDR_NONE)
+	{
+		sockAddr.sin_addr.s_addr = m_ulBindIP;
+		sockAddr.sin_port = htons((u_short)m_usBindPort);
+
+		if(bind(m_hSocket, (SOCKADDR*)&sockAddr, sizeof(sockAddr)))
+			return SOCKET_ERROR;
+	}
+
+	CStringA str(pstrHostAddress);
+	str.Trim();
+
 	sockAddr.sin_addr.s_addr = inet_addr(str);
 
 	if (sockAddr.sin_addr.s_addr == INADDR_NONE)
@@ -437,6 +466,9 @@ void CBoxSocket::Clear(void)
 	m_nSize = 0;
 	m_nLastLineChar = 0;
 	m_bEcho = FALSE;
+	m_ulBindIP = INADDR_NONE;
+	m_usBindPort = 0;
+
 
 	m_csSocket.Lock();
 

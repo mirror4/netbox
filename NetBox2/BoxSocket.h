@@ -111,9 +111,12 @@ public:
 
 public:
 	BOOL m_bEcho;
+	u_long m_ulBindIP;
+	u_short m_usBindPort;
 
 	afx_msg void Close(void);
 	afx_msg long Connect(LPCTSTR pstrHostAddress, UINT nHostPort);
+	afx_msg long Bind(LPCTSTR pstrHostAddress, UINT nHostPort);
 	afx_msg long Listen(LPCTSTR pstrSocketAddress, UINT nSocketPort);
 	afx_msg LPDISPATCH AcceptDispatch(void);
 
