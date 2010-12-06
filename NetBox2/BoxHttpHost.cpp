@@ -310,7 +310,7 @@ BEGIN_DISPATCH_MAP(CBoxHttpHost, CBoxContents)
 	DISP_FUNCTION(CBoxHttpHost, "AddFolder", AddFolder, VT_DISPATCH, VTS_BSTR VTS_BSTR)
 	DISP_FUNCTION(CBoxHttpHost, "AttachFolder", AttachFolder, VT_EMPTY, VTS_BSTR VTS_DISPATCH)
 
-	DISP_FUNCTION(CBoxHttpHost, "AddURLRewriter", AddURLRewriter, VT_EMPTY, VTS_BSTR VTS_BSTR VTS_I4)
+	DISP_FUNCTION(CBoxHttpHost, "AddURLRewriter", AddURLRewriter, VT_EMPTY, VTS_BSTR VTS_BSTR)
 	DISP_FUNCTION(CBoxHttpHost, "URLRewrite", URLRewriteTest, VT_BSTR, VTS_BSTR)
 END_DISPATCH_MAP()
 
@@ -430,7 +430,7 @@ void CBoxHttpHost::AttachFolder(LPCTSTR pstrName, LPDISPATCH pdispHost)
 	m_pContents->SetValue(strName, (LPDISPATCH)pHost);
 }
 
-void CBoxHttpHost::AddURLRewriter(LPCTSTR pstrRE, LPCTSTR pstr, int iAction = 0)
+void CBoxHttpHost::AddURLRewriter(LPCTSTR pstrRE, LPCTSTR pstr)
 {
 	HRESULT hr;
 	CAtlRegExp<CURLRECharTraits> *pre;
@@ -444,10 +444,9 @@ void CBoxHttpHost::AddURLRewriter(LPCTSTR pstrRE, LPCTSTR pstr, int iAction = 0)
 	}
 	m_areUrl.Add(pre);
 	m_aUrl.Add(pstr);
-	m_aAction.Add(iAction);
 }
 
-BOOL CBoxHttpHost::URLRewrite(CString strURL, CString &strNewURL, CString &strNewQueryString, int &iAction)
+BOOL CBoxHttpHost::URLRewrite(CString strURL, CString &strNewURL, CString &strNewQueryString)
 {
 	UINT i, c;
 	int uNumGroups;
@@ -469,7 +468,6 @@ BOOL CBoxHttpHost::URLRewrite(CString strURL, CString &strNewURL, CString &strNe
 	pstrRewrite = &strNewURL;
 	uNumGroups = mc.m_uNumGroups;
 	ptr = m_aUrl[i];
-	iAction = m_aAction[i];
 	ptrEnd = ptr + m_aUrl[i].GetLength();
 
 	while(ptr < ptrEnd)
@@ -526,7 +524,6 @@ BOOL CBoxHttpHost::URLRewrite(CString strURL, CString &strNewURL, CString &strNe
 BSTR CBoxHttpHost::URLRewriteTest(LPCTSTR pstr)
 {
 	CString strURL = pstr, strNewURL, strQueryString, strNewQueryString;
-	int iAction;
 
 	if (int p = strURL.ReverseFind('?'))
 	{
@@ -534,7 +531,7 @@ BSTR CBoxHttpHost::URLRewriteTest(LPCTSTR pstr)
 		strURL = strURL.Left(p);
 	}
 
-	if (URLRewrite(strURL, strNewURL, strNewQueryString, iAction))
+	if (URLRewrite(strURL, strNewURL, strNewQueryString))
 	{
 		if (strQueryString.GetLength())
 			strQueryString.AppendChar('&');

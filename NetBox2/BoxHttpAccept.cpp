@@ -500,7 +500,7 @@ BOOL CBoxHttpAccept::MapRequestPath(BOOL bUTF8)
 {
 	CBPath path;
 	CString str;
-	int p, iAction;
+	int p;
 
 	if(bUTF8)
 	{
@@ -548,7 +548,7 @@ BOOL CBoxHttpAccept::MapRequestPath(BOOL bUTF8)
 	CString strQueryString;
 
 	str.Empty();
-	if (m_pHost->URLRewrite(m_strPathInfo, str, strQueryString, iAction))
+	if (m_pHost->URLRewrite(m_strPathInfo, str, strQueryString))
 	{
 		if (m_strQueryString.GetLength())
 			m_strQueryString.Append('&');
@@ -556,7 +556,7 @@ BOOL CBoxHttpAccept::MapRequestPath(BOOL bUTF8)
 	}
 	if (str.GetLength()>0)
 	{
-		if (iAction == 302 || str[0] != '/')
+		if (str[0] != '/')
 		{
 			m_nStatusCode = 302;
 			str.AppendChar('?');
@@ -662,7 +662,7 @@ void CBoxHttpAccept::FillServerVariables(CBRequestDictionary* pServerVariables)
 	pServerVariables->AddValue(L"SERVER_SOFTWARE", CBoxSystem::getVersion());
 	pServerVariables->AddValue(L"URL", m_strPathInfo);
 
-	//pServerVariables->AddValue(L"URL_ORIGINAL", m_strUrl);
+	pServerVariables->AddValue(L"URL_ORIGINAL", m_strUrl);
 
 	for(i = 0; i < count; i ++)
 		pServerVariables->AddValue(CBString(m_astrRequestHeaderName[i]), m_astrRequestHeaderValue[i]);

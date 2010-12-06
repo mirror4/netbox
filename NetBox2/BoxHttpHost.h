@@ -84,7 +84,7 @@ public:
 	void ClearSession(__int64 nNowTime);
 	void OnStart(void);
 	void OnEnd(void);
-	BOOL URLRewrite(CString strURL, CString &strNewURL, CString &strNewQueryString, int &iAction);
+	BOOL URLRewrite(CString strURL, CString &strNewURL, CString &strNewQueryString);
 
 public:
 	CString m_strHostKey;
@@ -117,7 +117,6 @@ public:
 
 	CAtlArray<CAtlRegExp<CURLRECharTraits> *> m_areUrl;
 	CAtlArray<CString> m_aUrl;
-	CAtlArray<int> m_aAction;
 
 public:
 	afx_msg long get_SessionTimeout(void);
@@ -138,7 +137,7 @@ public:
 	afx_msg LPDISPATCH AddFolder(LPCTSTR pstrName, LPCTSTR pstrRoot);
 	afx_msg void AttachFolder(LPCTSTR pstrName, LPDISPATCH pdispHost);
 
-	afx_msg void AddURLRewriter(LPCTSTR pstrRE, LPCTSTR pstr, int iAction);
+	afx_msg void AddURLRewriter(LPCTSTR pstrRE, LPCTSTR pstr);
 	afx_msg BSTR URLRewriteTest(LPCTSTR pstr);
 
 	DECLARE_DISPATCH_MAP()
