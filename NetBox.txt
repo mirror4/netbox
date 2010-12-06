@@ -1,14 +1,18 @@
 NetBox更新
 
+2010-7-21
+Socket 对象
+	增加 Bind 方法（未测试）
+		Socket.Bind Address, Port
+		为Connect方法预先Bind一个地址和端口
+
+	Address	地址或主机名
+	Port	端口，0为自动
 
 
+2010-12-26
+	修改打包程序，支持微软的代码签名。
 
-2009-12-2
-HttpServerHost 对象
-	修改 AddURLRewriter 方法
-		Host.AddURLRewriter Regexp, RewriteURL[, Action]
-		
-		Action 如果等于302，则自动发送HTTP 302跳转响应
 
 2009-11-19
 HttpServerHost 对象
