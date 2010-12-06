@@ -78,12 +78,62 @@ BOOL CWorker::StartBuild()
 
 //		m_file.Seek(0x7c, 0);
 //		m_file.Write(&theApp.m_certinfo.m_nDevID, 4);
+//Replace Icon Now!
+		m_file.SeekToBegin();
+		
+		
+//End Replace
 	}
+
+//Code for checking signcode
+	DWORD nSignAddress = 0, nChecksumAddress = 0;
+	IMAGE_DOS_HEADER idh;
+	IMAGE_NT_HEADERS inth;
+
+	m_file.SeekToBegin();
+	m_file.Read(&idh, sizeof(IMAGE_DOS_HEADER));
+	if (idh.e_lfanew==0)
+	{
+		if(!m_pwndLog->WriteLog(_T("IMAGE_NT_HEADERS ERROR!\r\n\r\n")))
+			return FALSE;
+	}
+	nChecksumAddress = idh.e_lfanew+((DWORD)(LPBYTE)&inth.OptionalHeader.CheckSum-(DWORD)(LPBYTE)&inth);
+	nSignAddress = idh.e_lfanew+((DWORD)(LPBYTE)&inth.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]-(DWORD)(LPBYTE)&inth);
+//End
+
 	m_file.SeekToBegin();
 
 	ZeroMemory(m_dwPackInfo, sizeof(m_dwPackInfo));
 
 	MD5_Init(&m_ctxMD5);
+//Code for skip signcode
+	DWORD nCount1 = nChecksumAddress;
+	do
+	{
+		if(nCount1 > sizeof(buffer))
+			nSize = m_file.Read(buffer, sizeof(buffer));
+		else nSize = m_file.Read(buffer, nCount1);
+
+		nCount1 -= nSize;
+
+		MD5_Update(&m_ctxMD5, buffer, nSize);
+	}while(nSize == sizeof(buffer));
+	m_file.Seek(sizeof(DWORD), CFile::current);
+	m_dwPackInfo[0]=nChecksumAddress+sizeof(DWORD);
+	nCount1 = nSignAddress-m_dwPackInfo[0];
+	do
+	{
+		if(nCount1 > sizeof(buffer))
+			nSize = m_file.Read(buffer, sizeof(buffer));
+		else nSize = m_file.Read(buffer, nCount1);
+
+		nCount1 -= nSize;
+
+		MD5_Update(&m_ctxMD5, buffer, nSize);
+	}while(nSize == sizeof(buffer));
+	m_file.Seek(sizeof(IMAGE_DATA_DIRECTORY), CFile::current);
+	m_dwPackInfo[0]=nSignAddress+sizeof(IMAGE_DATA_DIRECTORY);
+//End
 	do
 	{
 		nSize = m_file.Read(buffer, sizeof(buffer));
@@ -92,6 +142,8 @@ BOOL CWorker::StartBuild()
 	}while(nSize == sizeof(buffer));
 
 	MD5_Final(m_MD5Pass, &m_ctxMD5);
+//密码计算有可能受到代码签名时修改PE IMAGE_DATA_DIRECTORY CHECKSUM的问题，需要测试。
+//测试完毕，代码签名会按照DWORD进行填充
 
 	m_dwPackInfo[1] = 0;
 	m_dwPackInfo[2] = MK_9465;
@@ -249,7 +301,21 @@ BOOL CWorker::EndBuild()
 
 	zipFile.Close();
 
+	DWORD dwLength = (DWORD)m_file.GetPosition();
+	dwLength = (dwLength+sizeof(m_dwPackInfo)) % 16;
+	if (dwLength)
+	{
+		dwLength = 16 - dwLength;
+		memset(buf, 0, dwLength);
+		m_file.Write(buf, dwLength);
+	}
+
 	m_file.Write(m_dwPackInfo, sizeof(m_dwPackInfo));
+
+	//可以写 (DWORD)m_file.GetPosition() 去0x80处用于签名以后的NetBox寻找 m_dwPackInfo
+	//m_file.Seek(0x80, CFile::begin);
+	//m_file.Write(m_dwPackInfo, sizeof(m_dwPackInfo));
+	//End
 
 	m_file.Seek(m_dwPackInfo[0] + MD5_DIGEST_LENGTH, CFile::begin);
 

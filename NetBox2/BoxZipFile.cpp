@@ -34,8 +34,33 @@ CBoxZipFile::CBoxZipFile(void)
 		m_tm.wMilliseconds = 0;
 		m_tm.wDayOfWeek = 0;
 
-		DWORD nCount = (DWORD)m_fileMe.Seek(-(LONGLONG)sizeof(dwPackInfo), CFile::end) + sizeof(dwPackInfo);
-		m_fileMe.Read(dwPackInfo, sizeof(dwPackInfo));
+//Code for checking signcode
+		UINT nSize;
+		char buf[1024];
+		DWORD nCount = 0, nSignAddress = 0, nChecksumAddress = 0;
+		IMAGE_DOS_HEADER idh;
+		IMAGE_NT_HEADERS inth;
+
+		m_fileMe.Read(&idh, sizeof(IMAGE_DOS_HEADER));
+		if (idh.e_lfanew==0)
+			return;
+		nChecksumAddress = idh.e_lfanew+((DWORD)(LPBYTE)&inth.OptionalHeader.CheckSum-(DWORD)(LPBYTE)&inth);
+		nSignAddress = idh.e_lfanew+((DWORD)(LPBYTE)&inth.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]-(DWORD)(LPBYTE)&inth);
+		m_fileMe.Seek(idh.e_lfanew, CFile::begin);
+		m_fileMe.Read(&inth, sizeof(IMAGE_NT_HEADERS));
+		if (inth.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress!=0)
+		{
+			nCount = (DWORD)m_fileMe.Seek((LONGLONG)(inth.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress-sizeof(dwPackInfo)), CFile::begin) + sizeof(dwPackInfo);
+			m_fileMe.Read(dwPackInfo, sizeof(dwPackInfo));
+		}
+		if (nCount == 0)
+		{
+			nCount = (DWORD)m_fileMe.Seek(-(LONGLONG)sizeof(dwPackInfo), CFile::end) + sizeof(dwPackInfo);
+			m_fileMe.Read(dwPackInfo, sizeof(dwPackInfo));
+		}
+
+//		DWORD nCount = (DWORD)m_fileMe.Seek(-(LONGLONG)sizeof(dwPackInfo), CFile::end) + sizeof(dwPackInfo);
+//		m_fileMe.Read(dwPackInfo, sizeof(dwPackInfo));
 
 		g_dwAppMark = dwPackInfo[2];
 		if(g_dwAppMark == MK_9465)
@@ -43,11 +68,10 @@ CBoxZipFile::CBoxZipFile(void)
 
 		m_fileMe.SeekToBegin();
 
-		char buf[1024];
-		UINT nSize;
 		MD5_CTX ctxMD5;
 
-		m_fileMe.Seek(0x80, CFile::begin);
+//Self-check
+/*		m_fileMe.Seek(0x80, CFile::begin);
 		m_fileMe.Read(PROG_MD5, sizeof(PROG_MD5));
 
 		DWORD nCount1 = nCount - 0x90;
@@ -65,7 +89,7 @@ CBoxZipFile::CBoxZipFile(void)
 		}while(nSize == sizeof(buf));
 
 		MD5_Final(APP_MD5, &ctxMD5);
-
+*/
 //		for(int i = 0; i < MD5_DIGEST_LENGTH; i ++)
 //			if(PROG_MD5[i] != APP_MD5[i])
 //			{
@@ -88,6 +112,33 @@ CBoxZipFile::CBoxZipFile(void)
 		m_fileMe.SeekToBegin();
 
 		MD5_Init(&ctxMD5);
+//Code for skip signcode
+		DWORD nCount1 = nChecksumAddress;
+		do
+		{
+			if(nCount1 > sizeof(buf))
+				nSize = m_fileMe.Read(buf, sizeof(buf));
+			else nSize = m_fileMe.Read(buf, nCount1);
+
+			nCount1 -= nSize;
+
+			MD5_Update(&ctxMD5, buf, nSize);
+		}while(nSize == sizeof(buf));
+		m_fileMe.Seek(sizeof(DWORD), CFile::current);
+		nCount1 = nSignAddress-(nChecksumAddress+sizeof(DWORD));
+		do
+		{
+			if(nCount1 > sizeof(buf))
+				nSize = m_fileMe.Read(buf, sizeof(buf));
+			else nSize = m_fileMe.Read(buf, nCount1);
+
+			nCount1 -= nSize;
+
+			MD5_Update(&ctxMD5, buf, nSize);
+		}while(nSize == sizeof(buf));
+		m_fileMe.Seek(sizeof(IMAGE_DATA_DIRECTORY), CFile::current);
+		nCount-=nSignAddress+sizeof(IMAGE_DATA_DIRECTORY);
+//End
 		do
 		{
 			if(nCount > sizeof(buf))
