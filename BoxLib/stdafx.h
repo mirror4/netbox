@@ -47,3 +47,4 @@
 
 #include "BoxLib.h"
 
+#define JSON_IS_AMALGAMATION

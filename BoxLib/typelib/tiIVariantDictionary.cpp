@@ -10,6 +10,7 @@ static PARAMDESCEX s_mElemDescEx[] =
 	{0x18, {VT_BSTR, 0, 0, 0, 4 + (LONGLONG)L"\x2\0" L","}},
 	{0x18, {VT_BSTR, 0, 0, 0, 4 + (LONGLONG)L"\x2\0" L"="}},
 	{0x18, {VT_BSTR, 0, 0, 0, 4 + (LONGLONG)L"\x2\0" L","}},
+	{0x18, {VT_I4, 0, 0, 0, 0}},
 	{0}
 };
 
@@ -49,6 +50,10 @@ static ELEMDESC s_mElemDesc[] =
 	{{{NULL}, VT_BSTR}, {NULL, 0x1}},
 	{{{NULL}, VT_BSTR}, {(ULONG_PTR)&s_mElemDescEx[5], 0x31}},
 	{{{NULL}, VT_BSTR}, {(ULONG_PTR)&s_mElemDescEx[6], 0x31}},
+	// toJson
+	{{{NULL}, VT_I4}, {(ULONG_PTR)&s_mElemDescEx[7], 0x31}},
+	// fromJson
+	{{{NULL}, VT_BSTR}, {NULL, 0x1}},
 	{0}
 };
 
@@ -72,7 +77,9 @@ static CBTypeInfo::METHOD_ENTRY s_mData[] =
 	{L"Load", {0x6002000E, NULL, &s_mElemDesc[12], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 0, 88, 0, {{{NULL}, VT_EMPTY}}, 0}},
 	{L"Save", {0x6002000F, NULL, &s_mElemDesc[14], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 0, 92, 0, {{{NULL}, VT_EMPTY}}, 0}},
 	{L"Join", {0x60020010, NULL, &s_mElemDesc[16], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 0, 96, 0, {{{NULL}, VT_BSTR}}, 0}},
-	{L"Split", {0x60020011, NULL, &s_mElemDesc[18], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 3, 0, 100, 0, {{{NULL}, VT_EMPTY}}, 0}}
+	{L"Split", {0x60020011, NULL, &s_mElemDesc[18], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 3, 0, 100, 0, {{{NULL}, VT_EMPTY}}, 0}},
+	{L"toJson", {0x60020012, NULL, &s_mElemDesc[19], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 104, 0, {{{NULL}, VT_BSTR}}, 0}},
+	{L"fromJson", {0x60020013, NULL, &s_mElemDesc[20], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 108, 0, {{{NULL}, VT_EMPTY}}, 0}}
 };
 
 static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult)
@@ -332,8 +339,30 @@ static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS
 		return hr;
 	}
 
+	IF_INVOKE_FUNC(0x60020012)	//toJson
+	{
+		if(cArgs1 > 1)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_DEF(VT_I4, 0, 0)
+		INVOKE_PARAM_RET(VT_BSTR, 1)
+
+		hr = pObject->toJson(v0, v1);
+		return hr;
+	}
+
+	IF_INVOKE_FUNC(0x60020013)	//fromJson
+	{
+		if(cArgs1 > 1)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM(VT_BSTR, 0)
+		
+		hr = pObject->fromJson(v0);
+		return hr;
+	}
 	return DISP_E_MEMBERNOTFOUND;
 }
 
-CBTypeInfo CBDispatch<IVariantDictionary>::g_typeinfo(__uuidof(IVariantDictionary), L"IVariantDictionary", s_mData, 19, _Invoke);
+CBTypeInfo CBDispatch<IVariantDictionary>::g_typeinfo(__uuidof(IVariantDictionary), L"IVariantDictionary", s_mData, 21, _Invoke);
 

@@ -335,6 +335,12 @@ interface IVariantList : IDispatch {
 	HRESULT Split(
 					[in] BSTR bstrExpression, 
 					[in, optional, defaultvalue(",")] BSTR bstrDelimiter);
+	[id(0x00000019)]
+	HRESULT toJson(
+					[in, optional, defaultvalue(0)] int intStyle, 
+					[out, retval] BSTR* pvar);
+	[id(0x0000001A)]
+	HRESULT fromJson([in] BSTR bstrJson);
 };
 
 [
@@ -404,6 +410,12 @@ interface IVariantDictionary : IDispatch {
 					[in] BSTR bstrExpression, 
 					[in, optional, defaultvalue("=")] BSTR bstrKeyDelimiter, 
 					[in, optional, defaultvalue(",")] BSTR bstrDelimiter);
+	[id(0x60020012)]
+	HRESULT toJson(
+					[in, optional, defaultvalue(0)] int intStyle, 
+					[out, retval] BSTR* pvar);
+	[id(0x60020013)]
+	HRESULT fromJson([in] BSTR bstrJson);
 };
 
 [

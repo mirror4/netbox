@@ -84,14 +84,84 @@ void CALLBACK CBoxTcpServer::PreRead(ULONG_PTR dwParam)
 	}
 }
 
+VOID CALLBACK CBoxTcpServer::SendIoCompletionRoutine(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
+{
+	CSendData* pSend = (CSendData*)lpOverlapped;
+
+	if(!dwErrorCode)
+	{
+		pSend->m_nStart += dwNumberOfBytesTransfered;
+		pSend->m_nLen -= dwNumberOfBytesTransfered;
+
+		if(pSend->m_nLen)
+			SendData((ULONG_PTR)pSend);
+		else
+		{
+			CComVariant var;
+
+			var = (LPDISPATCH)pSend->m_pSocket->GetInterface(&IID_IDispatch);
+			pSend->m_pSocket->m_csSocket.Lock();
+			pSend->m_pSocket->m_iAsynSendStatus = 2;
+			pSend->m_pSocket->m_csSocket.Unlock();
+
+			((CBoxTcpServer*)pSend->m_pSocket->m_pContext)->Add(var);
+
+			delete pSend;
+		}
+	}else
+	{
+		pSend->m_pSocket->Break();
+		delete pSend;
+	}
+}
+
+void CALLBACK CBoxTcpServer::SendData(ULONG_PTR dwParam)
+{
+	CSendData* pSend = (CSendData*)dwParam;
+	BOOL bRet = 0;
+
+	if(!WriteFileEx((HANDLE)pSend->m_pSocket->m_hSocket, pSend->m_pBuf + pSend->m_nStart, pSend->m_nLen, pSend, SendIoCompletionRoutine))
+	{
+		pSend->m_pSocket->Break();
+		delete pSend;
+	}
+}
+
+void CBoxTcpServer::SendData(CBoxSocket* pSocket, long retVal)
+{
+	pSocket->m_csSocket.Lock();
+	if (pSocket->m_iAsynSendStatus!=-1)
+	{
+		pSocket->m_csSocket.Unlock();
+		return;
+	}
+	pSocket->m_iAsynSendStatus = 1;//Sending
+	CSendData* pSend = new CSendData;
+	ZeroMemory(pSend, sizeof(CSendData));
+	pSend->m_pSocket = pSocket;
+	pSend->m_pBuf.Attach(pSocket->m_pAsynSendBuff);
+	pSend->m_nLen = pSocket->m_iAsynSendBuff;
+	pSocket->m_pAsynSendBuff = NULL;
+	pSocket->m_iAsynSendBuff = 0;
+	pSocket->m_csSocket.Unlock();
+
+	pSend->m_nStart = 0;
+	pSend->m_retVal = retVal;
+
+	QueueUserAPC(SendData, m_pPreReadThread->m_hThread, (ULONG_PTR)pSend);
+}
+
 void CBoxTcpServer::OnJobEnd(VARIANT& var, long retVal)
 {
+	CBoxObject<CBoxSocket> pSocket;
+
+	pSocket = var.pdispVal;
+
+	if(pSocket->IsSocket())
+		SendData(pSocket, retVal);
+
 	if(retVal)
 	{
-		CBoxObject<CBoxSocket> pSocket;
-
-		pSocket = var.pdispVal;
-
 		if(pSocket->IsSocket())
 			if(pSocket->IsSSL() || !IS_WINNT || !pSocket->IsEmpty())
 				Add(var);
@@ -105,6 +175,21 @@ BOOL CBoxTcpServer::OnJobStart(VARIANT& var)
 	CBoxObject<CBoxSocket> pSocket;
 
 	pSocket = var.pdispVal;
+
+	BOOL bSent = FALSE;
+	pSocket->m_csSocket.Lock();
+	if (pSocket->m_iAsynSendStatus == 2)
+	{
+		pSocket->m_iAsynSendStatus = 0;
+		bSent = TRUE;
+	}
+	pSocket->m_csSocket.Unlock();
+	if (bSent)
+	{
+		CBoxJobWorker* pJobWorker = (CBoxJobWorker*)((BYTE*)&var - (BYTE*)&((CBoxJobWorker*)0)->m_varJob);
+		pJobWorker->OnAcceptEx(L"OnSent");
+		return FALSE;
+	}
 
 	if(!m_bSSL || pSocket->IsSSL() || !pSocket->SSLAccept(m_SSL_CTX))
 		return TRUE;

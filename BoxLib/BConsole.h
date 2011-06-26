@@ -7,7 +7,9 @@ CBConsole : public CBDispatch<IConsole, CBStream>
 	DECLARE_CLASS_EX(CBConsole, CBStream)
 
 public:
-	CBConsole(void);
+	CBConsole(void) : 
+		m_hInput(NULL), m_hOutput(NULL)
+	{}
 
 protected:
 	virtual HRESULT InternalRead(void *pv, ULONG cb, ULONG *pcbRead);

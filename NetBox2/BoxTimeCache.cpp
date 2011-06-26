@@ -34,6 +34,7 @@ void CBoxTimeCache::OnFinalRelease()
 
 BOOL CBoxTimeCache::InitInstance()
 {
+	//::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	AfxOleInit();
 
 	theApp.SetThreadName(_T("TimeCache"));

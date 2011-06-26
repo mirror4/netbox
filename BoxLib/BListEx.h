@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BStruct.h"
+#include "json/json.h"
 
 class __declspec(uuid("94650000-0000-0000-0000-00004C697374"))
 CBListEx : public CBDispatch<IVariantList, CBStruct>
@@ -35,6 +36,9 @@ public:
 	STDMETHOD(Join)(BSTR bstrDelimiter, BSTR* pvar);
 	STDMETHOD(Split)(BSTR bstrExpression, BSTR bstrDelimiter);
 
+	STDMETHOD(toJson)(int intStyle, BSTR* pvar);
+	STDMETHOD(fromJson)(BSTR bstrJson);
+
 public:
 	ULONG GetEnum(VARIANT *rgVar, ULONG pos, ULONG count)
 	{
@@ -53,5 +57,6 @@ public:
 
 		return i;
 	}
+	
 };
 

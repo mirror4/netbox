@@ -242,13 +242,19 @@ BEGIN_DISPATCH_MAP(CNetBox2App, CWinApp)
 
 	DISP_FUNCTION(CNetBox2App, "LoadPrivateKey", LoadPrivateKey, VT_I4, VTS_BSTR VTS_BSTR)
 
+	DISP_FUNCTION(CNetBox2App, "GetThreadId", GetThreadId, VT_I4, VTS_NONE)
 END_DISPATCH_MAP()
 
 LPDISPATCH CNetBox2App::get_Console()
 {
 	if(!m_pConsole)
 	{
-		AllocConsole();
+		BOOL (WINAPI *pAttachConsole)(DWORD dwProcessId);
+
+		*(FARPROC*)&pAttachConsole = ::GetProcAddress(GetModuleHandle(_T("Kernel32.dll")), _T("AttachConsole"));
+		
+		if (!pAttachConsole(-1))		//Windows NT >=5.0, XP 2003
+			::AllocConsole();
 		::SetConsoleTitle(CBoxSystem::getVersion());
 		m_pConsole.CreateInstance();
 	}
@@ -293,6 +299,11 @@ void CNetBox2App::Quit(long nErrorCode)
 
 	if(pNowScript != NULL)
 		pNowScript->Stop(nErrorCode);
+}
+
+long CNetBox2App::GetThreadId()
+{
+	return (long)GetCurrentThreadId();
 }
 
 void CNetBox2App::Halt(long nErrorCode)
@@ -677,6 +688,7 @@ void CNetBox2App::Command(void)
 
 void CNetBox2App::Start(void)
 {
+	//::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	::CoInitialize(NULL);
 
 	theApp.SetThreadName(_T("ScriptMain"));
@@ -866,6 +878,7 @@ BOOL CNetBox2App::InitInstance()
 
 	CBHook::DoHook();
 
+	//::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	AfxOleInit();
 
 	_Module.Init(NULL, m_hInstance);

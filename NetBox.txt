@@ -1,5 +1,10 @@
 NetBox更新
 
+2010-12-7
+Socket 对象
+	修正一个ReadString会导致HTTPServer进入死循环的问题，很久以来一直存在的问题。
+
+
 2010-7-21
 Socket 对象
 	增加 Bind 方法（未测试）

@@ -47,6 +47,7 @@ public:
 
 	afx_msg void Beep(void);
 	afx_msg void Quit(long nErrorCode);
+	afx_msg long GetThreadId();
 	afx_msg void Halt(long nErrorCode);
 	afx_msg long MsgBox(LPCTSTR pstrText, LPCTSTR pstrTitle, VARIANT* varType);
 	afx_msg long Execute(LPCTSTR pstrName, VARIANT* varCmdShow);

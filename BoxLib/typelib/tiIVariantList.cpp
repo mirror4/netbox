@@ -6,6 +6,7 @@ static PARAMDESCEX s_mElemDescEx[] =
 	{0x18, {VT_BOOL, 0, 0, 0, -1}},
 	{0x18, {VT_BSTR, 0, 0, 0, 4 + (LONGLONG)L"\x2\0" L","}},
 	{0x18, {VT_BSTR, 0, 0, 0, 4 + (LONGLONG)L"\x2\0" L","}},
+	{0x18, {VT_I4, 0, 0, 0, 0}},
 	{0}
 };
 
@@ -25,6 +26,10 @@ static ELEMDESC s_mElemDesc[] =
 	// Split
 	{{{NULL}, VT_BSTR}, {NULL, 0x1}},
 	{{{NULL}, VT_BSTR}, {(ULONG_PTR)&s_mElemDescEx[2], 0x31}},
+	// toJson
+	{{{NULL}, VT_I4}, {(ULONG_PTR)&s_mElemDescEx[3], 0x31}},
+	// fromJson
+	{{{NULL}, VT_BSTR}, {NULL, 0x1}},
 	{0}
 };
 
@@ -39,7 +44,9 @@ static CBTypeInfo::METHOD_ENTRY s_mData[] =
 	{L"RemoveAll", {0x00000015, NULL, NULL, FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 0, 0, 52, 0, {{{NULL}, VT_EMPTY}}, 0}},
 	{L"Sort", {0x00000016, NULL, &s_mElemDesc[4], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 56, 0, {{{NULL}, VT_EMPTY}}, 0}},
 	{L"Join", {0x00000017, NULL, &s_mElemDesc[5], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 60, 0, {{{NULL}, VT_BSTR}}, 0}},
-	{L"Split", {0x00000018, NULL, &s_mElemDesc[6], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 0, 64, 0, {{{NULL}, VT_EMPTY}}, 0}}
+	{L"Split", {0x00000018, NULL, &s_mElemDesc[6], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 0, 64, 0, {{{NULL}, VT_EMPTY}}, 0}},
+	{L"toJson", {0x00000019, NULL, &s_mElemDesc[7], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 68, 0, {{{NULL}, VT_BSTR}}, 0}},
+	{L"fromJson", {0x0000001A, NULL, &s_mElemDesc[8], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 72, 0, {{{NULL}, VT_EMPTY}}, 0}}
 };
 
 static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult)
@@ -173,8 +180,31 @@ static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS
 		return hr;
 	}
 
+	IF_INVOKE_FUNC(0x00000019)	//toJson
+	{
+		if(cArgs1 > 1)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_DEF(VT_I4, 0, 0)
+		INVOKE_PARAM_RET(VT_BSTR, 1)
+
+		hr = pObject->toJson(v0, v1);
+		return hr;
+	}
+
+	IF_INVOKE_FUNC(0x0000001A)	//fromJson
+	{
+		if(cArgs1 > 1)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM(VT_BSTR, 0)
+		
+		hr = pObject->fromJson(v0);
+		return hr;
+	}
+
 	return DISP_E_MEMBERNOTFOUND;
 }
 
-CBTypeInfo CBDispatch<IVariantList>::g_typeinfo(__uuidof(IVariantList), L"IVariantList", s_mData, 10, _Invoke);
+CBTypeInfo CBDispatch<IVariantList>::g_typeinfo(__uuidof(IVariantList), L"IVariantList", s_mData, 12, _Invoke);
 

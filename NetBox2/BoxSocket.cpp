@@ -17,6 +17,9 @@ CBoxSocket::CBoxSocket() :
 	m_nLastLineChar(0),
 	m_bEcho(FALSE),
 	m_nConnectLimit(0),
+	m_pAsynSendBuff(NULL),
+	m_iAsynSendBuff(0),
+	m_iAsynSendStatus(0),
 	m_dwAcceptIP(0),
 	m_hSocket(INVALID_SOCKET),
 	m_ulBindIP(INADDR_NONE),
@@ -50,6 +53,7 @@ BEGIN_DISPATCH_MAP(CBoxSocket, CBoxSafeObject)
 	DISP_FUNCTION(CBoxSocket, "Write", Write, VT_EMPTY, VTS_BSTR)
 	DISP_FUNCTION(CBoxSocket, "WriteLine", WriteLine, VT_EMPTY, VTS_BSTR)
 	DISP_FUNCTION(CBoxSocket, "WriteBlankLines", WriteBlankLines, VT_EMPTY, VTS_I4)
+	DISP_FUNCTION(CBoxSocket, "AsynWriteMode", AsynWriteMode, VT_I4, VTS_NONE)
 
 	DISP_FUNCTION(CBoxSocket, "Resolve", Resolve, VT_BSTR, VTS_BSTR)
 
@@ -68,6 +72,8 @@ BEGIN_DISPATCH_MAP(CBoxSocket, CBoxSafeObject)
 	DISP_PROPERTY(CBoxSocket, "Echo", m_bEcho, VT_BOOL)
 	DISP_PROPERTY_EX(CBoxSocket, "Eof", get_Eof, SetNotSupported, VT_BOOL)
 	DISP_PROPERTY_EX(CBoxSocket, "Timeout", GetNotSupported, put_Timeout, VT_I4)
+
+	DISP_PROPERTY_EX(CBoxSocket, "AsynSendStatus", get_AsynSendStatus, SetNotSupported, VT_I4)
 END_DISPATCH_MAP()
 
 // CBoxSocket message handlers
@@ -468,6 +474,8 @@ void CBoxSocket::Clear(void)
 	m_bEcho = FALSE;
 	m_ulBindIP = INADDR_NONE;
 	m_usBindPort = 0;
+	m_iAsynSendBuff = 0;
+	m_iAsynSendStatus = 0;
 
 
 	m_csSocket.Lock();
@@ -501,6 +509,9 @@ void CBoxSocket::Clear(void)
 	}
 
 	VariantClear(&m_varCookie);
+
+	if (m_pAsynSendBuff != NULL)
+		delete m_pAsynSendBuff;
 
 	m_csSocket.Unlock();
 }
@@ -772,6 +783,12 @@ BSTR CBoxSocket::ReadPassword(void)
 
 int CBoxSocket::WriteBlock(const char *pbuf, int len)
 {
+	if (m_iAsynSendStatus>0)
+		AfxThrowOleException(TYPE_E_IOERROR);
+
+	if (m_iAsynSendStatus==-1)
+		return AsynWriteBlock(pbuf, len);
+	
 	int nSize = 0, nCount = 0;
 
 	if(m_hSocket != INVALID_SOCKET && len > 0)
@@ -806,6 +823,45 @@ void CBoxSocket::BinaryWrite(VARIANT &varData)
 
 	if(nSize != varPtr.m_nSize)
 		AfxThrowOleException(TYPE_E_IOERROR);
+}
+
+LONG CBoxSocket::get_AsynSendStatus(void)
+{
+	return m_iAsynSendStatus;
+}
+
+LONG CBoxSocket::AsynWriteMode(void)
+{
+	if (!m_pContext) 
+		AfxThrowOleException(DISP_E_EXCEPTION);
+	
+	m_csSocket.Lock();
+	if (m_iAsynSendStatus == 0)
+		m_iAsynSendStatus = -1;
+	m_csSocket.Unlock();
+	return m_iAsynSendStatus;
+}
+
+int CBoxSocket::AsynWriteBlock(const char *pbuf, int len)
+{
+	m_csSocket.Lock();
+	if (m_pAsynSendBuff)
+	{
+		char *pBuf = m_pAsynSendBuff;
+		m_pAsynSendBuff = new char[m_iAsynSendBuff+len];
+		CopyMemory(m_pAsynSendBuff, pBuf, m_iAsynSendBuff);
+		delete pBuf;
+		CopyMemory(m_pAsynSendBuff+m_iAsynSendBuff, pbuf, len);
+		m_iAsynSendBuff+=len;
+	}
+	else
+	{
+		m_pAsynSendBuff = new char[len];
+		CopyMemory(m_pAsynSendBuff, pbuf, len);
+		m_iAsynSendBuff = len;
+	}
+	m_csSocket.Unlock();
+	return len;
 }
 
 void CBoxSocket::Write(LPCTSTR pstrText)

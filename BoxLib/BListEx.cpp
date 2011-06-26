@@ -215,6 +215,50 @@ STDMETHODIMP CBListEx::Split(BSTR bstrExpression, BSTR bstrDelimiter)
 	return S_OK;
 }
 
+STDMETHODIMP CBListEx::toJson(int intStyle, BSTR* pvar)
+{
+	HRESULT hr;
+	CBStringA strValue;
+	Json::Value root;
+	CAtlArray<void*> arrObjects;
+
+	hr = toJsonValue(root, arrObjects);
+	if (FAILED(hr)) return hr;
+
+	if (intStyle)
+	{
+		Json::StyledWriter writer;
+		std::string outputConfig = writer.write( root );
+		strValue = outputConfig.c_str();
+	}
+	else
+	{
+		Json::FastWriter writer;
+		std::string outputConfig = writer.write( root );
+		strValue = outputConfig.c_str();
+	}
+
+	*pvar = strValue.AllocSysString();
+
+	return S_OK;
+}
+
+STDMETHODIMP CBListEx::fromJson(BSTR bstrJson)
+{
+	Json::Value root;
+	Json::Reader reader;
+	CStringA  strJson;
+	
+	strJson = bstrJson;
+	if (!reader.parse(strJson.GetString(), strJson.GetString()+strJson.GetLength(), root))
+		return E_INVALIDARG;
+
+	HRESULT hr = fromJsonValue(root);
+	if (FAILED(hr))
+		return hr;
+	
+	return S_OK;
+}
 
 STDMETHODIMP CBListEx::Load(IStream *pStm)
 {

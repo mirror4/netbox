@@ -60,4 +60,25 @@ private:
 	static void CALLBACK StopPreThread(ULONG_PTR dwParam);
 
 	CWinThread *m_pPreReadThread;
+
+private:
+	class CSendData : public OVERLAPPED
+	{
+	public:
+		~CSendData(void)
+		{
+		}
+
+		CBoxObject<CBoxSocket> m_pSocket;
+		long m_nStart;
+		long m_nLen;
+		long m_retVal;
+
+		CAutoPtr<char> m_pBuf;
+	};
+
+	static void CALLBACK SendData(ULONG_PTR dwParam);
+	static VOID CALLBACK SendIoCompletionRoutine(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped);
+	void SendData(CBoxSocket* pSocket, long retVal);
+	long OnSent(CBoxJobWorker* pJobWorker);
 };

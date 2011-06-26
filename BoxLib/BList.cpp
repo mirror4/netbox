@@ -81,3 +81,4 @@ void CBList::Sort(void)
 	qsort(m_arrayVariant.GetData(), m_arrayVariant.GetCount(), sizeof(VARIANT),
 		(int (__cdecl *)(const void *,const void *))staticCompare);
 }
+

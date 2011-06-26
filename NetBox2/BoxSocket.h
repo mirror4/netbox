@@ -54,6 +54,8 @@ public:
 	}
 
 	int WriteBlock(const char *pbuf, int len);
+	int AsynWriteBlock(const char *pbuf, int len);
+
 	int ReadBlock(char *pbuf, int len);
 	int ReadBuffer(char *pbuf, int len);
 	int ReadString(CString &str);
@@ -154,6 +156,9 @@ public:
 	afx_msg void WriteLine(LPCTSTR pstrText);
 	afx_msg void WriteBlankLines(long nLine);
 
+	afx_msg LONG get_AsynSendStatus(void);
+	afx_msg LONG AsynWriteMode(void);
+
 	DECLARE_DISPATCH_MAP()
 
 public:
@@ -166,6 +171,9 @@ public:
 	int m_nPos, m_nSize;
 	char m_nLastLineChar;
 	OVERLAPPED m_pAsyn;
+
+	char *m_pAsynSendBuff;
+	int m_iAsynSendBuff, m_iAsynSendStatus;	//0:SyncMode	-1:AsynWriteMode	1:Sending	2:Sent
 
 	CSSLConnect m_SSLConnect;
 	CX509Certificate m_crtPeer;

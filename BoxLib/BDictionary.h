@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BCollection.h"
+#include "json\json.h"
 
 class __declspec(uuid("94650000-0000-4469-6374-696F6E617279"))
 CBDictionary : public CBDispatch<IVariantDictionary>,
@@ -62,6 +63,9 @@ public:
 	STDMETHOD(Join)(BSTR bstrKeyDelimiter, BSTR bstrDelimiter, BSTR* pvar);
 	STDMETHOD(Split)(BSTR bstrExpression, BSTR bstrKeyDelimiter, BSTR bstrDelimiter);
 
+	STDMETHOD(toJson)(int intStyle, BSTR* pvar);
+	STDMETHOD(fromJson)(BSTR bstrJson);
+
 public:
 	ULONG GetEnum(VARIANT *rgVar, ULONG pos, ULONG count)
 	{
@@ -79,6 +83,9 @@ public:
 
 		return i;
 	}
+
+	HRESULT toJsonValue(Json::Value &pValue, CAtlArray<void*> &arrObjects);
+	HRESULT fromJsonValue(Json::Value &root);
 
 protected:
 	HRESULT putItem(VARIANT* pvarKey, VARIANT* pvar);

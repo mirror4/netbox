@@ -20,6 +20,8 @@ public:
 	CBoxJobServer*	m_pServer;
 	CBoxObject<CBoxDictionary> m_pServerInfo;
 
+	long OnAcceptEx(LPCOLESTR lpszMethod);
+
 protected:
 	CBoxObject<CBoxScriptObject> m_pScriptObject;
 	CComDispatchDriver m_pAcceptDisp;

@@ -18,6 +18,7 @@ BOOL CBoxJobWorker::InitInstance()
 {
 	HRESULT hr = E_FAIL;
 
+	//::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	AfxOleInit();
 
 	theApp.SetThreadName(_T("JobWorker"));
@@ -93,6 +94,26 @@ long CBoxJobWorker::OnAccept(void)
 		CComVariant varRet;
 
 		m_pAcceptDisp.Invoke2(L"OnAccept", &m_varJob, &var, &varRet);
+
+		theApp.m_pSystem->ClearLock();
+
+		varRet.ChangeType(VT_I4);
+		retVal = varRet.lVal;
+	}
+
+	return retVal;
+}
+
+long CBoxJobWorker::OnAcceptEx(LPCOLESTR lpszMethod)
+{
+	long retVal = 0;
+
+	if(m_pAcceptDisp != NULL)
+	{
+		CComVariant var((LPDISPATCH)m_pServer->m_pContents);
+		CComVariant varRet;
+
+		m_pAcceptDisp.Invoke2(lpszMethod, &m_varJob, &var, &varRet);
 
 		theApp.m_pSystem->ClearLock();
 
