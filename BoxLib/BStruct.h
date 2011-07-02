@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BCollection.h"
-#include "json/json.h"
+#include "json.h"
 
 class __declspec(uuid("94650000-0000-0000-0042-537472756374"))
 CBStruct : public CBDispatch<IVariantStruct>,
@@ -81,8 +81,8 @@ public:
 		ZeroMemory(&m_arrayVariant[0], sizeof(VARIANT) * n);
 	}
 
-	HRESULT toJsonValue(Json::Value &root, CAtlArray<void*> &arrObjects);
-	HRESULT fromJsonValue(Json::Value &root);
+	HRESULT toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects);
+	HRESULT fromJsonValue(_parser<WCHAR>* p);
 
 private:
 	void ClearAll(void);

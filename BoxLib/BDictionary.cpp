@@ -3,10 +3,9 @@
 #include "BVarType.h"
 #include "BMStream.h"
 #include "BStream.h"
-#include "BListex.h"
 #include <atlsafe.h>
-#include "msado15.tlh"
 
+#include "json.h"
 
 
 CBCriticalSection CBDictionary::m_csContents;
@@ -481,23 +480,23 @@ STDMETHODIMP CBDictionary::Save(VARIANT VarDesc, short mode)
 	return WriteObjectToStream((IVariantDictionary*)this, pStream);
 }
 
+/*
 HRESULT CBDictionary::toJsonValue(Json::Value &root, CAtlArray<void*> &arrObjects)
 {
 	HRESULT hr;
-	CBStringA strKey;
-	CBStringA strValue;
 	CRBMap<CBVariant, CComVariant>::CPair* pPair;
 
 	CBLock l(&m_cs);
 	
-	arrObjects.Add((void *)this);
+	arrObjects.Add((void *)(IDispatch *)this);
 
 	for(int i = 0; i < (int)m_posArray.GetCount(); i ++)
 	{
+		CAutoPtr<char> pKey;
 		pPair = m_posArray[i];
 
 		if(pPair->m_key.vt == VT_BSTR)
-			strKey = pPair->m_key.bstrVal;
+			pKey.Attach(BSTR2UTF8(pPair->m_key.bstrVal));
 		else
 		{
 			CComVariant var;
@@ -505,243 +504,16 @@ HRESULT CBDictionary::toJsonValue(Json::Value &root, CAtlArray<void*> &arrObject
 			hr = VariantChangeType(&var, (VARIANTARG*)&pPair->m_key, VARIANT_ALPHABOOL, VT_BSTR);
 			if(FAILED(hr))
 				return hr;
-			strKey = var.bstrVal;
+			pKey.Attach(BSTR2UTF8(var.bstrVal));
 		}
 
-		if(pPair->m_value.vt == VT_BSTR)
-		{
-			strValue = pPair->m_value.bstrVal;
-			root[(const char *)strKey] = (const char *)strValue;
-		}
-		else if (pPair->m_value.vt == VT_DISPATCH)
-		{
-			CComQIPtr<IVariantDictionary, &IID_IVariantDictionary> pDic;
-			pDic = pPair->m_value.pdispVal;
-			if (pDic)
-			{
-				Json::Value value;
-
-				for(int j=0;j<(int)arrObjects.GetCount();j++)
-				{
-					if (arrObjects[j] == (void *)(CBDictionary *)pDic.p)
-					{
-						return CBComObject::SetErrorInfo(L"Duplicate object.");
-					}
-				}
-				hr = ((CBDictionary *)pDic.p)->toJsonValue(value, arrObjects);
-				if (FAILED(hr))
-					return hr;
-				pDic.Release();
-				root[(const char *)strKey] = value;
-			}
-			else
-			{
-				CComQIPtr<IVariantList, &IID_IVariantList> pList;
-
-				pList = pPair->m_value.pdispVal;
-				if (pList)
-				{
-					Json::Value value;
-
-					for(int j=0;j<(int)arrObjects.GetCount();j++)
-					{
-						if (arrObjects[j] == (void *)(CBListEx *)pList.p)
-						{
-							return CBComObject::SetErrorInfo(L"Duplicate object.");
-						}
-					}
-					hr = ((CBListEx *)pList.p)->toJsonValue(value, arrObjects);
-					if (FAILED(hr))
-						return hr;
-					pList.Release();
-					root[(const char *)strKey] = value;
-				}
-				else
-				{
-					//CComQIPtr<_Recordset, &__uuidof(_Recordset)> prs;
-					_RecordsetPtr prs = pPair->m_value.pdispVal;
-					if (prs)
-					{
-						Json::Value table, fields;
-						CComVariant var;
-						LONG nCount;
-					    _variant_t Index;
-						Index.vt = VT_I2;
-						
-						nCount = prs->Fields->Count;
-						for (int j=0;j<nCount;j++)
-						{
-							Index.iVal = j;
-							_bstr_t bstrname = prs->Fields->GetItem(Index)->Name;
-							strValue = bstrname.GetBSTR();
-							fields.append((const char *)strValue);
-						}
-						table.append(fields);
-						prs->MoveFirst();
-						while (true)
-						{
-							if (prs->GetEndOfFile()) break;
-							Json::Value values;
-							for (int j=0;j<nCount;j++)
-							{
-								Index.iVal = j;
-								_variant_t value = prs->Fields->Item[Index]->Value;
-								switch (value.vt)
-								{
-									case VT_NULL:
-									case VT_EMPTY:
-										values.append(Json::nullValue);
-										break;
-									case VT_BOOL:
-										values.append(value.boolVal);
-										break;
-									case VT_INT:
-										values.append(value.intVal);
-										break;
-									case VT_I1:
-										values.append(value.cVal);
-										break;
-									case VT_I2:
-										values.append(value.iVal);
-										break;
-									case VT_I4:
-										values.append(value.lVal);
-										break;
-									case VT_I8:
-										values.append(value.llVal);
-										break;
-									case VT_UINT:
-										values.append(value.uintVal);
-										break;
-									case VT_UI1:
-										values.append(value.bVal);
-										break;
-									case VT_UI2:
-										values.append(value.uiVal);
-										break;
-									case VT_UI4:
-										values.append((unsigned int)value.ulVal);
-										break;
-									case VT_UI8:
-										values.append(value.ullVal);
-										break;
-									case VT_R4:
-										values.append((double)value.fltVal);
-										break;
-									case VT_R8:
-										values.append(value.dblVal);
-										break;
-									case VT_CY:
-										hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_R8);
-										values.append(var.dblVal);
-										break;
-									case VT_DECIMAL:
-										hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_I8);
-										values.append(var.llVal);
-										break;
-									case VT_DATE:
-										hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_BSTR);
-										if(FAILED(hr))
-										{
-											return hr;
-										}
-										strValue = var.bstrVal;
-										values.append((const char *)strValue);
-										break;
-									case VT_BSTR:
-										strValue = value.bstrVal;
-										values.append((const char *)strValue);
-										break;
-									default:
-										return E_INVALIDARG;
-										break;
-								}
-							}
-							table.append(values);
-							prs->MoveNext();
-						}
-						root[(const char *)strKey] = table;
-					}
-					else
-					{
-						return CBComObject::SetErrorInfo(L"Not Internal Object.");
-					}
-				}
-			}
-		}
+		Json::Value v;
+		if (pPair->m_value.vt == VT_DISPATCH)
+			hr = DispatchToJsonValue(pPair->m_value.pdispVal, root[(const char *)pKey] , arrObjects);
 		else
-		{
-			CComVariant var;
-
-			switch(pPair->m_value.vt)
-			{
-				case VT_NULL:
-				case VT_EMPTY:
-					root[(const char *)strKey] = Json::nullValue;
-					break;
-				case VT_BOOL:
-					root[(const char *)strKey] = pPair->m_value.boolVal;
-					break;
-				case VT_INT:
-					root[(const char *)strKey] = pPair->m_value.intVal;
-					break;
-				case VT_I1:
-					root[(const char *)strKey] = pPair->m_value.cVal;
-					break;
-				case VT_I2:
-					root[(const char *)strKey] = pPair->m_value.iVal;
-					break;
-				case VT_I4:
-					root[(const char *)strKey] = pPair->m_value.lVal;
-					break;
-				case VT_I8:
-					root[(const char *)strKey] = pPair->m_value.llVal;
-					break;
-				case VT_UINT:
-					root[(const char *)strKey] = pPair->m_value.uintVal;
-					break;
-				case VT_UI1:
-					root[(const char *)strKey] = pPair->m_value.bVal;
-					break;
-				case VT_UI2:
-					root[(const char *)strKey] = pPair->m_value.uiVal;
-					break;
-				case VT_UI4:
-					root[(const char *)strKey] = (unsigned int)pPair->m_value.ulVal;
-					break;
-				case VT_UI8:
-					root[(const char *)strKey] = pPair->m_value.ullVal;
-					break;
-				case VT_R4:
-					root[(const char *)strKey] = (double)pPair->m_value.fltVal;
-					break;
-				case VT_R8:
-					root[(const char *)strKey] = pPair->m_value.dblVal;
-					break;
-				case VT_CY:
-					hr = VariantChangeType(&var, &pPair->m_value, VARIANT_ALPHABOOL, VT_R8);
-					root[(const char *)strKey] = var.dblVal;
-					break;
-				case VT_DECIMAL:
-					hr = VariantChangeType(&var, &pPair->m_value, VARIANT_ALPHABOOL, VT_I8);
-					root[(const char *)strKey] = var.llVal;
-					break;
-				case VT_DATE:
-					hr = VariantChangeType(&var, &pPair->m_value, VARIANT_ALPHABOOL, VT_BSTR);
-					if(FAILED(hr))
-						return hr;
-					strValue = var.bstrVal;
-					root[(const char *)strKey] = (const char *)strValue;
-					break;
-				case VT_BSTR:
-					strValue = pPair->m_value.bstrVal;
-					root[(const char *)strKey] = (const char *)strValue;
-					break;
-				default:
-					return E_INVALIDARG;
-					break;
-			}
-		}
+			hr = VariantToJsonValue(pPair->m_value, root[(const char *)pKey] );
+		if FAILED(hr) return hr;
+		//root[(const char *)pKey] = v;
 	}
 
 	arrObjects.RemoveAt(arrObjects.GetCount()-1);
@@ -751,31 +523,109 @@ HRESULT CBDictionary::toJsonValue(Json::Value &root, CAtlArray<void*> &arrObject
 STDMETHODIMP CBDictionary::toJson(int intStyle, BSTR* pvar)
 {
 	HRESULT hr;
-	CBStringA strValue;
 	Json::Value root;
-	CAtlArray<void*> arrObjects;
 
 	hr = toJsonValue(root, arrObjects);
 	if (FAILED(hr)) return hr;
 
+	std::string output;
 	if (intStyle)
 	{
 		Json::StyledWriter writer;
-		std::string outputConfig = writer.write( root );
-		strValue = outputConfig.c_str();
+		output = writer.write( root );
 	}
 	else
 	{
 		Json::FastWriter writer;
-		std::string outputConfig = writer.write( root );
-		strValue = outputConfig.c_str();
+		output = writer.write( root );
 	}
 
-	*pvar = strValue.AllocSysString();
+	VARIANT var;
+	hr = UTF82VARIANT(output.c_str(), output.length(), &var);
+	if (FAILED(hr)) return hr;
 
+	*pvar = var.bstrVal;
+	return S_OK;
+}
+*/
+
+HRESULT CBDictionary::toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects)
+{
+	POSITION pos;
+	CRBMap<CBVariant, CComVariant>::CPair* pPair;
+	HRESULT hr;
+	ULONG n1;
+	int indent = -1;
+	int indent1 = indent >= 0 ? indent + 1 : indent;
+
+	hr = pStrm->Write(L"{\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
+	if(FAILED(hr))return hr;
+
+	CBLock l(&m_cs);
+	arrObjects.Add((void *)(IDispatch *)this);
+
+	pos = m_mapItems.GetHeadPosition();
+	while(pos)
+	{
+		pPair = (CRBMap<CBVariant, CComVariant>::CPair*)m_mapItems.GetNext(pos);
+
+		hr = JSON_putTabs(pStrm, indent1);
+		if(FAILED(hr))return hr;
+
+		if(pPair->m_key.vt == VT_BSTR)
+			hr = JSON_putVariant(pStrm, &pPair->m_key, indent1, arrObjects);
+		else
+		{
+			CComVariant var;
+
+			hr = ::VariantChangeType(&var, (VARIANTARG*)&pPair->m_key, VARIANT_ALPHABOOL, VT_BSTR);
+			if(FAILED(hr))return hr;
+
+			hr = JSON_putVariant(pStrm, &var, indent1, arrObjects);
+		}
+		if(FAILED(hr))return hr;
+
+		if(indent != -1)
+			hr = pStrm->Write(L": ", 2 * sizeof(WCHAR), &n1);
+		else
+			hr = pStrm->Write(L":", 1 * sizeof(WCHAR), &n1);
+		if(FAILED(hr))return hr;
+
+		hr = JSON_putVariant(pStrm, &pPair->m_value, indent1, arrObjects);
+		if(FAILED(hr))return hr;
+
+		if(pos)
+			hr = pStrm->Write(L",\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
+		else if(indent != -1)
+			hr = pStrm->Write(L"\r\n", 2 * sizeof(WCHAR), &n1);
+		if(FAILED(hr))return hr;
+	}
+
+	hr = JSON_putTabs(pStrm, indent);
+	if(FAILED(hr))return hr;
+	hr = pStrm->Write(L"}", 1 * sizeof(WCHAR), &n1);
+	if(FAILED(hr))return hr;
+
+	arrObjects.RemoveAt(arrObjects.GetCount()-1);
 	return S_OK;
 }
 
+STDMETHODIMP CBDictionary::toJson(int intStyle, BSTR* pvar)
+{
+	HRESULT hr;
+	CAtlArray<void*> arrObjects;
+	CBTempStream mStream;
+
+	hr = toJsonValue(&mStream, arrObjects);
+	if(FAILED(hr))return hr;
+
+	*pvar = ::SysAllocStringByteLen(NULL, (ULONG)mStream.GetLength());
+	mStream.SeekToBegin();
+	mStream.Read(*pvar, (ULONG)mStream.GetLength());
+	return S_OK;
+}
+
+/*
 HRESULT CBDictionary::fromJsonValue(Json::Value &root)
 {
 	if (!root.isObject())
@@ -795,7 +645,9 @@ HRESULT CBDictionary::fromJsonValue(Json::Value &root)
 	for (Json::Value::Members::iterator it = members.begin();it != members.end();++it)
 	{
 		const std::string &i = *it;
-		varKey = i.c_str();
+		varKey.Clear();
+		hr = UTF82VARIANT(i.c_str(), i.length(), &varKey);
+		if FAILED(hr) return hr;
 
 		CRBMap<CBVariant, CComVariant>::CPair* pPair = m_mapItems.Lookup(*(CBVariant*)&varKey);
 
@@ -817,7 +669,7 @@ HRESULT CBDictionary::fromJsonValue(Json::Value &root)
 					pPair->m_value = root[i].asInt();
 				break;
 			case Json::uintValue:
-				if (root[i].asLargestInt()>>31)
+				if (root[i].asLargestUInt()>>31)
 					pPair->m_value = root[i].asDouble();
 				else
 					pPair->m_value = (int)root[i].asUInt();
@@ -826,7 +678,8 @@ HRESULT CBDictionary::fromJsonValue(Json::Value &root)
 				pPair->m_value = root[i].asDouble();
 				break;
 			case Json::stringValue:
-				pPair->m_value = root[i].asCString();
+				hr = UTF82VARIANT(root[i].asCString(), 0, &pPair->m_value);
+				if FAILED(hr) return hr;
 				break;
 			case Json::booleanValue:
 				pPair->m_value = (bool)root[i].asBool();
@@ -866,17 +719,76 @@ STDMETHODIMP CBDictionary::fromJson(BSTR bstrJson)
 {
 	Json::Value root;
 	Json::Reader reader;
-	CStringA  strJson;
+	CAutoPtr<char> pJson;
+	int nJson;
 	
-	strJson = bstrJson;
-	if (!reader.parse(strJson.GetString(), strJson.GetString()+strJson.GetLength(), root))
-		return E_INVALIDARG;
+	pJson.Attach(BSTR2UTF8(bstrJson, &nJson));
+	if (!pJson) return E_OUTOFMEMORY;
 
-	HRESULT hr = fromJsonValue(root);
-	if (FAILED(hr))
-		return hr;
-	
+	if (!reader.parse(pJson, pJson+nJson, root))
+		return CBComObject::SetErrorInfo(reader.getFormatedErrorMessages().c_str());
+
+	return fromJsonValue(root);
+}
+*/
+
+HRESULT CBDictionary::fromJsonValue( _parser<WCHAR>* p )
+{
+	WCHAR ch;
+	HRESULT hr;
+	CComVariant varEmpty;
+
+	if(!p->skipChar('{'))
+		return p->throwErr('{');
+
+	CBLock l(&m_cs);
+	m_bArrayMode = VARIANT_FALSE;
+
+	while((ch = p->get()) == '\"')
+	{
+		CRBMap<CBVariant, CComVariant>::CPair* pPair;
+		CBVariant varKey;
+		VARIANT var = {VT_EMPTY};
+
+		hr = JSON_getVariant(p, &varKey);
+		if(FAILED(hr))
+			return hr;
+
+		if(!p->skipChar(':'))
+			return p->throwErr(':');
+
+		hr = JSON_getVariant(p, &var);
+		if(FAILED(hr))
+			return hr;
+
+		pPair = m_mapItems.Lookup(varKey);
+
+		if(pPair == NULL)
+		{
+			pPair = (CRBMap<CBVariant, CComVariant>::CPair*)m_mapItems.SetAt(varKey, varEmpty);
+			m_posArray.Add(pPair);
+		}
+		else VariantClear(&pPair->m_value);
+		CopyMemory(&pPair->m_value, &var, sizeof(VARIANT));
+
+		if(!p->skipChar(','))
+			break;
+
+		if(p->get() == '}')
+			return p->throwErr(L"Unexpected comma");
+	}
+
+	if(!p->skipChar('}'))
+		return p->throwErr('}');
+
 	return S_OK;
+}
+
+STDMETHODIMP CBDictionary::fromJson(BSTR bstrJson)
+{
+	_parser<WCHAR> p(bstrJson);
+	RemoveAll();
+	return fromJsonValue(&p);
 }
 
 STDMETHODIMP CBDictionary::Join(BSTR bstrKeyDelimiter, BSTR bstrDelimiter, BSTR* pvar)
@@ -1087,3 +999,181 @@ STDMETHODIMP CBDictionary::InitNew(void)
 	return RemoveAll();
 }
 
+HRESULT CBDictionary::UTF82VARIANT(const char *pstr, int nCount, VARIANT* pvar)
+{
+	if (pvar==NULL) return E_INVALIDARG;
+
+	if (nCount == 0)
+		nCount = lstrlen(pstr);
+	
+	int _nTempCount = ::MultiByteToWideChar(65001, 0, pstr, nCount, NULL, NULL);
+	CComBSTR bstr(_nTempCount);
+
+	if (bstr==NULL) return E_OUTOFMEMORY;
+	::MultiByteToWideChar(65001, 0, pstr, nCount, bstr, _nTempCount);
+
+	pvar->vt = VT_BSTR;
+	pvar->bstrVal = bstr.Detach();
+	return S_OK;
+}
+
+LPSTR CBDictionary::BSTR2UTF8(BSTR strData, int *pCount)
+{
+	UINT strLen = SysStringByteLen(strData);
+	int _nTempCount = ::WideCharToMultiByte(65001, 0, strData, strLen / 2, NULL, 0, NULL, NULL);
+	LPSTR pstr = new char[_nTempCount+1];
+	::WideCharToMultiByte(65001, 0, strData, strLen / 2, pstr, _nTempCount, NULL, NULL);
+	pstr[_nTempCount] = 0;
+	if (pCount!=NULL) *pCount = _nTempCount;
+	return pstr;
+}
+/*
+HRESULT CBDictionary::VariantToJsonValue(VARIANT& value, Json::Value& v)
+{
+	HRESULT hr;
+	CComVariant var;
+	CAutoPtr<char> p;
+
+	switch (value.vt)
+	{
+		case VT_NULL:
+		case VT_EMPTY:
+			v = Json::nullValue;
+			break;
+		case VT_BOOL:
+			v = value.boolVal;
+			break;
+		case VT_INT:
+			v = value.intVal;
+			break;
+		case VT_I1:
+			v = value.cVal;
+			break;
+		case VT_I2:
+			v = value.iVal;
+			break;
+		case VT_I4:
+			v = value.lVal;
+			break;
+		case VT_UINT:
+			v = value.uintVal;
+			break;
+		case VT_UI1:
+			v = value.bVal;
+			break;
+		case VT_UI2:
+			v = value.uiVal;
+			break;
+		case VT_UI4:
+			v = (unsigned int)value.ulVal;
+			break;
+		case VT_R4:
+			v = (double)value.fltVal;
+			break;
+		case VT_R8:
+			v = value.dblVal;
+			break;
+		case VT_I8:
+			v = value.llVal;
+			break;
+		case VT_UI8:
+			v = value.ullVal;
+			break;
+		case VT_CY:
+			hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_R8);
+			if FAILED(hr) return hr;
+			v = var.dblVal;
+			break;
+		case VT_DECIMAL:
+			hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_I8);
+			if FAILED(hr) return hr;
+			v = var.llVal;
+			break;
+		case VT_DATE:
+			hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_BSTR);
+			if FAILED(hr) return hr;
+			p.Attach(BSTR2UTF8(var.bstrVal));
+			v = (const char*)p;
+			break;
+		case VT_BSTR:
+			p.Attach(BSTR2UTF8(value.bstrVal));
+			v = (const char*)p;
+			break;
+		default:
+			return E_INVALIDARG;
+	}
+	return S_OK;
+}
+
+HRESULT CBDictionary::DispatchToJsonValue(IDispatch *pdisp, Json::Value& v, CAtlArray<void*> &arrObjects)
+{
+	HRESULT hr;
+
+	for(int j=0;j<(int)arrObjects.GetCount();j++)
+	{
+		if (arrObjects[j] == (void *)pdisp)
+		{
+			return CBComObject::SetErrorInfo(L"Duplicate object.");
+		}
+	}
+
+
+	CComQIPtr<IVariantDictionary, &IID_IVariantDictionary> pDic = pdisp;
+	if (pDic)
+	{
+		hr = ((CBDictionary *)pDic.p)->toJsonValue(v, arrObjects);
+		if (FAILED(hr)) return hr;
+
+		pDic.Release();
+		return S_OK;
+	}
+	
+	CComQIPtr<IVariantList, &IID_IVariantList> pList = pdisp;
+	if (pList)
+	{
+		hr = ((CBListEx *)pList.p)->toJsonValue(v, arrObjects);
+		if (FAILED(hr)) return hr;
+			
+		pList.Release();
+		return S_OK;
+	}
+
+	_RecordsetPtr prs = pdisp;
+	if (prs)
+	{
+		Json::Value fields;
+		LONG nCount;
+	    _variant_t Index;
+		Index.vt = VT_I2;
+		
+		nCount = prs->Fields->Count;
+		for (int j=0;j<nCount;j++)
+		{
+			Index.iVal = j;
+			_bstr_t bstrname = prs->Fields->GetItem(Index)->Name;
+			CAutoPtr<char> p(BSTR2UTF8(bstrname.GetBSTR()));
+			fields.append((const char *)p);
+		}
+		v.append(fields);
+		prs->MoveFirst();
+		while (true)
+		{
+			if (prs->GetEndOfFile()) break;
+			Json::Value values;
+			for (int j=0;j<nCount;j++)
+			{
+				Index.iVal = j;
+				_variant_t value = prs->Fields->Item[Index]->Value;
+				Json::Value v1;
+				hr = VariantToJsonValue(value, v1);
+				if FAILED(hr) return hr;
+				values.append(v1);
+			}
+			v.append(values);
+			prs->MoveNext();
+		}
+		return S_OK;
+	}
+	return CBComObject::SetErrorInfo(L"Not Internal Object.");
+}
+*/

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BStruct.h"
-#include "json/json.h"
+#include "json.h"
 
 class __declspec(uuid("94650000-0000-0000-0000-00004C697374"))
 CBListEx : public CBDispatch<IVariantList, CBStruct>

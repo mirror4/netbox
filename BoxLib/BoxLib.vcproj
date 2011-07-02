@@ -3336,7 +3336,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\jsoncpp.cpp"
+				RelativePath=".\JSON_load.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\JSONWriter.cpp"
 				>
 			</File>
 			<File

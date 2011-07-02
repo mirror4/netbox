@@ -6,7 +6,7 @@
 #include "typelib\ti.h"
 #include <openssl\md5.h>
 
-#include "msado15.tlh"
+#include "json.h"
 
 static ELEMDESC s_mElemDesc = {{{NULL}, VT_VARIANT}, {NULL, 0x1}};
 
@@ -315,262 +315,49 @@ STDMETHODIMP CBStruct::InitNew(void)
 	ClearAll();
 	return S_OK;
 }
-
+/*
 HRESULT CBStruct::toJsonValue(Json::Value &root, CAtlArray<void*> &arrObjects)
 {
 	HRESULT hr;
-	CBStringA strValue;
 
 	CBLock l(&m_cs);
 
-	arrObjects.Add((void *)this);
+	arrObjects.Add((void *)(IDispatch *)this);
 
 	for(int i = 0; i < (int)m_arrayVariant.GetCount(); i ++)
 	{
-		if(m_arrayVariant[i].vt == VT_BSTR)
-			strValue = m_arrayVariant[i].bstrVal;
-		else if (m_arrayVariant[i].vt == VT_DISPATCH)
-		{
-			CComQIPtr<IVariantDictionary, &IID_IVariantDictionary> pDic;
-			pDic = m_arrayVariant[i].pdispVal;
-			if (pDic)
-			{
-				Json::Value value;
-
-				for(int j=0;j<(int)arrObjects.GetCount();j++)
-				{
-					if (arrObjects[j] == (void *)(CBDictionary *)pDic.p)
-					{
-						return CBComObject::SetErrorInfo(L"Duplicate object.");
-					}
-				}
-				hr = ((CBDictionary *)pDic.p)->toJsonValue(value, arrObjects);
-				if (FAILED(hr))
-				{
-					return hr;
-				}
-				pDic.Release();
-				root.append(value);
-			}
-			else
-			{
-				CComQIPtr<IVariantList, &IID_IVariantList> pList;
-
-				pList = m_arrayVariant[i].pdispVal;
-				if (pList)
-				{
-					Json::Value value;
-
-					for(int j=0;j<(int)arrObjects.GetCount();j++)
-					{
-						if (arrObjects[j] == (void *)(CBListEx *)pList.p)
-						{
-							return CBComObject::SetErrorInfo(L"Duplicate object.");
-						}
-					}
-					hr = ((CBListEx *)pList.p)->toJsonValue(value, arrObjects);
-					if (FAILED(hr))
-					{
-						return hr;
-					}
-					pList.Release();
-					root.append(value);
-				}
-				else
-				{
-					//CComQIPtr<_Recordset, &__uuidof(_Recordset)> prs;
-					_RecordsetPtr prs = m_arrayVariant[i].pdispVal;
-					if (prs)
-					{
-						Json::Value table, fields;
-						CComVariant var;
-						LONG nCount;
-					    _variant_t Index;
-						Index.vt = VT_I2;
-						
-						nCount = prs->Fields->Count;
-						for (int j=0;j<nCount;j++)
-						{
-							Index.iVal = j;
-							_bstr_t bstrname = prs->Fields->GetItem(Index)->Name;
-							strValue = bstrname.GetBSTR();
-							fields.append((const char *)strValue);
-						}
-						table.append(fields);
-						prs->MoveFirst();
-						while (true)
-						{
-							if (prs->GetEndOfFile()) break;
-							Json::Value values;
-							for (int j=0;j<nCount;j++)
-							{
-								Index.iVal = j;
-								_variant_t value = prs->Fields->Item[Index]->Value;
-								switch (value.vt)
-								{
-									case VT_NULL:
-									case VT_EMPTY:
-										values.append(Json::nullValue);
-										break;
-									case VT_BOOL:
-										values.append(value.boolVal);
-										break;
-									case VT_INT:
-										values.append(value.intVal);
-										break;
-									case VT_I1:
-										values.append(value.cVal);
-										break;
-									case VT_I2:
-										values.append(value.iVal);
-										break;
-									case VT_I4:
-										values.append(value.lVal);
-										break;
-									case VT_I8:
-										values.append(value.llVal);
-										break;
-									case VT_UINT:
-										values.append(value.uintVal);
-										break;
-									case VT_UI1:
-										values.append(value.bVal);
-										break;
-									case VT_UI2:
-										values.append(value.uiVal);
-										break;
-									case VT_UI4:
-										values.append((unsigned int)value.ulVal);
-										break;
-									case VT_UI8:
-										values.append(value.ullVal);
-										break;
-									case VT_R4:
-										values.append((double)value.fltVal);
-										break;
-									case VT_R8:
-										values.append(value.dblVal);
-										break;
-									case VT_CY:
-										hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_R8);
-										values.append(var.dblVal);
-										break;
-									case VT_DECIMAL:
-										hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_I8);
-										values.append(var.llVal);
-										break;
-									case VT_DATE:
-										hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_BSTR);
-										if(FAILED(hr))
-										{
-											return hr;
-										}
-										strValue = var.bstrVal;
-										values.append((const char *)strValue);
-										break;
-									case VT_BSTR:
-										strValue = value.bstrVal;
-										values.append((const char *)strValue);
-										break;
-									default:
-										return E_INVALIDARG;
-										break;
-								}
-							}
-							table.append(values);
-							prs->MoveNext();
-						}
-						root.append(table);
-					}
-					else
-					{
-						return CBComObject::SetErrorInfo(L"Not Internal Object.");
-					}
-				}
-			}
-		}
+		Json::Value v;
+		if (m_arrayVariant[i].vt == VT_DISPATCH)
+			hr = CBDictionary::DispatchToJsonValue(m_arrayVariant[i].pdispVal, v, arrObjects);
 		else
-		{
-			CComVariant var;
-
-			switch(m_arrayVariant[i].vt)
-			{
-				case VT_NULL:
-				case VT_EMPTY:
-					root.append(Json::nullValue);
-					break;
-				case VT_BOOL:
-					root.append(m_arrayVariant[i].boolVal);
-					break;
-				case VT_INT:
-					root.append(m_arrayVariant[i].intVal);
-					break;
-				case VT_I1:
-					root.append(m_arrayVariant[i].cVal);
-					break;
-				case VT_I2:
-					root.append(m_arrayVariant[i].iVal);
-					break;
-				case VT_I4:
-					root.append(m_arrayVariant[i].lVal);
-					break;
-				case VT_I8:
-					root.append(m_arrayVariant[i].llVal);
-					break;
-				case VT_UINT:
-					root.append(m_arrayVariant[i].uintVal);
-					break;
-				case VT_UI1:
-					root.append(m_arrayVariant[i].bVal);
-					break;
-				case VT_UI2:
-					root.append(m_arrayVariant[i].uiVal);
-					break;
-				case VT_UI4:
-					root.append((unsigned int)m_arrayVariant[i].ulVal);
-					break;
-				case VT_UI8:
-					root.append(m_arrayVariant[i].ullVal);
-					break;
-				case VT_R4:
-					root.append((double)m_arrayVariant[i].fltVal);
-					break;
-				case VT_R8:
-					root.append(m_arrayVariant[i].dblVal);
-					break;
-				case VT_CY:
-					hr = VariantChangeType(&var, &m_arrayVariant[i], VARIANT_ALPHABOOL, VT_R8);
-					root.append(var.dblVal);
-					break;
-				case VT_DECIMAL:
-					hr = VariantChangeType(&var, &m_arrayVariant[i], VARIANT_ALPHABOOL, VT_I8);
-					root.append(var.llVal);
-					break;
-				case VT_DATE:
-					hr = VariantChangeType(&var, &m_arrayVariant[i], VARIANT_ALPHABOOL, VT_BSTR);
-					if(FAILED(hr))
-					{
-						return hr;
-					}
-					strValue = var.bstrVal;
-					root.append((const char *)strValue);
-					break;
-				case VT_BSTR:
-					strValue = m_arrayVariant[i].bstrVal;
-					root.append((const char *)strValue);
-					break;
-				default:
-					return E_INVALIDARG;
-					break;
-			}
-		}
+			hr = CBDictionary::VariantToJsonValue(m_arrayVariant[i], v);
+		if FAILED(hr) return hr;
+		root.append(v);
 	}
 
 	arrObjects.RemoveAt(arrObjects.GetCount()-1);
 
 	return S_OK;
 }
+*/
 
+HRESULT CBStruct::toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects)
+{
+	HRESULT hr;
+
+	CBLock l(&m_cs);
+
+	arrObjects.Add((void *)(IDispatch *)this);
+
+	int n = (int)m_arrayVariant.GetCount();
+	hr = JSON_putArray(pStrm, n ? &m_arrayVariant[0] : NULL, n, -1, arrObjects);
+
+	arrObjects.RemoveAt(arrObjects.GetCount()-1);
+
+	return hr;
+}
+
+/*
 HRESULT CBStruct::fromJsonValue(Json::Value &root)
 {
 	if (!root.isArray())
@@ -598,7 +385,7 @@ HRESULT CBStruct::fromJsonValue(Json::Value &root)
 					*((CComVariant*)&m_arrayVariant[n]) = root[i].asInt();
 				break;
 			case Json::uintValue:
-				if (root[i].asLargestInt()>>31)
+				if (root[i].asLargestUInt()>>31)
 					*((CComVariant*)&m_arrayVariant[n]) = root[i].asDouble();
 				else
 					*((CComVariant*)&m_arrayVariant[n]) = (int)root[i].asUInt();
@@ -607,7 +394,8 @@ HRESULT CBStruct::fromJsonValue(Json::Value &root)
 				*((CComVariant*)&m_arrayVariant[n]) = root[i].asDouble();
 				break;
 			case Json::stringValue:
-				*((CComVariant*)&m_arrayVariant[n]) = root[i].asCString();
+				hr = CBDictionary::UTF82VARIANT(root[i].asCString(), 0, &m_arrayVariant[n]);
+				if (FAILED(hr)) return hr;
 				break;
 			case Json::booleanValue:
 				*((CComVariant*)&m_arrayVariant[n]) = (bool)root[i].asBool();
@@ -641,5 +429,16 @@ HRESULT CBStruct::fromJsonValue(Json::Value &root)
 		}
 
 	}
+	return S_OK;
+}
+*/
+HRESULT CBStruct::fromJsonValue(_parser<WCHAR>* p)
+{
+	HRESULT hr;
+
+	m_cs.Enter();
+	hr = JSON_getArray(p, *((CAtlArray<CComVariant> *)&m_arrayVariant));
+	m_cs.Leave();
+
 	return S_OK;
 }

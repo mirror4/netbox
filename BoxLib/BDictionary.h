@@ -1,7 +1,8 @@
 #pragma once
 
 #include "BCollection.h"
-#include "json\json.h"
+#include "BListex.h"
+#include "json.h"
 
 class __declspec(uuid("94650000-0000-4469-6374-696F6E617279"))
 CBDictionary : public CBDispatch<IVariantDictionary>,
@@ -84,8 +85,13 @@ public:
 		return i;
 	}
 
-	HRESULT toJsonValue(Json::Value &pValue, CAtlArray<void*> &arrObjects);
-	HRESULT fromJsonValue(Json::Value &root);
+	HRESULT toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects);
+	HRESULT fromJsonValue(_parser<WCHAR>* p);
+/*
+	static HRESULT DispatchToJsonValue(IDispatch *pdisp, Json::Value& v, CAtlArray<void*> &arrObjects);
+	static HRESULT VariantToJsonValue(VARIANT& value, Json::Value& v);
+*/	static LPSTR BSTR2UTF8(BSTR strData, int *pCount = NULL);
+	static HRESULT UTF82VARIANT(const char *pstr, int nCount, VARIANT* pvar);
 
 protected:
 	HRESULT putItem(VARIANT* pvarKey, VARIANT* pvar);

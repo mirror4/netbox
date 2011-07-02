@@ -214,50 +214,75 @@ STDMETHODIMP CBListEx::Split(BSTR bstrExpression, BSTR bstrDelimiter)
 
 	return S_OK;
 }
-
+/*
 STDMETHODIMP CBListEx::toJson(int intStyle, BSTR* pvar)
 {
 	HRESULT hr;
-	CBStringA strValue;
 	Json::Value root;
 	CAtlArray<void*> arrObjects;
 
 	hr = toJsonValue(root, arrObjects);
 	if (FAILED(hr)) return hr;
 
+	std::string output;
 	if (intStyle)
 	{
 		Json::StyledWriter writer;
-		std::string outputConfig = writer.write( root );
-		strValue = outputConfig.c_str();
+		output = writer.write( root );
 	}
 	else
 	{
 		Json::FastWriter writer;
-		std::string outputConfig = writer.write( root );
-		strValue = outputConfig.c_str();
+		output = writer.write( root );
 	}
 
-	*pvar = strValue.AllocSysString();
+	VARIANT var;
+	hr = CBDictionary::UTF82VARIANT(output.c_str(), output.length(), &var);
+	if (FAILED(hr)) return hr;
 
+	*pvar = var.bstrVal;
+	return S_OK;
+}
+*/
+
+STDMETHODIMP CBListEx::toJson(int intStyle, BSTR* pvar)
+{
+	HRESULT hr;
+	CAtlArray<void*> arrObjects;
+	CBTempStream mStream;
+
+	hr = toJsonValue(&mStream, arrObjects);
+	if(FAILED(hr))return hr;
+
+	*pvar = ::SysAllocStringByteLen(NULL, (ULONG)mStream.GetLength());
+	mStream.SeekToBegin();
+	mStream.Read(*pvar, (ULONG)mStream.GetLength());
 	return S_OK;
 }
 
+/*
 STDMETHODIMP CBListEx::fromJson(BSTR bstrJson)
 {
 	Json::Value root;
 	Json::Reader reader;
-	CStringA  strJson;
+	CAutoPtr<char> pJson;
+	int nJson;
 	
-	strJson = bstrJson;
-	if (!reader.parse(strJson.GetString(), strJson.GetString()+strJson.GetLength(), root))
-		return E_INVALIDARG;
+	pJson.Attach(CBDictionary::BSTR2UTF8(bstrJson, &nJson));
+	if (!pJson) return E_OUTOFMEMORY;
 
-	HRESULT hr = fromJsonValue(root);
-	if (FAILED(hr))
-		return hr;
-	
-	return S_OK;
+	if (!reader.parse(pJson, pJson+nJson, root))
+		return CBComObject::SetErrorInfo(reader.getFormatedErrorMessages().c_str());
+
+	return fromJsonValue(root);
+}
+*/
+
+STDMETHODIMP CBListEx::fromJson(BSTR bstrJson)
+{
+	_parser<WCHAR> p(bstrJson);
+	RemoveAll();
+	return fromJsonValue(&p);
 }
 
 STDMETHODIMP CBListEx::Load(IStream *pStm)
