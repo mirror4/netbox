@@ -189,27 +189,14 @@ HRESULT JSON_putObject(IStream *pStrm, IUnknown* o, int indent, CAtlArray<void*>
 		}
 	}
 
+	CBComPtr<IJSON> pJson;
+
+	pJson = o;
+
+	if(pJson)
+		return pJson->JSON_join(pStrm, indent, arrObjects);
+
 	HRESULT hr;
-
-	CComQIPtr<IVariantDictionary, &IID_IVariantDictionary> pDic = o;
-	if (pDic)
-	{
-		hr = ((CBDictionary *)pDic.p)->toJsonValue(pStrm, arrObjects);
-		if (FAILED(hr)) return hr;
-
-		pDic.Release();
-		return S_OK;
-	}
-	
-	CComQIPtr<IVariantList, &IID_IVariantList> pList = o;
-	if (pList)
-	{
-		hr = ((CBListEx *)pList.p)->toJsonValue(pStrm, arrObjects);
-		if (FAILED(hr)) return hr;
-			
-		pList.Release();
-		return S_OK;
-	}
 
 	_RecordsetPtr prs = o;
 	if (prs)

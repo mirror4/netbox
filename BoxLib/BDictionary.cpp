@@ -480,143 +480,13 @@ STDMETHODIMP CBDictionary::Save(VARIANT VarDesc, short mode)
 	return WriteObjectToStream((IVariantDictionary*)this, pStream);
 }
 
-/*
-HRESULT CBDictionary::toJsonValue(Json::Value &root, CAtlArray<void*> &arrObjects)
-{
-	HRESULT hr;
-	CRBMap<CBVariant, CComVariant>::CPair* pPair;
-
-	CBLock l(&m_cs);
-	
-	arrObjects.Add((void *)(IDispatch *)this);
-
-	for(int i = 0; i < (int)m_posArray.GetCount(); i ++)
-	{
-		CAutoPtr<char> pKey;
-		pPair = m_posArray[i];
-
-		if(pPair->m_key.vt == VT_BSTR)
-			pKey.Attach(BSTR2UTF8(pPair->m_key.bstrVal));
-		else
-		{
-			CComVariant var;
-
-			hr = VariantChangeType(&var, (VARIANTARG*)&pPair->m_key, VARIANT_ALPHABOOL, VT_BSTR);
-			if(FAILED(hr))
-				return hr;
-			pKey.Attach(BSTR2UTF8(var.bstrVal));
-		}
-
-		Json::Value v;
-		if (pPair->m_value.vt == VT_DISPATCH)
-			hr = DispatchToJsonValue(pPair->m_value.pdispVal, root[(const char *)pKey] , arrObjects);
-		else
-			hr = VariantToJsonValue(pPair->m_value, root[(const char *)pKey] );
-		if FAILED(hr) return hr;
-		//root[(const char *)pKey] = v;
-	}
-
-	arrObjects.RemoveAt(arrObjects.GetCount()-1);
-	return S_OK;
-}
-
-STDMETHODIMP CBDictionary::toJson(int intStyle, BSTR* pvar)
-{
-	HRESULT hr;
-	Json::Value root;
-
-	hr = toJsonValue(root, arrObjects);
-	if (FAILED(hr)) return hr;
-
-	std::string output;
-	if (intStyle)
-	{
-		Json::StyledWriter writer;
-		output = writer.write( root );
-	}
-	else
-	{
-		Json::FastWriter writer;
-		output = writer.write( root );
-	}
-
-	VARIANT var;
-	hr = UTF82VARIANT(output.c_str(), output.length(), &var);
-	if (FAILED(hr)) return hr;
-
-	*pvar = var.bstrVal;
-	return S_OK;
-}
-*/
-
-HRESULT CBDictionary::toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects)
-{
-	POSITION pos;
-	CRBMap<CBVariant, CComVariant>::CPair* pPair;
-	HRESULT hr;
-	ULONG n1;
-	int indent = -1;
-	int indent1 = indent >= 0 ? indent + 1 : indent;
-
-	hr = pStrm->Write(L"{\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
-	if(FAILED(hr))return hr;
-
-	CBLock l(&m_cs);
-	arrObjects.Add((void *)(IDispatch *)this);
-
-	pos = m_mapItems.GetHeadPosition();
-	while(pos)
-	{
-		pPair = (CRBMap<CBVariant, CComVariant>::CPair*)m_mapItems.GetNext(pos);
-
-		hr = JSON_putTabs(pStrm, indent1);
-		if(FAILED(hr))return hr;
-
-		if(pPair->m_key.vt == VT_BSTR)
-			hr = JSON_putVariant(pStrm, &pPair->m_key, indent1, arrObjects);
-		else
-		{
-			CComVariant var;
-
-			hr = ::VariantChangeType(&var, (VARIANTARG*)&pPair->m_key, VARIANT_ALPHABOOL, VT_BSTR);
-			if(FAILED(hr))return hr;
-
-			hr = JSON_putVariant(pStrm, &var, indent1, arrObjects);
-		}
-		if(FAILED(hr))return hr;
-
-		if(indent != -1)
-			hr = pStrm->Write(L": ", 2 * sizeof(WCHAR), &n1);
-		else
-			hr = pStrm->Write(L":", 1 * sizeof(WCHAR), &n1);
-		if(FAILED(hr))return hr;
-
-		hr = JSON_putVariant(pStrm, &pPair->m_value, indent1, arrObjects);
-		if(FAILED(hr))return hr;
-
-		if(pos)
-			hr = pStrm->Write(L",\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
-		else if(indent != -1)
-			hr = pStrm->Write(L"\r\n", 2 * sizeof(WCHAR), &n1);
-		if(FAILED(hr))return hr;
-	}
-
-	hr = JSON_putTabs(pStrm, indent);
-	if(FAILED(hr))return hr;
-	hr = pStrm->Write(L"}", 1 * sizeof(WCHAR), &n1);
-	if(FAILED(hr))return hr;
-
-	arrObjects.RemoveAt(arrObjects.GetCount()-1);
-	return S_OK;
-}
-
 STDMETHODIMP CBDictionary::toJson(int intStyle, BSTR* pvar)
 {
 	HRESULT hr;
 	CAtlArray<void*> arrObjects;
 	CBTempStream mStream;
 
-	hr = toJsonValue(&mStream, arrObjects);
+	hr = JSON_join(&mStream, intStyle, arrObjects);
 	if(FAILED(hr))return hr;
 
 	*pvar = ::SysAllocStringByteLen(NULL, (ULONG)mStream.GetLength());
@@ -625,170 +495,11 @@ STDMETHODIMP CBDictionary::toJson(int intStyle, BSTR* pvar)
 	return S_OK;
 }
 
-/*
-HRESULT CBDictionary::fromJsonValue(Json::Value &root)
-{
-	if (!root.isObject())
-		return E_INVALIDARG;
-	
-	CComVariant varEmpty;
-	CComVariant varKey;
-	CBComPtr<CBListEx> pList;
-	CBComPtr<CBDictionary> pDic;
-	CComDispatchDriver pDisp;
-	HRESULT hr;
-
-	Json::Value::Members members(root.getMemberNames());
-
-	CBLock l(&m_cs);
-	m_bArrayMode = VARIANT_FALSE;
-	for (Json::Value::Members::iterator it = members.begin();it != members.end();++it)
-	{
-		const std::string &i = *it;
-		varKey.Clear();
-		hr = UTF82VARIANT(i.c_str(), i.length(), &varKey);
-		if FAILED(hr) return hr;
-
-		CRBMap<CBVariant, CComVariant>::CPair* pPair = m_mapItems.Lookup(*(CBVariant*)&varKey);
-
-		if(pPair == NULL)
-		{
-			pPair = (CRBMap<CBVariant, CComVariant>::CPair*)m_mapItems.SetAt(*(CBVariant*)&varKey, varEmpty);
-			m_posArray.Add(pPair);
-		}
-
-		switch(root[i].type())
-		{
-			case Json::nullValue:
-				pPair->m_value.ChangeType(VT_NULL);
-				break;
-			case Json::intValue:
-				if (root[i].asLargestInt()>>32)
-					pPair->m_value = root[i].asDouble();
-				else
-					pPair->m_value = root[i].asInt();
-				break;
-			case Json::uintValue:
-				if (root[i].asLargestUInt()>>31)
-					pPair->m_value = root[i].asDouble();
-				else
-					pPair->m_value = (int)root[i].asUInt();
-				break;
-			case Json::realValue:
-				pPair->m_value = root[i].asDouble();
-				break;
-			case Json::stringValue:
-				hr = UTF82VARIANT(root[i].asCString(), 0, &pPair->m_value);
-				if FAILED(hr) return hr;
-				break;
-			case Json::booleanValue:
-				pPair->m_value = (bool)root[i].asBool();
-				break;
-			case Json::arrayValue:
-				pList.CreateInstance();
-				if (pList==NULL)
-					return E_UNEXPECTED;
-				pList->fromJsonValue(root[i]);
-				hr = pList.QueryInterface(IID_IDispatch, (void **)&pDisp);
-				if (FAILED(hr))
-					return hr;
-				pPair->m_value = pDisp;
-				pList.Release();
-				pDisp.Release();
-				break;
-			case Json::objectValue:
-				pDic.CreateInstance();
-				if (pDic==NULL)
-					return E_UNEXPECTED;
-				pDic->fromJsonValue(root[i]);
-				hr = pDic.QueryInterface(IID_IDispatch, (void **)&pDisp);
-				if (FAILED(hr))
-					return E_UNEXPECTED;
-				pPair->m_value = pDisp;
-				pDic.Release();
-				pDisp.Release();
-				break;
-			default:
-				return E_UNEXPECTED;
-		}
-	}
-	return S_OK;
-}
-
-STDMETHODIMP CBDictionary::fromJson(BSTR bstrJson)
-{
-	Json::Value root;
-	Json::Reader reader;
-	CAutoPtr<char> pJson;
-	int nJson;
-	
-	pJson.Attach(BSTR2UTF8(bstrJson, &nJson));
-	if (!pJson) return E_OUTOFMEMORY;
-
-	if (!reader.parse(pJson, pJson+nJson, root))
-		return CBComObject::SetErrorInfo(reader.getFormatedErrorMessages().c_str());
-
-	return fromJsonValue(root);
-}
-*/
-
-HRESULT CBDictionary::fromJsonValue( _parser<WCHAR>* p )
-{
-	WCHAR ch;
-	HRESULT hr;
-	CComVariant varEmpty;
-
-	if(!p->skipChar('{'))
-		return p->throwErr('{');
-
-	CBLock l(&m_cs);
-	m_bArrayMode = VARIANT_FALSE;
-
-	while((ch = p->get()) == '\"')
-	{
-		CRBMap<CBVariant, CComVariant>::CPair* pPair;
-		CBVariant varKey;
-		VARIANT var = {VT_EMPTY};
-
-		hr = JSON_getVariant(p, &varKey);
-		if(FAILED(hr))
-			return hr;
-
-		if(!p->skipChar(':'))
-			return p->throwErr(':');
-
-		hr = JSON_getVariant(p, &var);
-		if(FAILED(hr))
-			return hr;
-
-		pPair = m_mapItems.Lookup(varKey);
-
-		if(pPair == NULL)
-		{
-			pPair = (CRBMap<CBVariant, CComVariant>::CPair*)m_mapItems.SetAt(varKey, varEmpty);
-			m_posArray.Add(pPair);
-		}
-		else VariantClear(&pPair->m_value);
-		CopyMemory(&pPair->m_value, &var, sizeof(VARIANT));
-
-		if(!p->skipChar(','))
-			break;
-
-		if(p->get() == '}')
-			return p->throwErr(L"Unexpected comma");
-	}
-
-	if(!p->skipChar('}'))
-		return p->throwErr('}');
-
-	return S_OK;
-}
-
 STDMETHODIMP CBDictionary::fromJson(BSTR bstrJson)
 {
 	_parser<WCHAR> p(bstrJson);
 	RemoveAll();
-	return fromJsonValue(&p);
+	return JSON_split(&p);
 }
 
 STDMETHODIMP CBDictionary::Join(BSTR bstrKeyDelimiter, BSTR bstrDelimiter, BSTR* pvar)
@@ -998,7 +709,7 @@ STDMETHODIMP CBDictionary::InitNew(void)
 {
 	return RemoveAll();
 }
-
+/*
 HRESULT CBDictionary::UTF82VARIANT(const char *pstr, int nCount, VARIANT* pvar)
 {
 	if (pvar==NULL) return E_INVALIDARG;
@@ -1027,153 +738,115 @@ LPSTR CBDictionary::BSTR2UTF8(BSTR strData, int *pCount)
 	if (pCount!=NULL) *pCount = _nTempCount;
 	return pstr;
 }
-/*
-HRESULT CBDictionary::VariantToJsonValue(VARIANT& value, Json::Value& v)
+*/
+STDMETHODIMP CBDictionary::JSON_join( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects)
 {
+	POSITION pos;
+	CRBMap<CBVariant, CComVariant>::CPair* pPair;
 	HRESULT hr;
-	CComVariant var;
-	CAutoPtr<char> p;
+	ULONG n1;
+	int indent1 = indent >= 0 ? indent + 1 : indent;
 
-	switch (value.vt)
+	hr = pStrm->Write(L"{\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
+	if(FAILED(hr))return hr;
+
+	CBLock l(&m_cs);
+	arrObjects.Add((void *)(IDispatch *)this);
+
+	pos = m_mapItems.GetHeadPosition();
+	while(pos)
 	{
-		case VT_NULL:
-		case VT_EMPTY:
-			v = Json::nullValue;
-			break;
-		case VT_BOOL:
-			v = value.boolVal;
-			break;
-		case VT_INT:
-			v = value.intVal;
-			break;
-		case VT_I1:
-			v = value.cVal;
-			break;
-		case VT_I2:
-			v = value.iVal;
-			break;
-		case VT_I4:
-			v = value.lVal;
-			break;
-		case VT_UINT:
-			v = value.uintVal;
-			break;
-		case VT_UI1:
-			v = value.bVal;
-			break;
-		case VT_UI2:
-			v = value.uiVal;
-			break;
-		case VT_UI4:
-			v = (unsigned int)value.ulVal;
-			break;
-		case VT_R4:
-			v = (double)value.fltVal;
-			break;
-		case VT_R8:
-			v = value.dblVal;
-			break;
-		case VT_I8:
-			v = value.llVal;
-			break;
-		case VT_UI8:
-			v = value.ullVal;
-			break;
-		case VT_CY:
-			hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_R8);
-			if FAILED(hr) return hr;
-			v = var.dblVal;
-			break;
-		case VT_DECIMAL:
-			hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_I8);
-			if FAILED(hr) return hr;
-			v = var.llVal;
-			break;
-		case VT_DATE:
-			hr = VariantChangeType(&var, &value, VARIANT_ALPHABOOL, VT_BSTR);
-			if FAILED(hr) return hr;
-			p.Attach(BSTR2UTF8(var.bstrVal));
-			v = (const char*)p;
-			break;
-		case VT_BSTR:
-			p.Attach(BSTR2UTF8(value.bstrVal));
-			v = (const char*)p;
-			break;
-		default:
-			return E_INVALIDARG;
+		pPair = (CRBMap<CBVariant, CComVariant>::CPair*)m_mapItems.GetNext(pos);
+
+		hr = JSON_putTabs(pStrm, indent1);
+		if(FAILED(hr))return hr;
+
+		if(pPair->m_key.vt == VT_BSTR)
+			hr = JSON_putVariant(pStrm, &pPair->m_key, indent1, arrObjects);
+		else
+		{
+			CComVariant var;
+
+			hr = ::VariantChangeType(&var, (VARIANTARG*)&pPair->m_key, VARIANT_ALPHABOOL, VT_BSTR);
+			if(FAILED(hr))return hr;
+
+			hr = JSON_putVariant(pStrm, &var, indent1, arrObjects);
+		}
+		if(FAILED(hr))return hr;
+
+		if(indent != -1)
+			hr = pStrm->Write(L": ", 2 * sizeof(WCHAR), &n1);
+		else
+			hr = pStrm->Write(L":", 1 * sizeof(WCHAR), &n1);
+		if(FAILED(hr))return hr;
+
+		hr = JSON_putVariant(pStrm, &pPair->m_value, indent1, arrObjects);
+		if(FAILED(hr))return hr;
+
+		if(pos)
+			hr = pStrm->Write(L",\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
+		else if(indent != -1)
+			hr = pStrm->Write(L"\r\n", 2 * sizeof(WCHAR), &n1);
+		if(FAILED(hr))return hr;
 	}
+
+	hr = JSON_putTabs(pStrm, indent);
+	if(FAILED(hr))return hr;
+	hr = pStrm->Write(L"}", 1 * sizeof(WCHAR), &n1);
+	if(FAILED(hr))return hr;
+
+	arrObjects.RemoveAt(arrObjects.GetCount()-1);
 	return S_OK;
 }
 
-HRESULT CBDictionary::DispatchToJsonValue(IDispatch *pdisp, Json::Value& v, CAtlArray<void*> &arrObjects)
+STDMETHODIMP CBDictionary::JSON_split( _parser<WCHAR>* p )
 {
+	WCHAR ch;
 	HRESULT hr;
+	CComVariant varEmpty;
 
-	for(int j=0;j<(int)arrObjects.GetCount();j++)
+	if(!p->skipChar('{'))
+		return p->throwErr('{');
+
+	CBLock l(&m_cs);
+	m_bArrayMode = VARIANT_FALSE;
+
+	while((ch = p->get()) == '\"')
 	{
-		if (arrObjects[j] == (void *)pdisp)
+		CRBMap<CBVariant, CComVariant>::CPair* pPair;
+		CBVariant varKey;
+		VARIANT var = {VT_EMPTY};
+
+		hr = JSON_getVariant(p, &varKey);
+		if(FAILED(hr))
+			return hr;
+
+		if(!p->skipChar(':'))
+			return p->throwErr(':');
+
+		hr = JSON_getVariant(p, &var);
+		if(FAILED(hr))
+			return hr;
+
+		pPair = m_mapItems.Lookup(varKey);
+
+		if(pPair == NULL)
 		{
-			return CBComObject::SetErrorInfo(L"Duplicate object.");
+			pPair = (CRBMap<CBVariant, CComVariant>::CPair*)m_mapItems.SetAt(varKey, varEmpty);
+			m_posArray.Add(pPair);
 		}
+		else VariantClear(&pPair->m_value);
+		CopyMemory(&pPair->m_value, &var, sizeof(VARIANT));
+
+		if(!p->skipChar(','))
+			break;
+
+		if(p->get() == '}')
+			return p->throwErr(L"Unexpected comma");
 	}
 
+	if(!p->skipChar('}'))
+		return p->throwErr('}');
 
-	CComQIPtr<IVariantDictionary, &IID_IVariantDictionary> pDic = pdisp;
-	if (pDic)
-	{
-		hr = ((CBDictionary *)pDic.p)->toJsonValue(v, arrObjects);
-		if (FAILED(hr)) return hr;
-
-		pDic.Release();
-		return S_OK;
-	}
-	
-	CComQIPtr<IVariantList, &IID_IVariantList> pList = pdisp;
-	if (pList)
-	{
-		hr = ((CBListEx *)pList.p)->toJsonValue(v, arrObjects);
-		if (FAILED(hr)) return hr;
-			
-		pList.Release();
-		return S_OK;
-	}
-
-	_RecordsetPtr prs = pdisp;
-	if (prs)
-	{
-		Json::Value fields;
-		LONG nCount;
-	    _variant_t Index;
-		Index.vt = VT_I2;
-		
-		nCount = prs->Fields->Count;
-		for (int j=0;j<nCount;j++)
-		{
-			Index.iVal = j;
-			_bstr_t bstrname = prs->Fields->GetItem(Index)->Name;
-			CAutoPtr<char> p(BSTR2UTF8(bstrname.GetBSTR()));
-			fields.append((const char *)p);
-		}
-		v.append(fields);
-		prs->MoveFirst();
-		while (true)
-		{
-			if (prs->GetEndOfFile()) break;
-			Json::Value values;
-			for (int j=0;j<nCount;j++)
-			{
-				Index.iVal = j;
-				_variant_t value = prs->Fields->Item[Index]->Value;
-				Json::Value v1;
-				hr = VariantToJsonValue(value, v1);
-				if FAILED(hr) return hr;
-				values.append(v1);
-			}
-			v.append(values);
-			prs->MoveNext();
-		}
-		return S_OK;
-	}
-	return CBComObject::SetErrorInfo(L"Not Internal Object.");
+	return S_OK;
 }
-*/

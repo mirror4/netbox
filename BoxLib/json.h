@@ -79,6 +79,15 @@ public:
 	int lineNo;
 };
 
+class __declspec(uuid("94650000-0001-4469-6374-696F6E617279"))
+IJSON : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE JSON_join( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects) = 0;
+	virtual HRESULT STDMETHODCALLTYPE JSON_split( _parser<WCHAR>* p ) = 0;
+};
+
+
 inline HRESULT JSON_putTabs(IStream *pStrm, int indent)
 {
 	static WCHAR s_tabs[] = L"                ";

@@ -5,12 +5,14 @@
 
 class __declspec(uuid("94650000-0000-0000-0042-537472756374"))
 CBStruct : public CBDispatch<IVariantStruct>,
-				public IPersistStreamInit
+				public IPersistStreamInit,
+					public IJSON
 {
 	DECLARE_CLASS(CBStruct)
 
 	INTERFACE_BEGIN_EX(CBDispatch<IVariantStruct>)
 		PERSIST_INTERFACE
+		INTERFACE_DEF(IJSON)
 	INTERFACE_END
 
 public:
@@ -81,8 +83,8 @@ public:
 		ZeroMemory(&m_arrayVariant[0], sizeof(VARIANT) * n);
 	}
 
-	HRESULT toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects);
-	HRESULT fromJsonValue(_parser<WCHAR>* p);
+	STDMETHOD(JSON_join)( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects);
+	STDMETHOD(JSON_split)( _parser<WCHAR>* p );
 
 private:
 	void ClearAll(void);

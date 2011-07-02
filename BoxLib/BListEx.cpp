@@ -214,36 +214,6 @@ STDMETHODIMP CBListEx::Split(BSTR bstrExpression, BSTR bstrDelimiter)
 
 	return S_OK;
 }
-/*
-STDMETHODIMP CBListEx::toJson(int intStyle, BSTR* pvar)
-{
-	HRESULT hr;
-	Json::Value root;
-	CAtlArray<void*> arrObjects;
-
-	hr = toJsonValue(root, arrObjects);
-	if (FAILED(hr)) return hr;
-
-	std::string output;
-	if (intStyle)
-	{
-		Json::StyledWriter writer;
-		output = writer.write( root );
-	}
-	else
-	{
-		Json::FastWriter writer;
-		output = writer.write( root );
-	}
-
-	VARIANT var;
-	hr = CBDictionary::UTF82VARIANT(output.c_str(), output.length(), &var);
-	if (FAILED(hr)) return hr;
-
-	*pvar = var.bstrVal;
-	return S_OK;
-}
-*/
 
 STDMETHODIMP CBListEx::toJson(int intStyle, BSTR* pvar)
 {
@@ -251,7 +221,7 @@ STDMETHODIMP CBListEx::toJson(int intStyle, BSTR* pvar)
 	CAtlArray<void*> arrObjects;
 	CBTempStream mStream;
 
-	hr = toJsonValue(&mStream, arrObjects);
+	hr = JSON_join(&mStream, intStyle, arrObjects);
 	if(FAILED(hr))return hr;
 
 	*pvar = ::SysAllocStringByteLen(NULL, (ULONG)mStream.GetLength());
@@ -260,29 +230,11 @@ STDMETHODIMP CBListEx::toJson(int intStyle, BSTR* pvar)
 	return S_OK;
 }
 
-/*
-STDMETHODIMP CBListEx::fromJson(BSTR bstrJson)
-{
-	Json::Value root;
-	Json::Reader reader;
-	CAutoPtr<char> pJson;
-	int nJson;
-	
-	pJson.Attach(CBDictionary::BSTR2UTF8(bstrJson, &nJson));
-	if (!pJson) return E_OUTOFMEMORY;
-
-	if (!reader.parse(pJson, pJson+nJson, root))
-		return CBComObject::SetErrorInfo(reader.getFormatedErrorMessages().c_str());
-
-	return fromJsonValue(root);
-}
-*/
-
 STDMETHODIMP CBListEx::fromJson(BSTR bstrJson)
 {
 	_parser<WCHAR> p(bstrJson);
 	RemoveAll();
-	return fromJsonValue(&p);
+	return JSON_split(&p);
 }
 
 STDMETHODIMP CBListEx::Load(IStream *pStm)

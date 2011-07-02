@@ -337,7 +337,7 @@ interface IVariantList : IDispatch {
 					[in, optional, defaultvalue(",")] BSTR bstrDelimiter);
 	[id(0x00000019)]
 	HRESULT toJson(
-					[in, optional, defaultvalue(0)] int intStyle, 
+					[in, optional, defaultvalue(-1)] int intStyle, 
 					[out, retval] BSTR* pvar);
 	[id(0x0000001A)]
 	HRESULT fromJson([in] BSTR bstrJson);
@@ -412,7 +412,7 @@ interface IVariantDictionary : IDispatch {
 					[in, optional, defaultvalue(",")] BSTR bstrDelimiter);
 	[id(0x60020012)]
 	HRESULT toJson(
-					[in, optional, defaultvalue(0)] int intStyle, 
+					[in, optional, defaultvalue(-1)] int intStyle, 
 					[out, retval] BSTR* pvar);
 	[id(0x60020013)]
 	HRESULT fromJson([in] BSTR bstrJson);

@@ -373,29 +373,15 @@ HRESULT JSON_getArray(_parser<WCHAR>* p, VARIANT* pVar)
 	return S_OK;
 }
 
-inline HRESULT getObject(WCHAR ch, VARIANT* pVar, _parser<WCHAR>* p)
+inline HRESULT getObject(WCHAR ch, VARIANT* pVar)
 {
-	CBComPtr<CBListEx> pList;
-	CBComPtr<CBDictionary> pDic;
 	CComDispatchDriver pDisp;
 	HRESULT hr;
 
 	if(ch == '{')
-	{
-		pDic.CreateInstance();
-		if (pDic==NULL)
-			return E_UNEXPECTED;
-		pDic->fromJsonValue(p);
-		hr = pDic.QueryInterface(IID_IDispatch, (void **)&pDisp);
-	}
+		hr = pDisp.CoCreateInstance(__uuidof(CBDictionary));
 	else if(ch == '[')
-	{
-		hr = pList.CreateInstance();
-		if (pList==NULL)
-			return E_UNEXPECTED;
-		pList->fromJsonValue(p);
-		hr = pList.QueryInterface(IID_IDispatch, (void **)&pDisp);
-	}
+		hr = pDisp.CoCreateInstance(__uuidof(CBListEx));
 	else return S_FALSE;
 
 	if(FAILED(hr))
@@ -423,7 +409,21 @@ HRESULT JSON_getVariant(_parser<WCHAR>* p, VARIANT* pVar)
 	if(ch == '-' || (ch >= '0' && ch <= '9'))
 		return JSON_getNumber(p, pVar);
 
-	return getObject(ch, pVar, p);
+	if(getObject(ch, pVar) == S_OK)
+	{
+		CBComPtr<IJSON> pJson;
+
+		pJson = pVar->pdispVal;
+
+		if(pJson)
+			return pJson->JSON_split(p);
+
+		pVar->pdispVal->Release();
+		pVar->vt = VT_EMPTY;
+
+		return DISP_E_UNKNOWNINTERFACE;
+	}
+
 
 	if(ch == '[')
 		return JSON_getArray(p, pVar);

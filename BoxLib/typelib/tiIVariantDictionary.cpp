@@ -10,7 +10,7 @@ static PARAMDESCEX s_mElemDescEx[] =
 	{0x18, {VT_BSTR, 0, 0, 0, 4 + (LONGLONG)L"\x2\0" L","}},
 	{0x18, {VT_BSTR, 0, 0, 0, 4 + (LONGLONG)L"\x2\0" L"="}},
 	{0x18, {VT_BSTR, 0, 0, 0, 4 + (LONGLONG)L"\x2\0" L","}},
-	{0x18, {VT_I4, 0, 0, 0, 0}},
+	{0x18, {VT_I4, 0, 0, 0, -1}},
 	{0}
 };
 
@@ -344,7 +344,7 @@ static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS
 		if(cArgs1 > 1)
 			return DISP_E_BADPARAMCOUNT;
 
-		INVOKE_PARAM_DEF(VT_I4, 0, 0)
+		INVOKE_PARAM_DEF(VT_I4, 0, 7)
 		INVOKE_PARAM_RET(VT_BSTR, 1)
 
 		hr = pObject->toJson(v0, v1);

@@ -315,33 +315,8 @@ STDMETHODIMP CBStruct::InitNew(void)
 	ClearAll();
 	return S_OK;
 }
-/*
-HRESULT CBStruct::toJsonValue(Json::Value &root, CAtlArray<void*> &arrObjects)
-{
-	HRESULT hr;
 
-	CBLock l(&m_cs);
-
-	arrObjects.Add((void *)(IDispatch *)this);
-
-	for(int i = 0; i < (int)m_arrayVariant.GetCount(); i ++)
-	{
-		Json::Value v;
-		if (m_arrayVariant[i].vt == VT_DISPATCH)
-			hr = CBDictionary::DispatchToJsonValue(m_arrayVariant[i].pdispVal, v, arrObjects);
-		else
-			hr = CBDictionary::VariantToJsonValue(m_arrayVariant[i], v);
-		if FAILED(hr) return hr;
-		root.append(v);
-	}
-
-	arrObjects.RemoveAt(arrObjects.GetCount()-1);
-
-	return S_OK;
-}
-*/
-
-HRESULT CBStruct::toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects)
+STDMETHODIMP CBStruct::JSON_join( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects)
 {
 	HRESULT hr;
 
@@ -357,82 +332,7 @@ HRESULT CBStruct::toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects)
 	return hr;
 }
 
-/*
-HRESULT CBStruct::fromJsonValue(Json::Value &root)
-{
-	if (!root.isArray())
-		return E_INVALIDARG;
-	
-	CComVariant varEmpty;
-	CBComPtr<CBListEx> pList;
-	CBComPtr<CBDictionary> pDic;
-	CComDispatchDriver pDisp;
-	HRESULT hr;
-
-	CBLock l(&m_cs);
-	for (size_t i=0;i<root.size();i++)
-	{
-		size_t n = m_arrayVariant.Add(varEmpty);
-		switch(root[i].type())
-		{
-			case Json::nullValue:
-				(*((CComVariant*)&m_arrayVariant[n])).ChangeType(VT_NULL);
-				break;
-			case Json::intValue:
-				if (root[i].asLargestInt()>>32)
-					*((CComVariant*)&m_arrayVariant[n]) = root[i].asDouble();
-				else
-					*((CComVariant*)&m_arrayVariant[n]) = root[i].asInt();
-				break;
-			case Json::uintValue:
-				if (root[i].asLargestUInt()>>31)
-					*((CComVariant*)&m_arrayVariant[n]) = root[i].asDouble();
-				else
-					*((CComVariant*)&m_arrayVariant[n]) = (int)root[i].asUInt();
-				break;
-			case Json::realValue:
-				*((CComVariant*)&m_arrayVariant[n]) = root[i].asDouble();
-				break;
-			case Json::stringValue:
-				hr = CBDictionary::UTF82VARIANT(root[i].asCString(), 0, &m_arrayVariant[n]);
-				if (FAILED(hr)) return hr;
-				break;
-			case Json::booleanValue:
-				*((CComVariant*)&m_arrayVariant[n]) = (bool)root[i].asBool();
-				break;
-			case Json::arrayValue:
-				pList.CreateInstance();
-				if (pList==NULL)
-					return E_UNEXPECTED;
-				pList->fromJsonValue(root[i]);
-				hr = pList.QueryInterface(IID_IDispatch, (void **)&pDisp);
-				if (FAILED(hr))
-					return hr;
-				*((CComVariant*)&m_arrayVariant[n]) = pDisp;
-				pList.Release();
-				pDisp.Release();
-				break;
-			case Json::objectValue:
-				pDic.CreateInstance();
-				if (pDic==NULL)
-					return E_UNEXPECTED;
-				pDic->fromJsonValue(root[i]);
-				hr = pDic.QueryInterface(IID_IDispatch, (void **)&pDisp);
-				if (FAILED(hr))
-					return E_UNEXPECTED;
-				*((CComVariant*)&m_arrayVariant[n]) = pDisp;
-				pDic.Release();
-				pDisp.Release();
-				break;
-			default:
-				return E_UNEXPECTED;
-		}
-
-	}
-	return S_OK;
-}
-*/
-HRESULT CBStruct::fromJsonValue(_parser<WCHAR>* p)
+STDMETHODIMP CBStruct::JSON_split( _parser<WCHAR>* p )
 {
 	HRESULT hr;
 

@@ -6,12 +6,14 @@
 
 class __declspec(uuid("94650000-0000-4469-6374-696F6E617279"))
 CBDictionary : public CBDispatch<IVariantDictionary>,
-					public IPersistStreamInit
+					public IPersistStreamInit,
+						public IJSON
 {
 	DECLARE_CLASS(CBDictionary)
 
 	INTERFACE_BEGIN_EX(CBDispatch<IVariantDictionary>)
 		PERSIST_INTERFACE
+		INTERFACE_DEF(IJSON)
 	INTERFACE_END
 
 public:
@@ -85,13 +87,8 @@ public:
 		return i;
 	}
 
-	HRESULT toJsonValue(IStream *pStrm, CAtlArray<void*> &arrObjects);
-	HRESULT fromJsonValue(_parser<WCHAR>* p);
-/*
-	static HRESULT DispatchToJsonValue(IDispatch *pdisp, Json::Value& v, CAtlArray<void*> &arrObjects);
-	static HRESULT VariantToJsonValue(VARIANT& value, Json::Value& v);
-*/	static LPSTR BSTR2UTF8(BSTR strData, int *pCount = NULL);
-	static HRESULT UTF82VARIANT(const char *pstr, int nCount, VARIANT* pvar);
+	STDMETHOD(JSON_join)( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects);
+	STDMETHOD(JSON_split)( _parser<WCHAR>* p );
 
 protected:
 	HRESULT putItem(VARIANT* pvarKey, VARIANT* pvar);
