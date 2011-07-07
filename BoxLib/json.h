@@ -79,7 +79,7 @@ public:
 	int lineNo;
 };
 
-class __declspec(uuid("94650000-0001-4469-6374-696F6E617279"))
+class __declspec(uuid("94650000-0000-4469-6374-696F6E617888"))
 IJSON : public IUnknown
 {
 public:

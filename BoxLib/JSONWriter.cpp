@@ -3,6 +3,8 @@
 #include "BDictionary.h"
 #include "BCollection.h"
 #include "BListex.h"
+#include <oledb.h>
+#include "atldbcli.h"
 #include "msado15.tlh"
 
 
@@ -206,19 +208,45 @@ HRESULT JSON_putObject(IStream *pStrm, IUnknown* o, int indent, CAtlArray<void*>
 		LONG nCount;
 	    _variant_t Index;
 		Index.vt = VT_I2;
-		CAtlArray<FieldPtr> flds;
-		
+
+		CAtlArray<DBBINDING> pdbbinds;
+		CAtlArray<VARIANT> pdatas;
+
+		try
+		{
+
 		hr = pStrm->Write(L"[\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
 		if(FAILED(hr))return hr;
 
 		nCount = prs->Fields->Count;
 		hr = pStrm->Write(L"{\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
 		if(FAILED(hr))return hr;
+
+		pdbbinds.SetCount(nCount);
+		ZeroMemory(pdbbinds.GetData(), pdbbinds.GetCount()*sizeof(DBBINDING));
+		pdatas.SetCount(nCount);
+
+		CAtlArray<FieldPtr> flds;
+		flds.SetCount(nCount);
 		for (int j=0;j<nCount;j++)
 		{
 			Index.iVal = j;
-			_bstr_t bstrname = prs->Fields->GetItem(Index)->Name;
-			//flds.Add(prs->Fields->GetItem(Index));
+			//_bstr_t bstrname = prs->Fields->GetItem(Index)->Name;
+
+			FieldPtr fld = prs->Fields->GetItem(Index);
+/*
+			pdbbinds[j].iOrdinal = j+1;
+			pdbbinds[j].obValue = sizeof(VARIANT) * j + 8;
+			pdbbinds[j].dwPart = DBPART_VALUE;
+			pdbbinds[j].dwMemOwner = 0;//DBMEMOWNER_PROVIDEROWNED;
+			pdbbinds[j].eParamIO = DBPARAMIO_NOTPARAM;
+			pdbbinds[j].cbMaxLen = sizeof(void *);
+			pdatas[j].vt = pdbbinds[j].wType = fld->Type;// | DBTYPE_BYREF;
+			_bstr_t bstrname = fld->Name;
+*/
+
+			flds.Add(fld);
+			_bstr_t bstrname = fld->Name;
 
 			hr = JSON_putTabs(pStrm, indent1);
 			if(FAILED(hr))return hr;
@@ -246,7 +274,81 @@ HRESULT JSON_putObject(IStream *pStrm, IUnknown* o, int indent, CAtlArray<void*>
 		hr = pStrm->Write(L"}", 1 * sizeof(WCHAR), &n1);
 		if(FAILED(hr))return hr;
 
-		prs->MoveFirst();
+/*
+		CComPtr<ADORecordsetConstruction> prsct;
+		hr = prs->QueryInterface(__uuidof(ADORecordsetConstruction), (void **)&prsct);
+		if(FAILED(hr))return hr;
+
+		CComPtr<IRowset> pRowset;
+
+		hr = prsct->get_Rowset((IUnknown **)&pRowset);
+		if(FAILED(hr))return hr;
+
+		CComPtr<IAccessor> pAccessor;
+		hr = pRowset->QueryInterface(IID_IAccessor, (void**)&pAccessor);
+		if(FAILED(hr))return hr;
+
+		CAtlArray<DBBINDSTATUS> pdbbs;
+		pdbbs.SetCount(nCount);
+		
+		HACCESSOR hFastAccess;
+		hr = pAccessor->CreateAccessor(DBACCESSOR_ROWDATA, nCount, &pdbbinds[0], 0, &hFastAccess, &pdbbs[0]);
+		if(FAILED(hr))return hr;
+
+		//hr = pRowset->RestartPosition(DB_NULL_HCHAPTER);
+		//if(FAILED(hr))return hr;
+		
+		CAtlArray<HROW> Rows;
+		Rows.SetCount(64);
+		HROW *pRows = &Rows[0];
+		ULONG RowsObtained;
+		DBROWOFFSET pos = 0;
+		BOOL loop = true;
+
+		while (loop)
+		{
+			hr = pRowset->GetNextRows(DB_NULL_HCHAPTER, pos, Rows.GetCount(), &RowsObtained, &pRows);
+			if (FAILED(hr)) return hr;
+			if (hr==DB_S_ENDOFROWSET) loop = false;
+			for (int i=0;i<RowsObtained;i++)
+			{
+				hr = pRowset->GetData(Rows[i], hFastAccess, (void *)&pdatas[0]);
+				if (FAILED(hr)) return hr;
+
+				hr = pStrm->Write(L"[\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
+				if(FAILED(hr))return hr;
+
+				for (int j=0;j<nCount;j++)
+				{
+					hr = JSON_putTabs(pStrm, indent1);
+					if(FAILED(hr))return hr;
+
+					JSON_putVariant(pStrm, &pdatas[j], indent, arrObjects);
+					if(FAILED(hr))return hr;
+
+					if(j < nCount - 1)
+						hr = pStrm->Write(L",\r\n", (indent != -1 ? 3 : 1) * sizeof(WCHAR), &n1);
+					else if(indent != -1)
+						hr = pStrm->Write(L"\r\n", 2 * sizeof(WCHAR), &n1);
+					if(FAILED(hr))return hr;
+				}
+
+				hr = JSON_putTabs(pStrm, indent);
+				if(FAILED(hr))return hr;
+				hr = pStrm->Write(L"]", 1 * sizeof(WCHAR), &n1);
+				if(FAILED(hr))return hr;
+
+				if (i!=RowsObtained-1 || loop)
+				{
+					hr = pStrm->Write(L",", 1 * sizeof(WCHAR), &n1);
+					if(FAILED(hr))return hr;
+				}
+				pos++;
+			}
+		}
+*/
+		if (!prs->GetBOF())
+			prs->MoveFirst();
 		if (!prs->GetEndOfFile())
 		{
 			hr = pStrm->Write(L",", 1 * sizeof(WCHAR), &n1);
@@ -262,8 +364,8 @@ HRESULT JSON_putObject(IStream *pStrm, IUnknown* o, int indent, CAtlArray<void*>
 				for (int j=0;j<nCount;j++)
 				{
 					Index.iVal = j;
-					_variant_t value = prs->Fields->Item[Index]->Value;
-					//_variant_t value = flds[j]->Value;
+					//_variant_t value = prs->Fields->Item[Index]->Value;
+					_variant_t value = flds[j]->Value;
 
 					hr = JSON_putTabs(pStrm, indent1);
 					if(FAILED(hr))return hr;
@@ -289,6 +391,13 @@ HRESULT JSON_putObject(IStream *pStrm, IUnknown* o, int indent, CAtlArray<void*>
 				if(FAILED(hr))return hr;
 			}
 		}
+		}
+		catch(_com_error &e)
+		{
+			_bstr_t bstr_err = e.Description();
+			return CBComObject::SetErrorInfo((LPCWSTR)bstr_err);
+		}
+
 		hr = JSON_putTabs(pStrm, indent);
 		if(FAILED(hr))return hr;
 		hr = pStrm->Write(L"]", 1 * sizeof(WCHAR), &n1);

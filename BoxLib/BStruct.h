@@ -53,6 +53,11 @@ public:
 	~CBStruct(void);
 
 public:
+	// IJSON
+	STDMETHOD(JSON_join)( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects);
+	STDMETHOD(JSON_split)( _parser<WCHAR>* p );
+
+public:
 	// IPersist
 	STDMETHOD(GetClassID)(CLSID *pClassID);
 
@@ -82,9 +87,6 @@ public:
 		m_arrayVariant.SetCount(n);
 		ZeroMemory(&m_arrayVariant[0], sizeof(VARIANT) * n);
 	}
-
-	STDMETHOD(JSON_join)( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects);
-	STDMETHOD(JSON_split)( _parser<WCHAR>* p );
 
 private:
 	void ClearAll(void);

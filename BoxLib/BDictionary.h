@@ -21,6 +21,11 @@ public:
 	{}
 
 public:
+	// IJSON
+	STDMETHOD(JSON_join)( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects);
+	STDMETHOD(JSON_split)( _parser<WCHAR>* p );
+
+public:
 	// IPersist
 	STDMETHOD(GetClassID)(CLSID *pClassID);
 
@@ -86,9 +91,6 @@ public:
 
 		return i;
 	}
-
-	STDMETHOD(JSON_join)( IStream *pStrm, int indent, CAtlArray<void*> &arrObjects);
-	STDMETHOD(JSON_split)( _parser<WCHAR>* p );
 
 protected:
 	HRESULT putItem(VARIANT* pvarKey, VARIANT* pvar);

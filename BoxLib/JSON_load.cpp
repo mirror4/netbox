@@ -375,17 +375,28 @@ HRESULT JSON_getArray(_parser<WCHAR>* p, VARIANT* pVar)
 
 inline HRESULT getObject(WCHAR ch, VARIANT* pVar)
 {
+	CBComPtr<CBDictionary> pDic;
+	CBComPtr<CBListEx> pList;
 	CComDispatchDriver pDisp;
 	HRESULT hr;
-
+	
 	if(ch == '{')
-		hr = pDisp.CoCreateInstance(__uuidof(CBDictionary));
+	{
+		hr = pDic.CreateInstance();//pDisp.CoCreateInstance(__uuidof(CBDictionary));
+		if(FAILED(hr)) return hr;
+		pDisp = pDic;
+	}
 	else if(ch == '[')
-		hr = pDisp.CoCreateInstance(__uuidof(CBListEx));
+	{
+		hr = pList.CreateInstance();//pDisp.CoCreateInstance(__uuidof(CBListEx));
+		if(FAILED(hr)) return hr;
+		hr = pList.QueryInterface(IID_IDispatch, (void **)&pDisp);
+		if(FAILED(hr)) return hr;
+	}
 	else return S_FALSE;
 
-	if(FAILED(hr))
-		return hr;
+	if(pDisp == NULL)
+		return DISP_E_UNKNOWNINTERFACE;
 
 	pVar->vt = VT_DISPATCH;
 	pVar->pdispVal = pDisp.Detach();
