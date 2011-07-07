@@ -227,7 +227,6 @@ HRESULT JSON_putObject(IStream *pStrm, IUnknown* o, int indent, CAtlArray<void*>
 		pdatas.SetCount(nCount);
 
 		CAtlArray<FieldPtr> flds;
-		flds.SetCount(nCount);
 		for (int j=0;j<nCount;j++)
 		{
 			Index.iVal = j;
@@ -488,6 +487,8 @@ HRESULT JSON_putVariant(IStream *pStrm, const VARIANT* pVar, int indent, CAtlArr
 			return pStrm->Write(L"false", 5 * sizeof(WCHAR), &n1);
 		break;
 	case VT_I1:
+		return JSON_putInteger(pStrm, pVar->cVal);
+	case VT_UI1:
 		return JSON_putInteger(pStrm, pVar->bVal);
 	case VT_I2:
 		return JSON_putInteger(pStrm, pVar->iVal);
@@ -525,6 +526,8 @@ HRESULT JSON_putVariant(IStream *pStrm, const VARIANT* pVar, int indent, CAtlArr
 			return TYPE_E_TYPEMISMATCH;
 
 		return JSON_putSafeArray(pStrm, pVar->vt & VT_BYREF ? *pVar->pparray : pVar->parray, indent, arrObjects);
+	default:
+		return JSON_putString(pStrm, L"VAIRANT UNKNOWN");
 	}
 
 	return S_OK;
