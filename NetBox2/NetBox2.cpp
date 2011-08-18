@@ -249,12 +249,13 @@ LPDISPATCH CNetBox2App::get_Console()
 {
 	if(!m_pConsole)
 	{
+		/*
 		BOOL (WINAPI *pAttachConsole)(DWORD dwProcessId);
 
 		*(FARPROC*)&pAttachConsole = ::GetProcAddress(GetModuleHandle(_T("Kernel32.dll")), _T("AttachConsole"));
 		
 		if (!pAttachConsole(-1))		//Windows NT >=5.0, XP 2003
-			::AllocConsole();
+*/			::AllocConsole();
 		::SetConsoleTitle(CBoxSystem::getVersion());
 		m_pConsole.CreateInstance();
 	}

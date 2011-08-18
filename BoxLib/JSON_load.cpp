@@ -40,10 +40,10 @@ HRESULT JSON_getValue(_parser<WCHAR>* p, VARIANT* pVar)
 	return p->throwToken(s, pos);
 }
 
-inline int getInt(LPCWSTR s, int& pos)
+inline __int64 getInt(LPCWSTR s, int& pos)
 {
 	WCHAR ch;
-	int n = 0;
+	__int64 n = 0;
 
 	while((ch = s[pos]) && ch >= '0' && ch <= '9')
 	{
