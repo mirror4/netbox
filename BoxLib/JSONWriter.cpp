@@ -121,7 +121,7 @@ HRESULT JSON_putFloat(IStream *pStrm, double n)
 	WCHAR s[_CVTBUFSIZE];
 	ULONG n1;
 
-	n1 = swprintf_s(s, _CVTBUFSIZE, L"%.17e", n);
+	n1 = swprintf_s(s, _CVTBUFSIZE, L"%.17g", n);
 	return pStrm->Write(s, (ULONG)(n1 * sizeof(WCHAR)), &n1);
 }
 

@@ -873,7 +873,7 @@ int CBoxHttpAccept::BuildFile(void)
 
 						WriteToClient(str, str.GetLength());
 
-						WriteToClient(_T("<hr>\r\n<small>Host by <a href=\"http://www.netbox.cn\" target=\"_blank\">"), 68);
+						WriteToClient(_T("<hr>\r\n<small>Host by <a href=\"http://www.9465.net\" target=\"_blank\">"), 68);
 						WriteToClient(CBoxSystem::getVersion(), CBoxSystem::getVersionLen());
 						WriteToClient(_T("</a></small>\r\n</body></html>"), 28);
 					}else WriteToClient(m_pHost->m_strErrorMessage, m_pHost->m_strErrorMessage.GetLength());
@@ -1388,7 +1388,7 @@ void CBoxHttpAccept::SendHeader()
 				strMsg.Append(m_strStatus, m_strStatus.GetLength());
 				strMsg.Append("</title></head>\r\n<body><h1>", 27);
 				strMsg.Append(m_strStatus, m_strStatus.GetLength());
-				strMsg.Append("</h1><hr>\r\n<small>Host by <a href=\"http://www.netbox.cn\" target=\"_blank\">", 73);
+				strMsg.Append("</h1><hr>\r\n<small>Host by <a href=\"http://www.9465.net\" target=\"_blank\">", 73);
 				strMsg.Append(CBoxSystem::getVersion(), CBoxSystem::getVersionLen());
 				strMsg.Append("</a></small>\r\n</body></html>", 28);
 

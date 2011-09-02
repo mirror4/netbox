@@ -443,7 +443,7 @@ void CNBRDlg::OnSysCommand(UINT nID, LPARAM lParam)
 		CCertView dlgCert;
 		dlgCert.DoModal();*/
 	}else if ((nID & 0xFFF0) == IDM_VIEWTEAM)
-		ShellExecute(NULL, "open", "http://www.netbox.cn/technical/team.htm", NULL, NULL, SW_SHOW);
+		ShellExecute(NULL, "open", "http://www.9465.net/technical/team.htm", NULL, NULL, SW_SHOW);
 	else if(((nID & 0xFFF0) >= IDM_LANGUAGE) &&
 		((((nID & 0xFFF0) - IDM_LANGUAGE) >> 4) < (int)theApp.m_arrayLang.GetCount()))
 	{
@@ -1062,7 +1062,7 @@ void CNBRDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	CWnd *pChildWnd = ChildWindowFromPoint(point);
 
 	if(pChildWnd && pChildWnd->GetDlgCtrlID() == IDC_PBNB)
-		ShellExecute(NULL, "open", "http://www.netbox.cn/", NULL, NULL, SW_SHOW);
+		ShellExecute(NULL, "open", "http://www.9465.net/", NULL, NULL, SW_SHOW);
 
 	CDialog::OnLButtonUp(nFlags, point);
 }

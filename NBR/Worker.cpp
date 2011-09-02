@@ -60,10 +60,14 @@ BOOL CWorker::StartBuild()
 	if(!m_file.Open(str, CFile::shareDenyRead | CFile::modeReadWrite | CFile::typeBinary | CFile::modeCreate))
 		return LogLastError(str);
 
+	ZeroMemory(m_dwPackInfo, sizeof(m_dwPackInfo));
+	MD5_Init(&m_ctxMD5);
+
 	if(m_pwndMain->IsDlgButtonChecked(IDC_LIBRARY))
 	{
 		RAND_bytes(buffer, sizeof(buffer));
 		m_file.Write(buffer, (*(WORD*)(buffer + sizeof(buffer) - 2)) % sizeof(buffer));
+		m_file.SeekToBegin();
 	}else
 	{
 		CFile fileNetBox;
@@ -76,64 +80,63 @@ BOOL CWorker::StartBuild()
 		while(nSize = fileNetBox.Read(buffer, sizeof(buffer)))
 			m_file.Write(buffer, nSize);
 
+//		废弃NetBox用户签名证书
 //		m_file.Seek(0x7c, 0);
 //		m_file.Write(&theApp.m_certinfo.m_nDevID, 4);
-//Replace Icon Now!
+
+		//Replace Icon Now!
 		m_file.SeekToBegin();
 		
-		
 //End Replace
+
+	//Code for checking signcode
+		DWORD nSignAddress = 0, nChecksumAddress = 0;
+		IMAGE_DOS_HEADER idh;
+		IMAGE_NT_HEADERS inth;
+
+		m_file.SeekToBegin();
+		m_file.Read(&idh, sizeof(IMAGE_DOS_HEADER));
+		if (idh.e_lfanew==0)
+		{
+			if(!m_pwndLog->WriteLog(_T("IMAGE_NT_HEADERS ERROR!\r\n\r\n")))
+				return FALSE;
+		}
+		nChecksumAddress = idh.e_lfanew+((DWORD)(LPBYTE)&inth.OptionalHeader.CheckSum-(DWORD)(LPBYTE)&inth);
+		nSignAddress = idh.e_lfanew+((DWORD)(LPBYTE)&inth.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]-(DWORD)(LPBYTE)&inth);
+	//End
+
+		m_file.SeekToBegin();
+
+	//Code for skip signcode
+		DWORD nCount1 = nChecksumAddress;
+		do
+		{
+			if(nCount1 > sizeof(buffer))
+				nSize = m_file.Read(buffer, sizeof(buffer));
+			else nSize = m_file.Read(buffer, nCount1);
+
+			nCount1 -= nSize;
+
+			MD5_Update(&m_ctxMD5, buffer, nSize);
+		}while(nSize == sizeof(buffer));
+		m_file.Seek(sizeof(DWORD), CFile::current);
+		m_dwPackInfo[0]=nChecksumAddress+sizeof(DWORD);
+		nCount1 = nSignAddress-m_dwPackInfo[0];
+		do
+		{
+			if(nCount1 > sizeof(buffer))
+				nSize = m_file.Read(buffer, sizeof(buffer));
+			else nSize = m_file.Read(buffer, nCount1);
+
+			nCount1 -= nSize;
+
+			MD5_Update(&m_ctxMD5, buffer, nSize);
+		}while(nSize == sizeof(buffer));
+		m_file.Seek(sizeof(IMAGE_DATA_DIRECTORY), CFile::current);
+		m_dwPackInfo[0]=nSignAddress+sizeof(IMAGE_DATA_DIRECTORY);
+	//End
 	}
 
-//Code for checking signcode
-	DWORD nSignAddress = 0, nChecksumAddress = 0;
-	IMAGE_DOS_HEADER idh;
-	IMAGE_NT_HEADERS inth;
-
-	m_file.SeekToBegin();
-	m_file.Read(&idh, sizeof(IMAGE_DOS_HEADER));
-	if (idh.e_lfanew==0)
-	{
-		if(!m_pwndLog->WriteLog(_T("IMAGE_NT_HEADERS ERROR!\r\n\r\n")))
-			return FALSE;
-	}
-	nChecksumAddress = idh.e_lfanew+((DWORD)(LPBYTE)&inth.OptionalHeader.CheckSum-(DWORD)(LPBYTE)&inth);
-	nSignAddress = idh.e_lfanew+((DWORD)(LPBYTE)&inth.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]-(DWORD)(LPBYTE)&inth);
-//End
-
-	m_file.SeekToBegin();
-
-	ZeroMemory(m_dwPackInfo, sizeof(m_dwPackInfo));
-
-	MD5_Init(&m_ctxMD5);
-//Code for skip signcode
-	DWORD nCount1 = nChecksumAddress;
-	do
-	{
-		if(nCount1 > sizeof(buffer))
-			nSize = m_file.Read(buffer, sizeof(buffer));
-		else nSize = m_file.Read(buffer, nCount1);
-
-		nCount1 -= nSize;
-
-		MD5_Update(&m_ctxMD5, buffer, nSize);
-	}while(nSize == sizeof(buffer));
-	m_file.Seek(sizeof(DWORD), CFile::current);
-	m_dwPackInfo[0]=nChecksumAddress+sizeof(DWORD);
-	nCount1 = nSignAddress-m_dwPackInfo[0];
-	do
-	{
-		if(nCount1 > sizeof(buffer))
-			nSize = m_file.Read(buffer, sizeof(buffer));
-		else nSize = m_file.Read(buffer, nCount1);
-
-		nCount1 -= nSize;
-
-		MD5_Update(&m_ctxMD5, buffer, nSize);
-	}while(nSize == sizeof(buffer));
-	m_file.Seek(sizeof(IMAGE_DATA_DIRECTORY), CFile::current);
-	m_dwPackInfo[0]=nSignAddress+sizeof(IMAGE_DATA_DIRECTORY);
-//End
 	do
 	{
 		nSize = m_file.Read(buffer, sizeof(buffer));

@@ -35,7 +35,7 @@ CBoxHttpHost::CBoxHttpHost(void) :
 	m_nNowTime = t->m_time;
 
 	m_pApplication.CreateInstance();
-	m_strBrowseFooter = _T("\r\n<small>Host by <a href=\"http://www.netbox.cn\" target=\"_blank\">");
+	m_strBrowseFooter = _T("\r\n<small>Host by <a href=\"http://www.9465.net\" target=\"_blank\">");
 	m_strBrowseFooter.Append(CBoxSystem::getVersion(), CBoxSystem::getVersionLen());
 	m_strBrowseFooter.Append(_T("</a></small>\r\n"), 14);
 }

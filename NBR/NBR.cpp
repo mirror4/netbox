@@ -117,7 +117,7 @@ BOOL CNBRApp::InitInstance()
 
 	m_pSysInfo.CreateInstance();
 
-	m_pSysInfo->AppendUserData(L"NBDW_Version", L"1.7");
+	m_pSysInfo->AppendUserData(L"NBDW_Version", L"1.8");
 
 	m_strBasePath.ReleaseBuffer(::GetModuleFileName(NULL, m_strBasePath.GetBuffer(_MAX_PATH), _MAX_PATH));
 	m_strBasePath = m_strBasePath.Left(m_strBasePath.ReverseFind('\\') + 1);
