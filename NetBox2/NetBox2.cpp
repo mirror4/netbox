@@ -395,7 +395,7 @@ long CNetBox2App::Execute(LPCTSTR pstrName, VARIANT* varCmdShow)
     ZeroMemory(&ProcessInformation, sizeof(ProcessInformation));
 	StartupInfo.cb = sizeof(STARTUPINFO);
 	StartupInfo.wShowWindow = (WORD)nCmdShow;
-	StartupInfo.dwFlags = 0;
+	StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
 
 	if(CreateProcess(NULL, (LPTSTR)pstrName, NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInformation))
 	{
