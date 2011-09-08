@@ -1016,3 +1016,10 @@ BOOL CNetBox2App::InitInstance()
 	return FALSE;
 }
 
+extern int AFXAPI AfxWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	__in LPTSTR lpCmdLine, int nCmdShow);
+
+extern "C" int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+{
+	return AfxWinMain(GetModuleHandle(NULL), NULL, GetCommandLine(), SW_SHOW);
+}

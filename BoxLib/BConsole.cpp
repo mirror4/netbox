@@ -1,11 +1,11 @@
 #include "StdAfx.h"
 #include "BConsole.h"
 
-/*CBConsole::CBConsole(void)
+CBConsole::CBConsole(void)
 {
 	m_hInput = ::GetStdHandle(STD_INPUT_HANDLE);
 	m_hOutput = ::GetStdHandle(STD_OUTPUT_HANDLE);
-}*/
+}
 
 HRESULT CBConsole::InternalEOS(VARIANT_BOOL *pEOS)
 {
@@ -14,8 +14,8 @@ HRESULT CBConsole::InternalEOS(VARIANT_BOOL *pEOS)
 
 HRESULT CBConsole::InternalRead(void *pv, ULONG cb, ULONG *pcbRead)
 {
-	if (!m_hInput) m_hInput = ::GetStdHandle(STD_INPUT_HANDLE);
-	if(!::ReadConsole(m_hInput, pv, cb, pcbRead, NULL))
+	//if (!m_hInput) m_hInput = ::GetStdHandle(STD_INPUT_HANDLE);
+	if(!::ReadFile(m_hInput, pv, cb, pcbRead, NULL))
 		return GetErrorResult();
 
 	return S_OK;
@@ -23,8 +23,8 @@ HRESULT CBConsole::InternalRead(void *pv, ULONG cb, ULONG *pcbRead)
 
 HRESULT CBConsole::InternalWrite(const void *pv, ULONG cb, ULONG *pcbWritten)
 {
-	if (!m_hOutput) m_hOutput = ::GetStdHandle(STD_OUTPUT_HANDLE);
-	if(!::WriteConsole(m_hOutput, pv, cb, pcbWritten, NULL))
+	//if (!m_hOutput) m_hOutput = ::GetStdHandle(STD_OUTPUT_HANDLE);
+	if(!::WriteFile(m_hOutput, pv, cb, pcbWritten, NULL))
 		return GetErrorResult();
 
 	return S_OK;

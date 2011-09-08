@@ -76,7 +76,7 @@
 				IgnoreAllDefaultLibraries="false"
 				DelayLoadDLLs="OLEACC.DLL;WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;WS2_32.DLL;iphlpapi.dll;URLMON.DLL;WININET.DLL"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				StackReserveSize="0"
 				TargetMachine="1"
 			/>
