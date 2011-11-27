@@ -63,8 +63,6 @@
 
 #include <BUDPSocket.h>
 
-#include <BImage.h>
-
 #include <BClassRegistry.h>
 
 #include <BFileSystem.h>
@@ -228,8 +226,6 @@ CBoxSystem::CBoxSystem(void)
 	AddClassEx(L"NetBox.UDPSocket", CBUDPSocket);
 
 	AddClassEx(L"NetBox.MessageManager", CBMessageManager);
-
-	AddClassEx(L"NetBox.Image", CBImage);
 
 	AddClassEx(L"NetBox.Database", CBDatabase);
 	AddClassEx(L"NetBox.Recordset", CBRecordset);

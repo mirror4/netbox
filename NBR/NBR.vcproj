@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;D:\My Documents\Visual Studio Projects\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\..\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -134,7 +134,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="0"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;D:\My Documents\Visual Studio Projects\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\..\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				MinimalRebuild="false"

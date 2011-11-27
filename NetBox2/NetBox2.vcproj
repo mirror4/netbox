@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="NetBox2"
 	ProjectGUID="{1251DFBB-FD94-406D-ADA7-5642C722654B}"
+	RootNamespace="NetBox2"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -44,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;D:\My Documents\Visual Studio Projects\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\..\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -142,7 +143,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="false"
-				AdditionalIncludeDirectories="&quot;D:\My Documents\Visual Studio Projects\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\..\openssl\include&quot;;&quot;$(ProjectDir)\..\BoxLib&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				MinimalRebuild="false"
