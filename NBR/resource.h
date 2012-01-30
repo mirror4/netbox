@@ -31,6 +31,7 @@
 #define IDC_BROWSER                     1005
 #define IDC_LIBRARY                     1006
 #define IDC_APPLICATION                 1007
+#define IDC_CONSOLE                     1008
 #define IDC_ADD                         1010
 #define IDC_SRCFOLDER                   1011
 #define IDC_SELECT                      1012

@@ -94,6 +94,7 @@ BEGIN_MESSAGE_MAP(CNBRDlg, CDialog)
 	ON_WM_GETMINMAXINFO()
 	ON_WM_SIZE()
 	ON_WM_DROPFILES()
+	ON_BN_CLICKED(IDC_CONSOLE, &CNBRDlg::OnBnClickedConsole)
 END_MESSAGE_MAP()
 
 #define CLR_TO_RGBQUAD(clr)     (RGB(GetBValue(clr), GetGValue(clr), GetRValue(clr)))
@@ -186,6 +187,7 @@ static struct
 	{IDC_HR3, 0, 1, 1, 0},
 	{IDT_PROTYPE, 0, 1, 0, 0},
 	{IDC_APPLICATION, 0, 1, 0, 0},
+	{IDC_CONSOLE, 0, 1, 0, 0},
 	{IDC_LIBRARY, 0, 1, 0, 0},
 	{IDOK, 1, 1, 0, 0},
 	{IDT_STARTUP, 0, 1, 0, 0},
@@ -280,7 +282,7 @@ BOOL CNBRDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	m_wndSelect.SetCurSel(-1);
-	CheckRadioButton(IDC_LIBRARY, IDC_APPLICATION, IDC_APPLICATION);
+	CheckRadioButton(IDC_LIBRARY, IDC_CONSOLE, IDC_APPLICATION);
 
 	m_wndSource.InsertColumn(0, _T("Name"), LVCFMT_LEFT, theApp.GetProfileInt(_T("List"), _T("Column_0"), 200));
 	m_wndSource.InsertColumn(1, _T("Size"), LVCFMT_RIGHT, theApp.GetProfileInt(_T("List"), _T("Column_1"), 60));
@@ -404,6 +406,7 @@ void CNBRDlg::setLanguage(void)
 	SetDlgItemText(IDC_BROWSER, GetMessage(L"Browse"));
 	SetDlgItemText(IDT_PROTYPE, GetMessage(L"proType") + _T(":"));
 	SetDlgItemText(IDC_APPLICATION, GetMessage(L"Application"));
+	SetDlgItemText(IDC_CONSOLE, GetMessage(L"Console"));
 	SetDlgItemText(IDC_LIBRARY, GetMessage(L"Library"));
 	SetDlgItemText(IDT_STARTUP, GetMessage(L"Startup") + _T(":"));
 	SetDlgItemText(IDCANCEL, GetMessage(L"Close"));
@@ -584,7 +587,7 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 	m_strStartup.Empty();
 	m_wndStartup.SetCurSel(0);
 	m_wndSelect.SetCurSel(-1);
-	CheckRadioButton(IDC_LIBRARY, IDC_APPLICATION, IDC_APPLICATION);
+	CheckRadioButton(IDC_LIBRARY, IDC_CONSOLE, IDC_APPLICATION);
 
 	m_imgs.DeleteImageList();
 	m_imgs.Create(16, 16, ILC_COLORDDB, 0, 0);
@@ -620,9 +623,13 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 			str.Trim();
 			if(!str.CompareNoCase(_T("Library")))
 			{
-				CheckRadioButton(IDC_LIBRARY, IDC_APPLICATION, IDC_LIBRARY);
+				CheckRadioButton(IDC_LIBRARY, IDC_CONSOLE, IDC_LIBRARY);
 				m_wndStartup.EnableWindow(FALSE);
-			}else m_wndStartup.EnableWindow();
+			}else
+			{
+				CheckRadioButton(IDC_LIBRARY, IDC_CONSOLE, str.CompareNoCase(_T("Application"))?IDC_CONSOLE:IDC_APPLICATION);
+				m_wndStartup.EnableWindow();
+			}
 		}else if(!str.Left(8).CompareNoCase(_T("EXCLUDE ")))
 		{
 			LVFINDINFO info;
@@ -894,7 +901,12 @@ void CNBRDlg::OnBnClickedOk()
 	straMake.InsertAt(0, _T("OUTPUT ") + str);
 
 	if(!IsDlgButtonChecked(IDC_LIBRARY))
-		str = _T("Application");
+	{
+		if(IsDlgButtonChecked(IDC_APPLICATION))
+			str = _T("Application");
+		else
+			str = _T("ConsoleApp");
+	}
 	else str = _T("Library");
 	straMake.InsertAt(1, _T("TYPE ") + str);
 
@@ -1015,6 +1027,12 @@ void CNBRDlg::OnDestroy()
 	CDialog::OnDestroy();
 }
 
+void CNBRDlg::OnBnClickedConsole()
+{
+	m_wndOutput.SetWindowText(_T(""));
+	m_wndStartup.EnableWindow();
+}
+
 void CNBRDlg::OnBnClickedApplication()
 {
 	m_wndOutput.SetWindowText(_T(""));
@@ -1133,3 +1151,4 @@ void CNBRDlg::OnDropFiles(HDROP hDropInfo)
 
 	OnCbnSelchangeSrcfolder();
 }
+

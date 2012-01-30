@@ -83,4 +83,5 @@ public:
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg void OnBnClickedConsole();
 };

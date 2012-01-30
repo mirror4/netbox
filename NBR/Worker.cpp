@@ -72,7 +72,7 @@ BOOL CWorker::StartBuild()
 	{
 		CFile fileNetBox;
 
-		str = theApp.m_strBasePath + _T("NetBox.exe");
+		str = theApp.m_strBasePath + (m_pwndMain->IsDlgButtonChecked(IDC_APPLICATION)?_T("NetBox.exe"):_T("NetBoxCon.exe"));
 
 		if(!fileNetBox.Open(str, CFile::shareDenyNone | CFile::modeRead | CFile::typeBinary))
 			return LogLastError(str);
