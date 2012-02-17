@@ -20,7 +20,7 @@ interface IHttpRequest : IDispatch {
 	[id(0x00000004), propget]
 	HRESULT statusText([out, retval] BSTR* pVal);
 	[id(0x00000005), propget]
-	HRESULT TotalBytes([out, retval] long* pVal);
+	HRESULT TotalBytes([out, retval] DOUBLE* pVal);
 	[id(0x00000006)]
 	HRESULT Abort();
 	[id(0x00000007)]

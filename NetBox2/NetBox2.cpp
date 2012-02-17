@@ -379,13 +379,14 @@ void CNetBox2App::UnregisterServer(LPCTSTR pstrName)
 long CNetBox2App::Execute(LPCTSTR pstrName, VARIANT* varCmdShow)
 {
 	long nCmdShow = SW_SHOWNORMAL;
-	BOOL bWait = FALSE;
+	BOOL bWait = FALSE, bAdmin = FALSE;
 	DWORD exitCode = 0;
 
 	if(varCmdShow->vt != VT_ERROR)
 		nCmdShow = varGetNumbar(varCmdShow);
 
 	bWait = (nCmdShow & 0x10) > 0;
+	bAdmin = (nCmdShow & 0x20) > 0;
 	nCmdShow &= 0xf;
 
 	STARTUPINFO StartupInfo;
@@ -397,27 +398,58 @@ long CNetBox2App::Execute(LPCTSTR pstrName, VARIANT* varCmdShow)
 	StartupInfo.wShowWindow = (WORD)nCmdShow;
 	StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
 
-	if(CreateProcess(NULL, (LPTSTR)pstrName, NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInformation))
+	if (!bAdmin)
 	{
-		if(bWait)
+		if(CreateProcess(NULL, (LPTSTR)pstrName, NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInformation))
 		{
-			WaitForSingleObject(ProcessInformation.hProcess, INFINITE);
-			GetExitCodeProcess(ProcessInformation.hProcess, &exitCode);
+			if(bWait)
+			{
+				WaitForSingleObject(ProcessInformation.hProcess, INFINITE);
+				GetExitCodeProcess(ProcessInformation.hProcess, &exitCode);
+			}
+
+			CloseHandle(ProcessInformation.hProcess);
+			CloseHandle(ProcessInformation.hThread);
+
+			return exitCode;
 		}
+	}
+	SHELLEXECUTEINFO sei;
+	BOOL bIsLong;
+	CStringA strFile;
 
-		CloseHandle(ProcessInformation.hProcess);
-		CloseHandle(ProcessInformation.hThread);
+	while(isspace(*pstrName))
+		pstrName ++;
 
-		return exitCode;
+	if(bIsLong = (*pstrName == '\"'))
+		pstrName ++;
+
+	LPCTSTR pstrFirst = pstrName;
+
+	if(bIsLong)
+		while(*pstrName != 0 && *pstrName != '\"')
+			pstrName ++;
+	else
+		while(*pstrName != 0 && !isspace(*pstrName))
+			pstrName ++;
+
+	if(pstrName != pstrFirst)
+	{
+		strFile.SetString(pstrFirst, pstrName - pstrFirst);
+		if (*pstrName != 0) pstrName++;
 	}
 
-	SHELLEXECUTEINFO sei;
+	while(isspace(*pstrName))
+		pstrName ++;
 
 	ZeroMemory(&sei, sizeof(sei));
 	sei.cbSize = sizeof(sei);
 	sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
 	sei.nShow = nCmdShow;
-	sei.lpFile = pstrName;
+	sei.lpFile = strFile;
+	sei.lpParameters = pstrName;
+	if (bAdmin)
+		sei.lpVerb = "runas";
 
 	if(!ShellExecuteEx(&sei))return -1;
 

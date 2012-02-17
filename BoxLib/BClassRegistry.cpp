@@ -65,11 +65,11 @@ HRESULT CBClassRegistry::RegisterClass(LPCWSTR lpszProgID, REFCLSID rclsid, ICla
 
 		str.MakeLower();
 
-		ASSERT(!m_mapProg2ID.Lookup(str));
+		//ASSERT(!m_mapProg2ID.Lookup(str));
 		m_mapProg2ID.SetAt(str, rclsid);
 	}
 
-	ASSERT(!m_mapID2Factory.Lookup(ppsz));
+	//ASSERT(!m_mapID2Factory.Lookup(ppsz));
 	m_mapID2Factory.SetAt(ppsz, pFactory);
 
 	m_cs.Leave();

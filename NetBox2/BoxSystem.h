@@ -109,6 +109,8 @@ private:
 
 	void _unlock(CString& strKey, CLockNode* pLockNode);
 	static BOOL LoadScriptDll(LPCOLESTR pstrName, LPCOLESTR pstrScript);
+	BOOL CBoxSystem::LoadVBScriptDllFromPackage();
+	BOOL CBoxSystem::LoadVBScriptDllFromFile(LPCSTR lpcsPath);
 
 	CMapStringToPtr m_mapLock;
 	CList<CLockNode*> m_FreeLock;

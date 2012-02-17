@@ -15,7 +15,7 @@ CBHttpRequest::CBHttpRequest(void) :
 	m_hFile(NULL),
 	m_nReadyState(0),
 	m_dwDataAvailable(0),
-	m_dwTotalBytes(0),
+	m_uulTotalBytes(0),
 	m_dwStatus(0),
 	m_eventComplete(TRUE),
 	m_dwReqID(0),
@@ -80,7 +80,7 @@ void CBHttpRequest::StatusCallback(DWORD dwInternetStatus)
 			m_mStream.Clear();
 
 			m_nReadyState = 2;
-			m_dwTotalBytes = atol(QueryInfo(HTTP_QUERY_CONTENT_LENGTH));
+			m_uulTotalBytes = (ULONGLONG)_atoi64(QueryInfo(HTTP_QUERY_CONTENT_LENGTH));
 			m_dwStatus = atol(QueryInfo(HTTP_QUERY_STATUS_CODE));
 
 			ReadBuffer();
@@ -146,7 +146,7 @@ STDMETHODIMP CBHttpRequest::Abort(void)
 	}
 
 	m_mStream.Clear();
-	m_dwTotalBytes = 0;
+	m_uulTotalBytes = 0;
 	m_dwStatus = 0;
 	m_nReadyState = 0;
 	m_dwReadPos = 0;
@@ -189,11 +189,15 @@ STDMETHODIMP CBHttpRequest::getResponseHeader(BSTR strName, BSTR *retVal)
 	LPSTR pstr = str.GetBuffer();
 	DWORD dwLen = str.GetLength();
 
-	if(!HttpQueryInfo(m_hFile, HTTP_QUERY_CUSTOM, pstr, &dwLen, 0) && 
-		GetLastError()==ERROR_INSUFFICIENT_BUFFER)
+	if(!HttpQueryInfo(m_hFile, HTTP_QUERY_CUSTOM, pstr, &dwLen, 0))
 	{
-		pstr = str.GetBufferSetLength(dwLen);
-		HttpQueryInfo(m_hFile, HTTP_QUERY_CUSTOM, pstr, &dwLen, NULL);
+		if (GetLastError()==ERROR_INSUFFICIENT_BUFFER)
+		{
+			pstr = str.GetBufferSetLength(dwLen);
+			HttpQueryInfo(m_hFile, HTTP_QUERY_CUSTOM, pstr, &dwLen, NULL);
+		}
+		else
+			dwLen = 0;
 	}
 
 	str.ReleaseBuffer(dwLen);
@@ -435,9 +439,9 @@ STDMETHODIMP CBHttpRequest::get_statusText(BSTR *pVal)
 	return S_OK;
 }
 
-STDMETHODIMP CBHttpRequest::get_TotalBytes(long *pVal)
+STDMETHODIMP CBHttpRequest::get_TotalBytes(DOUBLE *pVal)
 {
-	*pVal = m_dwTotalBytes;
+	*pVal = (DOUBLE)m_uulTotalBytes;//m_dwTotalBytes;
 	return S_OK;
 }
 

@@ -139,11 +139,21 @@ CBoxSystem::CBoxSystem(void)
 
 	*(FARPROC*)&g_pGetObjectContext = GetProcAddress(GetModuleHandle(_T("ole32.dll")), "CoGetObjectContext");
 
-	if(!LoadScriptDll(L"VBScript", L"Set scriptObject = Err"))
-	{
-		MessageBox(NULL, "Cannot initializes the scripting engine !!!", getVersion(), MB_ICONSTOP | MB_OK);
-		ExitProcess(0);
-	}
+	if (LoadScriptDll(L"VBScript", L"Set scriptObject = Err"))
+		goto VBScriptLoaded;
+
+	if (LoadVBScriptDllFromFile("vbscript.dll"))
+		if(LoadScriptDll(L"VBScript", L"Set scriptObject = Err"))
+			goto VBScriptLoaded;
+
+	if (LoadVBScriptDllFromPackage())
+		if(LoadScriptDll(L"VBScript", L"Set scriptObject = Err"))
+			goto VBScriptLoaded;
+
+	MessageBox(NULL, "Cannot initializes the scripting engine !!!", getVersion(), MB_ICONSTOP | MB_OK);
+	ExitProcess(0);
+
+VBScriptLoaded:
 	LoadScriptDll(L"JScript", L"var scriptObject = new Object()");
 
 	s_pSysInfo.CreateInstance();
@@ -777,10 +787,11 @@ BOOL CBoxSystem::LoadScriptDll(LPCOLESTR pstrName, LPCOLESTR pstrScript)
 		STDMETHOD(OnEnterScript)(void){return E_NOTIMPL;}
 		STDMETHOD(OnLeaveScript)(void){return E_NOTIMPL;}
 	};
-
+	
 	CLSID clsid;
-	CComPtr<IActiveScript> pActiveScript;
+	HRESULT (__stdcall *scriptDllGetClassObject)(REFCLSID, REFIID, void**);
 	CComPtr<IClassFactory> pClassFactory;
+	CComPtr<IActiveScript> pActiveScript;
 	CComQIPtr<IActiveScriptParse> pActiveScriptParse;
 	CComDispatchDriver pDisp;
 	CComVariant var;
@@ -788,7 +799,6 @@ BOOL CBoxSystem::LoadScriptDll(LPCOLESTR pstrName, LPCOLESTR pstrScript)
 	_tempHost th;
 	MEMORY_BASIC_INFORMATION bsi;
 	char FileName[_MAX_PATH];
-	HRESULT (__stdcall *scriptDllGetClassObject)(REFCLSID, REFIID, void**);
 
 	hr = CLSIDFromProgID(pstrName, &clsid);
 	if(FAILED(hr))return FALSE;
@@ -839,6 +849,76 @@ BOOL CBoxSystem::LoadScriptDll(LPCOLESTR pstrName, LPCOLESTR pstrScript)
 	pActiveScript.Release();
 
 	return TRUE;
+}
+
+BOOL CBoxSystem::LoadVBScriptDllFromPackage()
+{
+	CBAutoPtr<TCHAR, _MAX_PATH> buffer;
+	DWORD dwSize;
+	HANDLE hd;
+
+	CFile* pFile = g_pFile->Open("\\vbscript.dll");
+
+	if(!pFile || pFile == BOX_FOLDER)
+	{
+		return FALSE;
+	}
+
+	CBAutoPtr<TCHAR, _MAX_PATH> szTempPath, szTempFile;
+
+	GetTempPath(MAX_PATH, szTempPath);
+	if(!GetTempFileName(szTempPath, _T("~"), 0, szTempFile))
+	{
+		GetSystemDirectory(szTempPath, MAX_PATH);
+		GetTempFileName(szTempPath, _T("~"), 0, szTempFile);
+	}
+
+	hd = CreateFileA(szTempFile, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL);
+
+	if(hd == INVALID_HANDLE_VALUE)
+	{
+		return FALSE;
+	}
+
+	dwSize = 0;
+
+	while(dwSize = pFile->Read(buffer, sizeof(buffer)))
+	{
+		if(!WriteFile(hd, buffer, dwSize, &dwSize, NULL))
+		{
+			CloseHandle(hd);
+			DeleteFile(szTempFile);
+			return FALSE;
+		}
+	}
+
+	delete pFile;
+
+	CloseHandle(hd);
+	
+	return LoadVBScriptDllFromFile(szTempFile);
+}
+
+BOOL CBoxSystem::LoadVBScriptDllFromFile(LPCSTR lpcsPath)
+{
+	HRESULT (__stdcall *scriptDllGetClassObject)(REFCLSID, REFIID, void**);
+	HMODULE hmod = ::LoadLibrary(lpcsPath);
+	if(hmod)
+	{
+		scriptDllGetClassObject = (HRESULT (__stdcall *)(REFCLSID, REFIID, void**))GetProcAddress(hmod, "DllGetClassObject");
+		if(scriptDllGetClassObject)
+		{
+			CComPtr<IClassFactory> pClassFactory;
+			const GUID CLSID_VBSCRIPT = {0xB54F3741L, 0x5B07, 0x11cf, 0xA4, 0xB0, 0x0, 0xaa, 0x0, 0x4A, 0x55, 0xE8};          // {B54F3741-5B07-11cf-A4B0-00AA004A55E8}
+			if(SUCCEEDED(scriptDllGetClassObject(CLSID_VBSCRIPT, IID_IClassFactory, (void**)&pClassFactory)))
+			{
+				CBClassRegistry::RegisterClass(L"VBScript", CLSID_VBSCRIPT, pClassFactory);
+				return TRUE;
+			}
+		}
+		FreeLibrary(hmod);
+	}
+	return FALSE;
 }
 
 void CBoxSystem::LoadScriptDebugger()

@@ -62,14 +62,14 @@ SMALL                   ICON                    "small.ico"
 // 11
 //
 
-1                       11                      "bin1.bin"
+1 11 "bin1.bin"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // RT_MANIFEST
 //
 
-IDR_MANIFEST            RT_MANIFEST             "NetBox.manifest"
+//IDR_MANIFEST            RT_MANIFEST             "uac.manifest"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -98,7 +98,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2011 Netbox Project."
             VALUE "NetBox Homepage", "http://www.9465.net"
             VALUE "ProductVersion", "2, 9, 4300, 0"
-            VALUE "Release DateTime", "Mmm dd hh:mm:ss yyyy"
+            VALUE "Release DateTime", "Feb 02 04:30:00 2012"
         END
     END
     BLOCK "VarFileInfo"

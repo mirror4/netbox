@@ -85,7 +85,7 @@ public:
 	STDMETHOD(setRequestHeader)(BSTR strHeader, BSTR strValue);
 	STDMETHOD(get_status)(short *pVal);
 	STDMETHOD(get_statusText)(BSTR *pVal);
-	STDMETHOD(get_TotalBytes)(long *pVal);
+	STDMETHOD(get_TotalBytes)(DOUBLE *pVal);
 	STDMETHOD(setProxy)(short ProxySetting, BSTR strProxyServer = L"", BSTR strBypassList = L"");
 	STDMETHOD(setProxyCredentials)(BSTR strUserName, BSTR strPassword);
 	STDMETHOD(WaitForResponse)(long nTimeout, VARIANT_BOOL *retVal);
@@ -97,11 +97,11 @@ private:
 	int m_nReadyState;
 	BOOL m_bAsync;
 	CBEvent m_eventComplete;
-	BYTE m_aBuffer[1024];
+	BYTE m_aBuffer[4096];
 	DWORD m_dwRead;
 	DWORD m_dwDataAvailable;
 	DWORD m_dwReadPos;
-	DWORD m_dwTotalBytes;
+	ULONGLONG m_uulTotalBytes;
 	DWORD m_dwStatus;
 	DWORD m_dwFlags;
 

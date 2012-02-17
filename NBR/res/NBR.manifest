@@ -6,7 +6,7 @@
     name="Microsoft.Windows.NBR"
     type="win32" 
 /> 
-<description>Your app description here</description> 
+<description>NBR</description> 
 <dependency> 
     <dependentAssembly> 
         <assemblyIdentity 

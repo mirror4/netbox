@@ -262,7 +262,7 @@ IDB_LOGO                BITMAP                  "res\\logo.bmp"
 // RT_MANIFEST
 //
 
-IDR_MANIFEST            RT_MANIFEST             "res\\NBR.manifest"
+//IDR_MANIFEST            RT_MANIFEST             "res\\NBR.manifest"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
