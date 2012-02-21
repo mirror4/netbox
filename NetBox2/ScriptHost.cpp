@@ -3,6 +3,7 @@
 #include "NetBox2.h"
 #include "BoxSystem.h"
 #include "BoxScriptContext.h"
+#include <BClassRegistry.h>
 #include <excpt.h>
 
 static __declspec(thread) CScriptHost* t_pScriptHost = NULL;
@@ -81,9 +82,10 @@ BOOL CScriptHost::Create(LPCTSTR pstrScriptName, BOOL bEnable, BOOL bStep, int n
 		}
 	}
 
-	m_pActiveScript.CreateInstance(BOX_CT2CW(pstrScriptName));
-
-	if(m_pActiveScript == NULL)
+	//解决UPX IAT截获函数问题 m_pActiveScript.CreateInstance(BOX_CT2CW(pstrScriptName));
+	CLSID clsid;
+	if (!(SUCCEEDED(CBClassRegistry::CLSIDFromProgID(BOX_CT2CW(pstrScriptName), &clsid)) && 
+		SUCCEEDED(CBClassRegistry::CreateInstance(clsid, NULL, CLSCTX_ALL, IID_IActiveScript, (LPVOID *)&m_pActiveScript))))
 	{
 		m_strErrorMessage = _T("Unknown scripting language.");
 		return FALSE;

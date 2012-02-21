@@ -386,7 +386,13 @@ long CNetBox2App::Execute(LPCTSTR pstrName, VARIANT* varCmdShow)
 		nCmdShow = varGetNumbar(varCmdShow);
 
 	bWait = (nCmdShow & 0x10) > 0;
-	bAdmin = (nCmdShow & 0x20) > 0;
+
+	OSVERSIONINFO  versionInfo;
+	::ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
+	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	::GetVersionEx(&versionInfo);
+	bAdmin = (nCmdShow & 0x20) > 0 && versionInfo.dwMajorVersion>=6;
+
 	nCmdShow &= 0xf;
 
 	STARTUPINFO StartupInfo;

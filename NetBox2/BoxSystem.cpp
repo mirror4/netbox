@@ -789,7 +789,7 @@ BOOL CBoxSystem::LoadScriptDll(LPCOLESTR pstrName, LPCOLESTR pstrScript)
 	};
 	
 	CLSID clsid;
-	HRESULT (__stdcall *scriptDllGetClassObject)(REFCLSID, REFIID, void**);
+	HRESULT (__stdcall *scriptDllGetClassObject)(REFCLSID, REFIID, void**) = NULL;
 	CComPtr<IClassFactory> pClassFactory;
 	CComPtr<IActiveScript> pActiveScript;
 	CComQIPtr<IActiveScriptParse> pActiveScriptParse;
@@ -800,10 +800,12 @@ BOOL CBoxSystem::LoadScriptDll(LPCOLESTR pstrName, LPCOLESTR pstrScript)
 	MEMORY_BASIC_INFORMATION bsi;
 	char FileName[_MAX_PATH];
 
-	hr = CLSIDFromProgID(pstrName, &clsid);
+	//解决UPX IAT截获函数问题 CLSIDFromProgID(pstrName, &clsid);
+	hr = CBClassRegistry::CLSIDFromProgID(pstrName, &clsid);
 	if(FAILED(hr))return FALSE;
 
-	hr = pActiveScript.CoCreateInstance(clsid);
+	//解决UPX IAT截获函数问题 pActiveScript.CoCreateInstance(clsid)
+	hr = CBClassRegistry::CreateInstance(clsid, NULL, CLSCTX_ALL, IID_IActiveScript, (LPVOID *)&pActiveScript);
 	if(FAILED(hr))return FALSE;
 
 	pActiveScriptParse = pActiveScript;
@@ -847,7 +849,6 @@ BOOL CBoxSystem::LoadScriptDll(LPCOLESTR pstrName, LPCOLESTR pstrScript)
 	pActiveScriptParse.Release();
 	pActiveScript->InterruptScriptThread(SCRIPTTHREADID_ALL, NULL, 0);
 	pActiveScript.Release();
-
 	return TRUE;
 }
 
@@ -901,7 +902,7 @@ BOOL CBoxSystem::LoadVBScriptDllFromPackage()
 
 BOOL CBoxSystem::LoadVBScriptDllFromFile(LPCSTR lpcsPath)
 {
-	HRESULT (__stdcall *scriptDllGetClassObject)(REFCLSID, REFIID, void**);
+	HRESULT (__stdcall *scriptDllGetClassObject)(REFCLSID, REFIID, void**) = NULL;
 	HMODULE hmod = ::LoadLibrary(lpcsPath);
 	if(hmod)
 	{

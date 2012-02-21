@@ -186,7 +186,8 @@ CFile* CBoxFile::Open(LPCTSTR pstrName)
 	CFile* pFile = new CBoxSafeFile;
 	CString strPath;
 
-	strPath = theApp.m_pSystem->m_pFolders->MapPath(pstrName);
+	if (theApp.m_pSystem == NULL)
+		strPath = theApp.m_pSystem->m_pFolders->MapPath(pstrName);
 
 	if(strPath.IsEmpty())
 		strPath = m_strBasePath + (pstrName + 1);

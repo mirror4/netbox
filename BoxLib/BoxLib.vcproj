@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="BoxLib"
 	ProjectGUID="{1FCADE1B-1E5B-4937-9FF3-49827D484A7A}"
+	RootNamespace="BoxLib"
 	Keyword="Win32Proj"
 	>
 	<Platforms>

@@ -217,6 +217,11 @@ CBoxZipFile::CBoxZipFile(void)
 			delete strBuffer;
 		}
 	}
+	else
+	{
+		MessageBox(NULL, m_strExeName + " Access is denied.", "Error", MB_ICONSTOP | MB_OK);
+		ExitProcess(0);
+	}
 /*
 	if(s_AppDevID = cert.m_nDevID)
 	{
