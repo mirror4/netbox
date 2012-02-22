@@ -51,6 +51,9 @@ public:
 	afx_msg void Halt(long nErrorCode);
 	afx_msg long MsgBox(LPCTSTR pstrText, LPCTSTR pstrTitle, VARIANT* varType);
 	afx_msg long Execute(LPCTSTR pstrName, VARIANT* varCmdShow);
+	afx_msg LPDISPATCH Exec(LPCTSTR pstrName, VARIANT* varCmdShow);
+	afx_msg LPDISPATCH GetAllProcesses();
+	afx_msg LPDISPATCH GetProcess(LONG lProcessID, VARIANT* varRights);
 	afx_msg void Shutdown(BOOL bReboot);
 
 	afx_msg void AppActivate(LPCTSTR pstrTitle);

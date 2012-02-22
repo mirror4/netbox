@@ -513,6 +513,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BProcess.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BRegExp.cpp"
 				>
 			</File>
@@ -908,6 +912,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\BProcess.h"
+					>
+				</File>
+				<File
 					RelativePath=".\BRegExp.h"
 					>
 				</File>
@@ -1018,6 +1026,10 @@
 			</File>
 			<File
 				RelativePath=".\typelib\tiIPipeLine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\typelib\tiIProcess.cpp"
 				>
 			</File>
 			<File

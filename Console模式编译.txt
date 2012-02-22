@@ -1,0 +1,4 @@
+¹¤³Ì
+	Linker
+		System
+			SubSystem:	Console

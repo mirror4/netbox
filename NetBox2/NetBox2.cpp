@@ -17,6 +17,7 @@
 #include <BBrowserCaps.h>
 #include <BFileSystem.h>
 #include <BClassRegistry.h>
+#include <BProcess.h>
 
 #include <mshtmhst.h>
 #include <wininet.h>
@@ -226,6 +227,9 @@ BEGIN_DISPATCH_MAP(CNetBox2App, CWinApp)
 	DISP_FUNCTION(CNetBox2App, "UnregisterServer", UnregisterServer, VT_EMPTY, VTS_BSTR)
 
 	DISP_FUNCTION(CNetBox2App, "Execute", Execute, VT_I4, VTS_BSTR VTS_VARIANT)
+	DISP_FUNCTION(CNetBox2App, "Exec", Exec, VT_DISPATCH, VTS_BSTR VTS_VARIANT)
+	DISP_FUNCTION(CNetBox2App, "GetAllProcesses", GetAllProcesses, VT_DISPATCH, VTS_NONE)
+	DISP_FUNCTION(CNetBox2App, "GetProcess", GetProcess, VT_DISPATCH, VTS_I4 VTS_VARIANT)
 	DISP_FUNCTION(CNetBox2App, "Shutdown", Shutdown, VT_EMPTY, VTS_BOOL)
 
 	DISP_FUNCTION(CNetBox2App, "SendMessage", SendMessage, VT_EMPTY, VTS_BSTR VTS_BSTR)
@@ -374,6 +378,135 @@ void CNetBox2App::UnregisterServer(LPCTSTR pstrName)
 {
 	HRESULT hr = CBClassRegistry::RegSvr32(CBString(pstrName), 0);
 	if(FAILED(hr))AfxThrowOleException(hr);
+}
+
+LPDISPATCH CNetBox2App::GetAllProcesses()
+{
+	//PROCESS_QUERY_INFORMATION|PROCESS_VM_READ
+    DWORD aProcesses[1024], cbNeeded, cProcesses;
+
+	BOOL (__stdcall *EnumProcesses)(DWORD*, DWORD, DWORD*) = NULL;
+	HMODULE hmod = ::LoadLibrary("Psapi.dll");
+	if(hmod == NULL)
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+
+	EnumProcesses = (BOOL (__stdcall *)(DWORD*, DWORD, DWORD*))GetProcAddress(hmod, "EnumProcesses");
+	if(EnumProcesses == NULL)
+	{
+		FreeLibrary(hmod);
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+	}
+
+	if (!EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded))
+	{
+		FreeLibrary(hmod);
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+	}
+	FreeLibrary(hmod);
+
+    CBComPtr<CBListEx> pRet;
+	pRet.CreateInstance();
+	cProcesses = cbNeeded / sizeof(DWORD);
+    for (DWORD i=0;i<cProcesses;i++ )
+	{
+		if(aProcesses[i]!=0)
+		{
+			CComVariant Key;
+			Key = (LONG)aProcesses[i];
+			pRet->Add(Key);
+		}
+	}
+	return (IVariantStruct *)pRet.Detach();
+}
+
+LPDISPATCH CNetBox2App::GetProcess(LONG lProcessID, VARIANT* varRights)
+{
+	DWORD lRights = 7;
+	if(varRights->vt != VT_ERROR)
+		lRights = varGetNumbar(varRights);
+
+	DWORD dwRight = SYNCHRONIZE;
+	if (lRights & 1) dwRight |= PROCESS_QUERY_INFORMATION;
+	if (lRights & 2) dwRight |= PROCESS_VM_READ;
+	if (lRights & 4) dwRight |= PROCESS_TERMINATE;
+
+	HANDLE hProcess = ::OpenProcess(dwRight, FALSE, lProcessID);
+	if(hProcess == NULL)
+	{
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		return NULL;
+	}
+
+	CBComPtr<CBProcess> pProcess;
+	pProcess.CreateInstance();
+	pProcess->SetHandle(hProcess);
+	return pProcess.Detach();
+}
+
+LPDISPATCH CNetBox2App::Exec(LPCTSTR pstrName, VARIANT* varCmdShow)
+{
+	long nCmdShow = SW_SHOWNORMAL;
+	BOOL bAdmin = FALSE;
+	DWORD exitCode = 0;
+
+	if(varCmdShow->vt != VT_ERROR)
+		nCmdShow = varGetNumbar(varCmdShow);
+
+	OSVERSIONINFO  versionInfo;
+	::ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
+	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	::GetVersionEx(&versionInfo);
+	bAdmin = (nCmdShow & 0x20) > 0 && versionInfo.dwMajorVersion>=6;
+
+	nCmdShow &= 0xf;
+
+	SHELLEXECUTEINFO sei;
+	BOOL bIsLong;
+	CStringA strFile;
+
+	while(isspace(*pstrName))
+		pstrName ++;
+
+	if(bIsLong = (*pstrName == '\"'))
+		pstrName ++;
+
+	LPCTSTR pstrFirst = pstrName;
+
+	if(bIsLong)
+		while(*pstrName != 0 && *pstrName != '\"')
+			pstrName ++;
+	else
+		while(*pstrName != 0 && !isspace(*pstrName))
+			pstrName ++;
+
+	if(pstrName != pstrFirst)
+	{
+		strFile.SetString(pstrFirst, pstrName - pstrFirst);
+		if (*pstrName != 0) pstrName++;
+	}
+
+	while(isspace(*pstrName))
+		pstrName ++;
+
+	ZeroMemory(&sei, sizeof(sei));
+	sei.cbSize = sizeof(sei);
+	sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+	sei.nShow = nCmdShow;
+	sei.lpFile = strFile;
+	sei.lpParameters = pstrName;
+	if (bAdmin)
+		sei.lpVerb = "runas";
+
+	if(!ShellExecuteEx(&sei))
+	{
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		return NULL;
+	}
+
+	CBComPtr<CBProcess> pProcess;
+	pProcess.CreateInstance();
+	pProcess->SetHandle(sei.hProcess);
+	return pProcess.Detach();
 }
 
 long CNetBox2App::Execute(LPCTSTR pstrName, VARIANT* varCmdShow)

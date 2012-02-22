@@ -1219,6 +1219,25 @@ interface IHTWindow : IDispatch {
 
 [
   odl,
+  uuid(94650000-0000-0000-0050-726F63657373),
+  dual,
+  oleautomation
+]
+interface IProcess : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT ExitCode([out, retval] long* pVal);
+	[id(0x00000002), propget]
+	HRESULT ProcessID([out, retval] long* pVal);
+	[id(0x00000003), propget]
+	HRESULT Status([out, retval] long* pVal);
+	[id(0x00000004), propget]
+	HRESULT FileName([out, retval] BSTR* pVal);
+	[id(0x00000010)]
+	HRESULT Terminate();
+};
+
+[
+  odl,
   uuid(94659465-0000-4955-4450-5061636B6574),
   dual,
   oleautomation
@@ -1739,6 +1758,7 @@ library BoxLibrary
 		interface ISubMatch;
 		interface IMatch;
 		interface IRegExp;
+
+		interface IProcess;
 	};
 };
-

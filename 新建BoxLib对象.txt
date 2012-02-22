@@ -1,0 +1,7 @@
+创建对象文件
+CBXXX.cpp
+CBXXX.h
+typelib\tiXXX.cpp
+
+修改BoxLib.idl以定义IXXX这个INTERFACE
+
