@@ -176,7 +176,7 @@
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
-				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;netapi32.DLL;WS2_32.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL"
+				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;netapi32.DLL;WS2_32.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL;DBGHELP.DLL"
 				GenerateDebugInformation="true"
 				AssemblyDebug="0"
 				SubSystem="2"

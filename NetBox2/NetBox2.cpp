@@ -93,7 +93,7 @@ CNetBox2App::CNetBox2App() : m_bRunSelfAtExit(FALSE), m_bStep(FALSE), m_nErrorCo
 	GetStartupInfo(&StartupInfo);
 	strlen(StartupInfo.lpDesktop);
 
-	m_bIsShell = strlen(StartupInfo.lpDesktop)>0;//(FindWindow(_T("progman"), NULL) != NULL);
+	m_bIsShell = strlen(StartupInfo.lpDesktop)>0;//(::FindWindow(_T("progman"), NULL) != NULL);
 
 	OSVERSIONINFO  versionInfo;
 	BOOL bLowOS = FALSE;
@@ -247,7 +247,99 @@ BEGIN_DISPATCH_MAP(CNetBox2App, CWinApp)
 	DISP_FUNCTION(CNetBox2App, "LoadPrivateKey", LoadPrivateKey, VT_I4, VTS_BSTR VTS_BSTR)
 
 	DISP_FUNCTION(CNetBox2App, "GetThreadId", GetThreadId, VT_I4, VTS_NONE)
+
+	DISP_FUNCTION(CNetBox2App, "FindWindow", FindWindow, VT_I4, VTS_BSTR VTS_BSTR)
+	DISP_FUNCTION(CNetBox2App, "FindWindowEx", FindWindowEx, VT_I4, VTS_I4 VTS_I4 VTS_BSTR VTS_BSTR)
+	DISP_FUNCTION(CNetBox2App, "EnumWindows", EnumWindows, VT_DISPATCH, VTS_I4)
+	DISP_FUNCTION(CNetBox2App, "GetWindowText", GetWindowText, VT_BSTR, VTS_I4)
+	DISP_FUNCTION(CNetBox2App, "SetWindowText", SetWindowText, VT_I4, VTS_I4 VTS_BSTR)
+	DISP_FUNCTION(CNetBox2App, "SetForegroundWindow", SetForegroundWindow, VT_I4, VTS_I4)
+	DISP_FUNCTION(CNetBox2App, "ShowWindow", ShowWindow, VT_I4, VTS_I4 VTS_I4)
+	DISP_FUNCTION(CNetBox2App, "PostMessage", PostMessage, VT_I4, VTS_I4 VTS_I4 VTS_I4 VTS_I4)
+	DISP_FUNCTION(CNetBox2App, "GetDlgCtrlID", GetDlgCtrlID, VT_I4, VTS_I4)
+	DISP_FUNCTION(CNetBox2App, "GetDlgItem", GetDlgItem, VT_I4, VTS_I4 VTS_I4)
+	DISP_FUNCTION(CNetBox2App, "GetWindowProcessId", GetWindowProcessId, VT_I4, VTS_I4)
 END_DISPATCH_MAP()
+
+
+long CNetBox2App::FindWindow(LPCTSTR lpcsClass, LPCTSTR lpcsTitle)
+{
+	return (long)::FindWindow((lpcsClass && _tcslen(lpcsClass))?lpcsClass:NULL, (lpcsTitle && _tcslen(lpcsTitle))?lpcsTitle:NULL);
+}
+
+long CNetBox2App::FindWindowEx(long hwndParent, long hwndChildAfter, LPCTSTR lpcsClass, LPCTSTR lpcsTitle)
+{
+	return (long)::FindWindowEx((HWND)hwndParent, (HWND)hwndChildAfter, (lpcsClass && _tcslen(lpcsClass))?lpcsClass:NULL, (lpcsTitle && _tcslen(lpcsTitle))?lpcsTitle:NULL);
+}
+
+BOOL CALLBACK EnumWindowProc(HWND hWnd, LPVOID lpContext)
+{
+	TCHAR buf[65536];
+	::SendMessage((HWND)hWnd, WM_GETTEXT, sizeof(buf), (LPARAM)buf);
+	CComVariant varKey((LONG)hWnd), varValue(buf);
+	((CBDictionary*)lpContext)->put_Item(varKey, varValue);
+	return TRUE;
+}
+
+LPDISPATCH CNetBox2App::EnumWindows(long hWnd)
+{
+	CBComPtr<CBDictionary> pdic;
+	HRESULT hr = pdic.CreateInstance();
+	if (FAILED(hr)) AfxThrowOleException(hr);
+	CComVariant var(FALSE);
+	pdic->put_ArrayMode(VARIANT_FALSE);
+	if (hWnd)
+		::EnumChildWindows((HWND)hWnd, (WNDENUMPROC)EnumWindowProc, (LPARAM)(LPVOID)pdic);
+	else
+		::EnumWindows((WNDENUMPROC)EnumWindowProc, (LPARAM)(LPVOID)pdic);
+	return pdic.Detach();
+}
+
+BSTR CNetBox2App::GetWindowText(long hWnd)
+{
+	TCHAR buf[65536];
+	DWORD n = ::SendMessage((HWND)hWnd, WM_GETTEXT, sizeof(buf), (LPARAM)buf);
+	buf[n] = 0;
+	CComBSTR bstr(buf);
+	return bstr.Detach();
+}
+
+long CNetBox2App::SetWindowText(LONG hWnd, LPCTSTR pstrTitle)
+{
+	return (long)::SendMessage((HWND)hWnd, WM_SETTEXT, NULL, (LPARAM)pstrTitle);
+}
+
+long CNetBox2App::SetForegroundWindow(LONG hWnd)
+{
+	return (long)::SetForegroundWindow((HWND)hWnd);
+}
+
+long CNetBox2App::ShowWindow(LONG hWnd, long nCmdShow)
+{
+	return (long)::ShowWindow((HWND)hWnd, nCmdShow);
+}
+
+long CNetBox2App::PostMessage(long hWnd, long uMsg, long wParam, long lParam)
+{
+	return ::PostMessage((HWND)hWnd, (UINT)uMsg, (WPARAM)wParam, (LPARAM)lParam);
+}
+
+long CNetBox2App::GetDlgCtrlID(long hWnd)
+{
+	return ::GetDlgCtrlID((HWND)hWnd);
+}
+
+long CNetBox2App::GetDlgItem(long hDlg, long DlgCtrlID)
+{
+	return (long)::GetDlgItem((HWND)hDlg, DlgCtrlID);
+}
+
+long CNetBox2App::GetWindowProcessId(long hWnd)
+{
+	DWORD uiProcessId;
+	GetWindowThreadProcessId((HWND)hWnd, (LPDWORD)&uiProcessId);
+	return uiProcessId;
+}
 
 LPDISPATCH CNetBox2App::get_Console()
 {
@@ -294,8 +386,8 @@ void CNetBox2App::AppActivate(LPCTSTR pstrTitle)
 	if(hWnd == NULL)
 		AfxThrowOleDispatchException(0x4005, _T("Application not found : ") + CString(pstrTitle), 0);
 
-	ShowWindow(hWnd, SW_SHOWNORMAL);
-	SetForegroundWindow(hWnd);
+	::ShowWindow(hWnd, SW_SHOWNORMAL);
+	::SetForegroundWindow(hWnd);
 }
 
 void CNetBox2App::Quit(long nErrorCode)
@@ -732,7 +824,7 @@ static INT CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM p
 	switch(uMsg)
 	{
 	case BFFM_INITIALIZED:
-		if(pinfo->bTitle)SetWindowText(hwnd, (LPCTSTR)pinfo->strT.m_string);
+		if(pinfo->bTitle)::SetWindowText(hwnd, (LPCTSTR)pinfo->strT.m_string);
 		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)(LPCTSTR)pinfo->strID.m_string);
 		break;
 	}
@@ -850,7 +942,6 @@ long CNetBox2App::LoadPrivateKey(LPCTSTR PrivateKey, LPCTSTR pstrCertificate)
 
 	return 0;
 }
-
 void CNetBox2App::Command(void)
 {
 	CBoxCommand cmd;
@@ -1010,6 +1101,41 @@ static LONG WINAPI MyUnhandledExceptionFilter(PEXCEPTION_POINTERS ep)
 	return 0;
 }
 
+
+LONG WINAPI MyUnhandledFilter(PEXCEPTION_POINTERS lpExceptionInfo)
+{
+	CString strMessage;
+
+	HANDLE hFile = ::CreateFile(g_pFile->m_strAppName+".dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		MINIDUMP_EXCEPTION_INFORMATION ExInfo;
+
+		ExInfo.ThreadId = ::GetCurrentThreadId();
+		ExInfo.ExceptionPointers = lpExceptionInfo;
+		ExInfo.ClientPointers = false;
+
+		BOOL bOK = MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL );
+
+		if (bOK)
+			strMessage = "Create Dump File Success!";
+		else
+			strMessage.Format("MiniDumpWriteDump Failed: %d!", GetLastError());
+
+		::CloseHandle(hFile);
+	}
+	else
+	{
+		strMessage.Format("Create Dump File Failed %d!", GetLastError());
+	}
+
+	//if(theApp.m_bIsShell)
+	//	MessageBox(NULL, strMessage, CBoxSystem::getVersion(), MB_ICONSTOP | MB_OK);
+	theApp.m_pService->LogEvent(EVENTLOG_ERROR_TYPE, strMessage);
+
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
 void CNetBox2App::CallProc(void (*proc)(void*), void* pParam, BOOL AsynCall)
 {
 	void* param[2] = {proc, pParam};
@@ -1025,7 +1151,8 @@ void CNetBox2App::CallProc(void (*proc)(void*), void* pParam, BOOL AsynCall)
 
 BOOL CNetBox2App::InitInstance()
 {
-//	s_previousFilter = SetUnhandledExceptionFilter(MyUnhandledExceptionFilter);
+	//s_previousFilter = SetUnhandledExceptionFilter(MyUnhandledExceptionFilter);
+	s_previousFilter = SetUnhandledExceptionFilter(MyUnhandledFilter);
 
 	SetThreadName(_T("Main"));
 

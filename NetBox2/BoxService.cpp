@@ -22,6 +22,7 @@ CBoxService::CBoxService() :
 	m_sshStatusHandle(0),
 	m_bDesktop(FALSE),
 	m_bTrayIcon(TRUE),
+	m_nAutoRestart(0),
 	m_nMenuDelay(0),
 	m_bInBLCLK(FALSE),
 	m_bServiceType(1)
@@ -51,6 +52,7 @@ BEGIN_DISPATCH_MAP(CBoxService, CBoxSafeObject)
 
 	DISP_PROPERTY(CBoxService, "Desktop", m_bDesktop, VT_BOOL)
 	DISP_PROPERTY(CBoxService, "TrayIcon", m_bTrayIcon, VT_BOOL)
+	DISP_PROPERTY(CBoxService, "AutoRestart", m_nAutoRestart, VT_I4)
 	DISP_PROPERTY(CBoxService, "Type", m_bServiceType, VT_I4)
 	DISP_PROPERTY_EX(CBoxService, "Icon", get_Icon, put_Icon, VT_BSTR)
 
@@ -236,7 +238,25 @@ void CBoxService::Install(void)
 				BOOL (WINAPI *pfnChangeServiceConfig2A)(SC_HANDLE hService, DWORD dwInfoLevel, LPVOID lpInfo);
 				pfnChangeServiceConfig2A = (BOOL (WINAPI *)(SC_HANDLE, DWORD, LPVOID))GetProcAddress(GetModuleHandle(_T("ADVAPI32.DLL")), "ChangeServiceConfig2A");
 				if(pfnChangeServiceConfig2A)
+				{
 					pfnChangeServiceConfig2A( schService, SERVICE_CONFIG_DESCRIPTION, &sd);
+					if (m_nAutoRestart)
+					{
+						SERVICE_FAILURE_ACTIONS sfa;
+						SC_ACTION sca;
+
+						sca.Delay = m_nAutoRestart<60000?60000:m_nAutoRestart;
+						sca.Type = SC_ACTION_RESTART;
+
+						sfa.dwResetPeriod = 0;
+						sfa.lpRebootMsg = NULL;
+						sfa.cActions = sizeof(sca)/sizeof(SC_ACTION);
+						sfa.lpsaActions = &sca;
+						sfa.lpCommand = NULL;
+
+						pfnChangeServiceConfig2A( schService, SERVICE_CONFIG_FAILURE_ACTIONS, &sfa);
+					}
+				}
 
 				StartService( schService, 0, NULL);
 				CloseServiceHandle(schService);

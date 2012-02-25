@@ -64,6 +64,7 @@ private:
 	BOOL m_bCheckReg;
 	BOOL m_bDesktop;
 	BOOL m_bTrayIcon;
+	BOOL m_nAutoRestart;
 	CString m_strDisplayName;
 	CString m_strDescription;
 	DWORD m_uElapse;

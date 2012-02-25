@@ -62,7 +62,7 @@ STDMETHODIMP CBProcess::get_FileName(BSTR* newVal)
 	if(GetModuleFileNameExW == NULL)
 	{
 		FreeLibrary(hmod);
-		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		return HRESULT_FROM_WIN32(GetLastError());
 	}
 
 	if (!(dwLen = GetModuleFileNameExW(m_hProcess, NULL, str.GetBufferSetLength(MAX_PATH), MAX_PATH)))

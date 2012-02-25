@@ -73,6 +73,17 @@ public:
 
 	afx_msg long LoadPrivateKey(LPCTSTR PrivateKey, LPCTSTR pstrCertificate);
 
+	afx_msg long FindWindow(LPCTSTR lpcsClass, LPCTSTR lpcsTitle);
+	afx_msg long FindWindowEx(long hwndParent, long hwndChildAfter, LPCTSTR lpcsClass, LPCTSTR lpcsTitle);
+	afx_msg LPDISPATCH EnumWindows(long hWnd);
+	afx_msg BSTR GetWindowText(long hWnd);
+	afx_msg long SetWindowText(long hWnd, LPCTSTR pstrTitle);
+	afx_msg long SetForegroundWindow(long hWnd);
+	afx_msg long ShowWindow(long hWnd, long nCmdShow);
+	afx_msg long PostMessage(long hWnd, long uMsg, long wParam, long lParam);
+	afx_msg long GetDlgCtrlID(long hWnd);
+	afx_msg long GetDlgItem(long hDlg, long DlgCtrlID);
+	afx_msg long GetWindowProcessId(long hWnd);
 	DECLARE_DISPATCH_MAP()
 
 public:
