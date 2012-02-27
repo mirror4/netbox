@@ -525,7 +525,8 @@ BSTR CBoxHttpHost::URLRewriteTest(LPCTSTR pstr)
 {
 	CString strURL = pstr, strNewURL, strQueryString, strNewQueryString;
 
-	if (int p = strURL.ReverseFind('?'))
+	int p = strURL.ReverseFind('?');
+	if (p >= 0)
 	{
 		strQueryString = strURL.Mid(p+1);
 		strURL = strURL.Left(p);

@@ -285,7 +285,7 @@ long CBoxHttpAccept::OnAccept()
 					nError = BuildOptions();
 				else nError = BuildResponse();
 
-				if(nError == 404)
+				if(nError == 404 && m_strMapToFile.IsEmpty())
 					if(MapRequestPath(TRUE))
 						nError = BuildResponse();
 					else nError = 404;
@@ -949,6 +949,7 @@ int CBoxHttpAccept::BuildFile(void)
 	}
 
 	AddHeader(_T("Content-Type"), theApp.GetContentTypeFromFileName(m_strMapedPath));
+	AddHeader(_T("Accept-Ranges"), _T("bytes"));
 
 	if(m_nResponseContentLength > 1 && (m_nRangeBegin != 0 || m_nRangeEnd != 0))
 	{
