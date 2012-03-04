@@ -236,6 +236,32 @@ HRESULT CBRequestDictionary::ParseUrlEncodeString(LPCSTR pstr, UINT nSize)
 	return S_OK;
 }
 
+const void *newmemchr(const void *buf, int c, size_t count, LPCSTR pstr, UINT nSize)
+{
+	__try{
+	//---------------
+	return memchr(buf, c, count);
+	//---------------
+	}
+	__except(1){
+		char strFileName[128];
+
+		SYSTEMTIME st;
+		::GetLocalTime(&st);
+		wsprintf(strFileName, "%04d%02d%02d %02d%02d%02d %02d.txt", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+
+		HANDLE hFile = ::CreateFile(strFileName, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			DWORD written;
+			::SetFilePointer(hFile, 0, NULL, FILE_END);
+			::WriteFile(hFile, pstr, nSize, &written, NULL);
+			::CloseHandle(hFile);
+		}
+	}
+	return NULL;
+}
+
 HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 {
 	CBStringA strName;
@@ -372,7 +398,7 @@ HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 
 		p = szQueryString;
 		p1 = p + nSize;
-		while(p1 > p && (p = (BYTE*)memchr(p, '-', p1 - p)) &&
+		while(p1 > p && (p = (BYTE*)newmemchr(p, '-', p1 - p, pstr, nSize)) &&
 			p1 > p + uiSplitSize &&
 			memcmp(p, pstrSplit, uiSplitSize))
 			p ++;

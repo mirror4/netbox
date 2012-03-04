@@ -17,7 +17,7 @@ STDMETHODIMP CBList::get_Item(VARIANT i, VARIANT *pVariantReturn)
 	if(i.vt == VT_ERROR)
 		return get_Default(pVariantReturn);
 
-	long n = varGetNumbar(i);
+	long n = varGetNumber(i);
 
 	if(n >=0 && n < (int)m_arrayVariant.GetCount())
 		VariantCopy(pVariantReturn, &m_arrayVariant[n]);

@@ -66,19 +66,12 @@ SMALL                   ICON                    "small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// RT_MANIFEST
-//
-
-//IDR_MANIFEST            RT_MANIFEST             "uac.manifest"
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,9,4300,0
- PRODUCTVERSION 2,9,4300,0
+ FILEVERSION 2,9,4301,0
+ PRODUCTVERSION 2,9,4301,0
  FILEFLAGSMASK 0x0L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -93,12 +86,12 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "Powered by NetBox"
-            VALUE "FileVersion", "2, 9, 4300, 0"
-            VALUE "LegalCopyright", "Copyright (C) 2011 Netbox Project."
-            VALUE "NetBox Homepage", "http://www.9465.net"
-            VALUE "ProductVersion", "2, 9, 4300, 0"
-            VALUE "Release DateTime", "Feb 02 04:30:00 2012"
+            VALUE "FileDescription",	"Powered by NetBox                                                                                                               "
+            VALUE "FileVersion",		"2.9.4301.0      "
+            VALUE "LegalCopyright",		"Copyright (C) 2011 Netbox Project.                                                                                              "
+            VALUE "ProductName",		"NetBox Project                                                                                                                  "
+            VALUE "ProductVersion",		"2.9.4301.0      "
+            VALUE "Release DateTime",	"Feb 26 16:00:00 2012"
         END
     END
     BLOCK "VarFileInfo"

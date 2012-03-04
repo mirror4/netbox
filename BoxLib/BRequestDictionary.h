@@ -19,7 +19,7 @@ private:
 			if(i.vt == VT_ERROR)
 				return get_Default(pVariantReturn);
 
-			long n = varGetNumbar(i) - 1;
+			long n = varGetNumber(i) - 1;
 
 			if(n >=0 && n < (int)m_arrayVariant.GetCount())
 				VariantCopy(pVariantReturn, &m_arrayVariant[n]);

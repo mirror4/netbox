@@ -280,6 +280,7 @@ BEGIN_DISPATCH_MAP(CBoxScriptObject, CBoxScript)
 	DISP_FUNCTION(CBoxScript, "LoadObject", LoadObject, VT_DISPATCH, VTS_BSTR)
 END_DISPATCH_MAP()
 
+
 BSTR CBoxScriptObject::get_ProgID(void)
 {
 	return m_strProgID.AllocSysString();

@@ -27,7 +27,7 @@ STDMETHODIMP CBRecordset::get_Value(VARIANT VarKey, VARIANT *pvar)
 
 	if(VarKey.vt == VT_I4 || VarKey.vt == VT_I2)
 	{
-		i = varGetNumbar(VarKey);
+		i = varGetNumber(VarKey);
 		
 		if(i < 0 || i >= GetFieldCount())
 			return DISP_E_BADINDEX;
@@ -75,7 +75,7 @@ STDMETHODIMP CBRecordset::put_Value(VARIANT VarKey, VARIANT pvar)
 
 	if(VarKey.vt == VT_I4 || VarKey.vt == VT_I2)
 	{
-		i = varGetNumbar(VarKey);
+		i = varGetNumber(VarKey);
 		
 		if(i < 0 || i >= GetFieldCount())
 			return DISP_E_BADINDEX;

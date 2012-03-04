@@ -313,9 +313,118 @@ BEGIN_DISPATCH_MAP(CBoxSystem, CBoxSafeObject)
 
 	DISP_FUNCTION(CBoxSystem, "RegisterTrustedSite", RegisterTrustedSite, VT_EMPTY, VTS_BSTR)
 	DISP_PROPERTY_EX_ID(CBoxSystem, "ObjectSafety", 1001, get_ObjectSafety, put_ObjectSafety, VT_BOOL)
+
+	DISP_FUNCTION(CBoxSystem, "CallByName", CallByName, VT_VARIANT, VTS_DISPATCH VTS_VARIANT VTS_I2 VTS_VARIANT)
+	DISP_FUNCTION(CBoxSystem, "GetIDofName", GetIDofName, VT_I4, VTS_DISPATCH VTS_VARIANT)
 END_DISPATCH_MAP()
 
 // CBoxSystem message handlers
+long CBoxSystem::GetIDofName(LPDISPATCH pDisp, VARIANT *pName)
+{
+	DISPID dispid;
+	CComDispatchDriver pdisp;
+	
+	pdisp = pDisp;
+	if (pdisp == NULL)
+		AfxThrowOleException(TYPE_E_TYPEMISMATCH);
+	
+	while (pName->vt == (VT_VARIANT | VT_BYREF))
+		pName = pName->pvarVal;
+
+	if (pName->vt != VT_BSTR)
+		AfxThrowOleException(TYPE_E_TYPEMISMATCH);
+
+	HRESULT hr = pdisp->GetIDsOfNames(IID_NULL, &pName->bstrVal, 1, 0, &dispid);
+	if (FAILED(hr))
+		AfxThrowOleException(hr);
+
+	return dispid;
+}
+
+VARIANT CBoxSystem::CallByName(LPDISPATCH pDisp, VARIANT *pName, short sType, VARIANT *pArgs)
+{
+	DISPID dispid;
+	CComDispatchDriver pdisp;
+	
+	pdisp = pDisp;
+	if (pdisp == NULL)
+		AfxThrowOleException(TYPE_E_TYPEMISMATCH);
+	
+	while (pName->vt == (VT_VARIANT | VT_BYREF))
+		pName = pName->pvarVal;
+	
+	HRESULT hr;
+
+	switch(pName->vt)
+	{
+		case VT_I2:
+			dispid = pName->iVal;
+			break;
+		case VT_I4:
+			dispid = pName->lVal;
+			break;
+		case VT_BSTR:
+			hr = pdisp->GetIDsOfNames(IID_NULL, &pName->bstrVal, 1, 0, &dispid);
+			if (FAILED(hr))
+				AfxThrowOleException(hr);
+			break;
+		default:
+			AfxThrowOleException(TYPE_E_TYPEMISMATCH);
+	}
+
+	while (pArgs->vt == (VT_VARIANT | VT_BYREF))
+		pArgs = pArgs->pvarVal;
+	
+	DISPPARAMS params;
+	params.cNamedArgs = 0;
+	params.rgdispidNamedArgs = NULL;
+	switch(pArgs->vt)
+	{
+		case (VT_BYREF|VT_ARRAY|VT_VARIANT):
+			if ((*(pArgs->pparray))->cDims != 1)
+				AfxThrowOleException(TYPE_E_OUTOFBOUNDS);
+			
+			params.cArgs = (*(pArgs->pparray))->rgsabound[0].cElements;
+			params.rgvarg = (VARIANTARG *)(*(pArgs->pparray))->pvData;
+			break;
+		case (VT_ARRAY|VT_VARIANT):
+			if (pArgs->parray->cDims != 1)
+				AfxThrowOleException(TYPE_E_OUTOFBOUNDS);
+
+			params.cArgs = pArgs->parray->rgsabound[0].cElements;
+			params.rgvarg = (VARIANTARG *)pArgs->parray->pvData;
+			break;
+		case VT_ERROR:
+			params.cArgs = 0;
+			params.rgvarg = NULL;
+			break;
+		default:
+			params.cArgs = 1;
+			params.rgvarg = pArgs;
+	}
+	
+	VARIANT varRet;
+	EXCEPINFO einfo;
+
+/* Flags for IDispatch::Invoke */
+//#define DISPATCH_METHOD         0x1
+//#define DISPATCH_PROPERTYGET    0x2
+//#define DISPATCH_PROPERTYPUT    0x4
+//#define DISPATCH_PROPERTYPUTREF 0x8
+
+	VariantInit(&varRet);
+
+	hr = pdisp->Invoke(dispid, IID_NULL, 0, sType, &params, &varRet, &einfo, NULL);
+	if (FAILED(hr))
+	{
+		if (hr == DISP_E_EXCEPTION)
+			AfxThrowOleDispatchException(einfo.wCode, BOX_CW2CT(einfo.bstrDescription), (UINT)einfo.dwHelpContext);
+		else
+			AfxThrowOleException(hr);
+	}
+
+	return varRet;
+}
 
 LPDISPATCH CBoxSystem::get_Contents(void)
 {
@@ -1069,7 +1178,7 @@ LPDISPATCH CBoxSystem::LoadObject(LPCTSTR pstrFile, VARIANT& varAlone)
 	CBoxObject<CBoxScriptObject> pScriptObject;
 	CComDispatchDriver pDisp;
 
-	if(varGetNumbar(varAlone, VARIANT_FALSE) != VARIANT_FALSE)
+	if(varGetNumber(varAlone, VARIANT_FALSE) != VARIANT_FALSE)
 	{
 		ULONG param[2] = {(ULONG)pstrFile};
 

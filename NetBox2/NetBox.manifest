@@ -6,7 +6,14 @@
     name="Microsoft.Windows.NetBox"
     type="win32">
   </assemblyIdentity>
- <description>Netbox Project</description>
+  <ms_asmv2:trustInfo xmlns:ms_asmv2="urn:schemas-microsoft-com:asm.v2">
+    <ms_asmv2:security>
+      <ms_asmv2:requestedPrivileges>
+        <ms_asmv2:requestedExecutionLevel level="requireAdministrator">
+        </ms_asmv2:requestedExecutionLevel>
+      </ms_asmv2:requestedPrivileges>
+    </ms_asmv2:security>
+  </ms_asmv2:trustInfo> <description>Netbox Project</description>
   <dependency>
     <dependentAssembly>
         <assemblyIdentity

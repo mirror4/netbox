@@ -176,7 +176,7 @@ STDMETHODIMP CBRSA::GenerateKey(VARIANT varSize)
 	int nKeySize = 512;
 
 	if(varSize.vt != VT_ERROR)
-		nKeySize = varGetNumbar(varSize, 512);
+		nKeySize = varGetNumber(varSize, 512);
 
 	free();
 	m_pRSA = RSA_generate_key(nKeySize, RSA_F4, NULL, NULL);

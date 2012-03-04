@@ -88,6 +88,9 @@ public:
 	afx_msg BOOL get_ObjectSafety(void);
 	afx_msg void put_ObjectSafety(BOOL b);
 
+	afx_msg VARIANT CallByName(LPDISPATCH pDisp, VARIANT *pName, short sType, VARIANT *pArgs);
+	afx_msg long GetIDofName(LPDISPATCH pDisp, VARIANT *pName);
+
 	DECLARE_DISPATCH_MAP()
 
 private:

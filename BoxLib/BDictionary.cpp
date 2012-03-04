@@ -140,7 +140,7 @@ STDMETHODIMP CBDictionary::get_Item(VARIANT VarKey, VARIANT *pvar)
 	m_cs.Enter();
 	if(m_bArrayMode && (VarKey.vt == VT_I4 || VarKey.vt == VT_I2))
 	{
-		long i = varGetNumbar(VarKey);
+		long i = varGetNumber(VarKey);
 
 		if(i >=0 && i < (int)m_posArray.GetCount())
 		{
@@ -186,7 +186,7 @@ HRESULT CBDictionary::putItem(VARIANT* pvarKey, VARIANT* pvar)
 	m_cs.Enter();
 	if(m_bArrayMode && (pvarKey->vt == VT_I4 || pvarKey->vt == VT_I2))
 	{
-		long i = varGetNumbar(*pvarKey);
+		long i = varGetNumber(*pvarKey);
 
 		if(i >=0 && i < (int)m_posArray.GetCount())
 		{
@@ -231,7 +231,7 @@ STDMETHODIMP CBDictionary::get_Key(VARIANT VarKey, VARIANT *pvar)
 	m_cs.Enter();
 	if(m_bArrayMode && (VarKey.vt == VT_I4 || VarKey.vt == VT_I2))
 	{
-		long i = varGetNumbar(VarKey);
+		long i = varGetNumber(VarKey);
 
 		if(i >=0 && i < (int)m_posArray.GetCount())
 		{
@@ -276,7 +276,7 @@ STDMETHODIMP CBDictionary::Remove(VARIANT VarKey)
 	m_cs.Enter();
 	if(m_bArrayMode && (VarKey.vt == VT_I4 || VarKey.vt == VT_I2))
 	{
-		long i = varGetNumbar(VarKey);
+		long i = varGetNumber(VarKey);
 
 		if(i >=0 && i < (int)m_posArray.GetCount())
 		{

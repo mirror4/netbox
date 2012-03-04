@@ -167,7 +167,7 @@ HRESULT inline varGetString(VARIANT& var, T& str)
 	return varGetString(&var, str);
 }
 
-long inline varGetNumbar(VARIANT* pvar, long nDefault = 0)
+long inline varGetNumber(VARIANT* pvar, long nDefault = 0)
 {
 	if(pvar->vt == VT_ERROR)
 		return nDefault;
@@ -196,8 +196,8 @@ long inline varGetNumbar(VARIANT* pvar, long nDefault = 0)
 	return var.lVal;
 }
 
-long inline varGetNumbar(VARIANT& v, long nDefault = 0)
+long inline varGetNumber(VARIANT& v, long nDefault = 0)
 {
-	return varGetNumbar(&v, nDefault);
+	return varGetNumber(&v, nDefault);
 }
 

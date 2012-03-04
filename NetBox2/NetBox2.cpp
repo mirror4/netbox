@@ -97,11 +97,12 @@ CNetBox2App::CNetBox2App() : m_bRunSelfAtExit(FALSE), m_bStep(FALSE), m_nErrorCo
 
 	OSVERSIONINFO  versionInfo;
 	BOOL bLowOS = FALSE;
+/*
 	TCHAR data [4096];
 	DWORD dataSize;
 	HKEY hKey;
 	LONG result;
-
+*/
 	::ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
 	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
@@ -416,7 +417,7 @@ long CNetBox2App::MsgBox(LPCTSTR pstrText, LPCTSTR pstrTitle, VARIANT* varType)
 	UINT uType = 0;
 
 	if(varType->vt != VT_ERROR)
-		uType = varGetNumbar(varType);
+		uType = varGetNumber(varType);
 
 	if(m_bIsShell)return ::MessageBox(::GetForegroundWindow(), pstrText, pstrTitle, uType);
 
@@ -515,7 +516,7 @@ LPDISPATCH CNetBox2App::GetProcess(LONG lProcessID, VARIANT* varRights)
 {
 	DWORD lRights = 7;
 	if(varRights->vt != VT_ERROR)
-		lRights = varGetNumbar(varRights);
+		lRights = varGetNumber(varRights);
 
 	DWORD dwRight = SYNCHRONIZE;
 	if (lRights & 1) dwRight |= PROCESS_QUERY_INFORMATION;
@@ -542,7 +543,7 @@ LPDISPATCH CNetBox2App::Exec(LPCTSTR pstrName, VARIANT* varCmdShow)
 	DWORD exitCode = 0;
 
 	if(varCmdShow->vt != VT_ERROR)
-		nCmdShow = varGetNumbar(varCmdShow);
+		nCmdShow = varGetNumber(varCmdShow);
 
 	OSVERSIONINFO  versionInfo;
 	::ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
@@ -608,7 +609,7 @@ long CNetBox2App::Execute(LPCTSTR pstrName, VARIANT* varCmdShow)
 	DWORD exitCode = 0;
 
 	if(varCmdShow->vt != VT_ERROR)
-		nCmdShow = varGetNumbar(varCmdShow);
+		nCmdShow = varGetNumber(varCmdShow);
 
 	bWait = (nCmdShow & 0x10) > 0;
 
@@ -1104,9 +1105,13 @@ static LONG WINAPI MyUnhandledExceptionFilter(PEXCEPTION_POINTERS ep)
 
 LONG WINAPI MyUnhandledFilter(PEXCEPTION_POINTERS lpExceptionInfo)
 {
-	CString strMessage;
+	CString strMessage, strFileName;
 
-	HANDLE hFile = ::CreateFile(g_pFile->m_strAppName+".dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	SYSTEMTIME st;
+	::GetLocalTime(&st);
+	strFileName.Format(".%04d%02d%02d %02d%02d%02d %02d.dmp", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+
+	HANDLE hFile = ::CreateFile(g_pFile->m_strAppName+strFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
 		MINIDUMP_EXCEPTION_INFORMATION ExInfo;
@@ -1133,7 +1138,7 @@ LONG WINAPI MyUnhandledFilter(PEXCEPTION_POINTERS lpExceptionInfo)
 	//	MessageBox(NULL, strMessage, CBoxSystem::getVersion(), MB_ICONSTOP | MB_OK);
 	theApp.m_pService->LogEvent(EVENTLOG_ERROR_TYPE, strMessage);
 
-	return EXCEPTION_EXECUTE_HANDLER;
+	return 0;
 }
 
 void CNetBox2App::CallProc(void (*proc)(void*), void* pParam, BOOL AsynCall)

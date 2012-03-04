@@ -172,7 +172,7 @@ public:
 	{
 		if(Var.vt == VT_I4 || Var.vt == VT_I2)
 		{
-			long i = varGetNumbar(Var) - 1;
+			long i = varGetNumber(Var) - 1;
 
 			if(i >=0 && i < (int)m_posArray.GetCount())
 				*pVarReturn = (T*)&((CRBMap<CBKeyString, T>::CPair*)m_posArray[i])->m_value;
@@ -207,7 +207,7 @@ public:
 	{
 		if(Var.vt == VT_I4 || Var.vt == VT_I2)
 		{
-			long i = varGetNumbar(Var) - 1;
+			long i = varGetNumber(Var) - 1;
 
 			*pExists = (i >=0 && i < (int)m_posArray.GetCount()) ? VARIANT_TRUE : VARIANT_FALSE;
 			return S_OK;
@@ -237,7 +237,7 @@ public:
 	{
 		if(VarKey.vt == VT_I4 || VarKey.vt == VT_I2)
 		{
-			long i = varGetNumbar(VarKey) - 1;
+			long i = varGetNumber(VarKey) - 1;
 
 			if(i >=0 && i < (int)m_posArray.GetCount())
 				*(CComVariant*)pvar = ((CRBMap<CBKeyString, T>::CPair*)m_posArray[i])->m_key.m_str;
