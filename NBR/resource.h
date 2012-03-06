@@ -32,12 +32,10 @@
 #define IDC_LIBRARY                     1006
 #define IDC_APPLICATION                 1007
 #define IDC_CONSOLE                     1008
-#define IDC_BROWSER_LICON               1009
 #define IDC_ADD                         1010
 #define IDC_SRCFOLDER                   1011
 #define IDC_SELECT                      1012
 #define IDC_LOG                         1013
-#define IDC_BROWSER_SICON               1013
 #define IDC_CERTINFO                    1018
 #define IDC_DEVID                       1019
 #define IDC_DATE                        1020
@@ -69,8 +67,8 @@
 #define IDC_HR4                         1045
 #define IDC_HR5                         1046
 #define IDC_PRI                         1047
-#define IDC_LARGEICON                   1048
-#define IDC_SMALLICON                   1049
+#define IDC_ICONFILE                    1048
+#define IDT_PRI                         1049
 #define IDC_HR6                         1050
 #define IDC_FILEDESCRIPTION             1051
 #define IDC_FILEVERSION                 1052
@@ -78,6 +76,12 @@
 #define IDC_PRODUCTVERSION              1054
 #define IDC_LEGALCOPYRIGHT              1055
 #define IDC_HR7                         1056
+#define IDT_ICON                        1057
+#define IDT_FILEDESCRIPTION             1058
+#define IDT_FILEVERSION                 1059
+#define IDT_PRODUCTNAME                 1060
+#define IDT_LEGALCOPYRIGHT              1061
+#define IDT_PRODUCTVERSION              1062
 
 // Next default values for new objects
 // 
@@ -85,7 +89,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        148
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1049
+#define _APS_NEXT_CONTROL_VALUE         1063
 #define _APS_NEXT_SYMED_VALUE           104
 #endif
 #endif

@@ -398,7 +398,8 @@ HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 
 		p = szQueryString;
 		p1 = p + nSize;
-		while(p1 > p && (p = (BYTE*)newmemchr(p, '-', p1 - p, pstr, nSize)) &&
+		//while(p1 > p && (p = (BYTE*)newmemchr(p, '-', p1 - p, pstr, nSize)) &&
+		while(p1 > p && (p = (BYTE*)memchr(p, '-', p1 - p)) &&
 			p1 > p + uiSplitSize &&
 			memcmp(p, pstrSplit, uiSplitSize))
 			p ++;

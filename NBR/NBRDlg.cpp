@@ -68,6 +68,14 @@ void CNBRDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PBNB, m_wndPBNB);
 	DDX_Control(pDX, IDOK, m_wndBuild);
 	DDX_Control(pDX, IDC_STARTUP, m_wndStartup);
+	DDX_Control(pDX, IDC_ICONFILE, m_wndIcon);
+	DDX_Control(pDX, IDC_PRI, m_wndPRI);
+
+	DDX_Control(pDX, IDC_FILEDESCRIPTION, m_wndFileDescription);
+	DDX_Control(pDX, IDC_FILEVERSION, m_wndFileVersion);
+	DDX_Control(pDX, IDC_PRODUCTVERSION, m_wndProductVersion);
+	DDX_Control(pDX, IDC_PRODUCTNAME, m_wndProductName);
+	DDX_Control(pDX, IDC_LEGALCOPYRIGHT, m_wndLegalCopyright);
 }
 
 BEGIN_MESSAGE_MAP(CNBRDlg, CDialog)
@@ -95,6 +103,8 @@ BEGIN_MESSAGE_MAP(CNBRDlg, CDialog)
 	ON_WM_SIZE()
 	ON_WM_DROPFILES()
 	ON_BN_CLICKED(IDC_CONSOLE, &CNBRDlg::OnBnClickedConsole)
+
+
 END_MESSAGE_MAP()
 
 #define CLR_TO_RGBQUAD(clr)     (RGB(GetBValue(clr), GetGValue(clr), GetRValue(clr)))
@@ -173,26 +183,49 @@ static struct
 {
 	{IDC_LOGO, 1, 0, 0, 0},
 	{IDC_HR1, 0, 0, 1, 0},
+
 	{IDC_SRCFOLDER, 0, 0, 1, 0},
 	{IDC_FOLDER, 1, 0, 0, 0},
 	{IDC_SOURCE, 0, 0, 1, 1},
+
 	{IDT_FILETYPE, 0, 1, 0, 0},
 	{IDC_SELECT, 0, 1, 1, 0},
 	{IDC_ADD, 1, 1, 0, 0},
 	{IDC_REMOVE, 1, 1, 0, 0},
 	{IDC_HR2, 0, 1, 1, 0},
+
 	{IDT_OUTFILE, 0, 1, 0, 0},
 	{IDC_OUTPUT, 0, 1, 1, 0},
 	{IDC_BROWSER, 1, 1, 0, 0},
 	{IDC_HR3, 0, 1, 1, 0},
+
 	{IDT_PROTYPE, 0, 1, 0, 0},
 	{IDC_APPLICATION, 0, 1, 0, 0},
 	{IDC_CONSOLE, 0, 1, 0, 0},
 	{IDC_LIBRARY, 0, 1, 0, 0},
 	{IDOK, 1, 1, 0, 0},
-	{IDT_STARTUP, 0, 1, 0, 0},
-	{IDC_STARTUP, 0, 1, 1, 0},
+	{IDT_STARTUP, 0, 1, 1, 0},
+	{IDC_STARTUP, 0, 1, 0, 0},
 	{IDC_HR4, 0, 1, 1, 0},
+
+	{IDT_ICON, 0, 1, 0, 0},
+	{IDC_ICONFILE, 0, 1, 0, 0},
+	{IDT_PRI, 0, 1, 0, 0},
+	{IDC_PRI, 0, 1, 0, 0},
+	{IDC_HR6, 0, 1, 1, 0},
+
+	{IDT_FILEDESCRIPTION, 0, 1, 0, 0},
+	{IDC_FILEDESCRIPTION, 0, 1, 1, 0},
+	{IDT_FILEVERSION, 0, 1, 0, 0},
+	{IDC_FILEVERSION, 0, 1, 0, 0},
+	{IDT_PRODUCTVERSION, 0, 1, 0, 0},
+	{IDC_PRODUCTVERSION, 0, 1, 0, 0},
+	{IDT_PRODUCTNAME, 0, 1, 0, 0},
+	{IDC_PRODUCTNAME, 0, 1, 1, 0},
+	{IDT_LEGALCOPYRIGHT, 0, 1, 0, 0},
+	{IDC_LEGALCOPYRIGHT, 0, 1, 1, 0},
+	{IDC_HR7, 0, 1, 1, 0},
+	
 //	{IDC_VIEWCERT, 0, 1, 0, 0},
 	{IDC_SYSINFO, 0, 1, 0, 0},
 	{IDC_PBNB, 0, 1, 0, 0},
@@ -295,6 +328,10 @@ BOOL CNBRDlg::OnInitDialog()
 	m_wndSelect.AddString(_T("Database File(*.mdb;*.db;*.dbf;*.mdf;*.ldf)"));
 	m_wndSelect.AddString(_T("Executable File(*.exe;*.com;*.dll;*.ocx;*.sys)"));
 	m_wndSelect.AddString(_T("Media File(*.mp3;*.wav;*.mid;*.mpeg;*.mpg;*.avi;*.rm;*.ram;*.mov)"));
+
+	m_wndPRI.AddString(_T("asInvoker"));
+	m_wndPRI.SetCurSel(0);
+	m_wndPRI.AddString(_T("requireAdministrator"));
 
 	CString str;
 	for(int i = 0; i < 128; i ++)
@@ -412,6 +449,14 @@ void CNBRDlg::setLanguage(void)
 	SetDlgItemText(IDCANCEL, GetMessage(L"Close"));
 //	SetDlgItemText(IDC_VIEWCERT, GetMessage(L"ViewCert") + _T(" ..."));
 	SetDlgItemText(IDC_SYSINFO, GetMessage(L"SysInfo") + _T(" ..."));
+
+	SetDlgItemText(IDT_LEGALCOPYRIGHT, GetMessage(L"Copyright"));
+	SetDlgItemText(IDT_PRODUCTVERSION, GetMessage(L"ProductVersion"));
+	SetDlgItemText(IDT_PRODUCTNAME, GetMessage(L"ProductName"));
+	SetDlgItemText(IDT_FILEVERSION, GetMessage(L"FileVersion"));
+	SetDlgItemText(IDT_FILEDESCRIPTION, GetMessage(L"FileDescription"));
+	SetDlgItemText(IDT_ICON, GetMessage(L"Icon"));
+	SetDlgItemText(IDT_PRI, GetMessage(L"PRI"));
 
 	LVCOLUMN col;
 	CString str;
@@ -586,6 +631,11 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 	m_wndStartup.ResetContent();
 	m_strStartup.Empty();
 	m_wndStartup.SetCurSel(0);
+
+	m_wndIcon.ResetContent();
+	m_strIcon.Empty();
+	m_wndIcon.SetCurSel(0);
+
 	m_wndSelect.SetCurSel(-1);
 	CheckRadioButton(IDC_LIBRARY, IDC_CONSOLE, IDC_APPLICATION);
 
@@ -598,6 +648,16 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 
 	GetSourceFolder(CBStringA(m_strSrcFolder));
 	m_wndStartup.SelectString(-1, _T("main.box"));
+
+	m_wndIcon.SelectString(-1, _T("main.ico"));
+
+	m_wndPRI.SetCurSel(0);
+
+	m_wndFileDescription.SetWindowText(_T(""));
+	m_wndFileVersion.SetWindowText(_T(""));
+	m_wndProductVersion.SetWindowText(_T(""));
+	m_wndProductName.SetWindowText(_T(""));
+	m_wndLegalCopyright.SetWindowText(_T(""));
 
 	CStringArray straMake;
 	CString str;
@@ -625,11 +685,60 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 			{
 				CheckRadioButton(IDC_LIBRARY, IDC_CONSOLE, IDC_LIBRARY);
 				m_wndStartup.EnableWindow(FALSE);
+				m_wndIcon.EnableWindow(FALSE);
+				m_wndPRI.EnableWindow(FALSE);
+				m_wndFileDescription.EnableWindow(FALSE);
+				m_wndFileVersion.EnableWindow(FALSE);
+				m_wndProductVersion.EnableWindow(FALSE);
+				m_wndProductName.EnableWindow(FALSE);
+				m_wndLegalCopyright.EnableWindow(FALSE);
 			}else
 			{
 				CheckRadioButton(IDC_LIBRARY, IDC_CONSOLE, str.CompareNoCase(_T("Application"))?IDC_CONSOLE:IDC_APPLICATION);
 				m_wndStartup.EnableWindow();
+				m_wndIcon.EnableWindow();
+				m_wndPRI.EnableWindow();
+				m_wndFileDescription.EnableWindow();
+				m_wndFileVersion.EnableWindow();
+				m_wndProductVersion.EnableWindow();
+				m_wndProductName.EnableWindow();
+				m_wndLegalCopyright.EnableWindow();
 			}
+		}else if(!str.Left(5).CompareNoCase(_T("ICON ")))
+		{
+			m_strIcon = str.Mid(5);
+			m_strIcon.Trim();
+			m_wndIcon.SelectString(-1, m_strIcon);
+		}else if(!str.Left(4).CompareNoCase(_T("PRI ")))
+		{
+			str = str.Mid(4);
+			str.Trim();
+			m_wndPRI.SelectString(-1, str);
+		}else if(!str.Left(16).CompareNoCase(_T("FILEDESCRIPTION ")))
+		{
+			str = str.Mid(16);
+			str.Trim();
+			m_wndFileDescription.SetWindowText(str);
+		}else if(!str.Left(12).CompareNoCase(_T("FILEVERSION ")))
+		{
+			str = str.Mid(12);
+			str.Trim();
+			m_wndFileVersion.SetWindowText(str);
+		}else if(!str.Left(15).CompareNoCase(_T("PRODUCTVERSION ")))
+		{
+			str = str.Mid(15);
+			str.Trim();
+			m_wndProductVersion.SetWindowText(str);
+		}else if(!str.Left(12).CompareNoCase(_T("PRODUCTNAME ")))
+		{
+			str = str.Mid(12);
+			str.Trim();
+			m_wndProductName.SetWindowText(str);
+		}else if(!str.Left(15).CompareNoCase(_T("LEGALCOPYRIGHT ")))
+		{
+			str = str.Mid(15);
+			str.Trim();
+			m_wndLegalCopyright.SetWindowText(str);
 		}else if(!str.Left(8).CompareNoCase(_T("EXCLUDE ")))
 		{
 			LVFINDINFO info;
@@ -922,6 +1031,23 @@ void CNBRDlg::OnBnClickedOk()
 		}
 
 		straMake.InsertAt(1, _T("STARTUP ") + str);
+
+		m_wndIcon.GetWindowText(str);
+		straMake.InsertAt(1, _T("ICON ") + str);
+
+		m_wndPRI.GetWindowText(str);
+		straMake.InsertAt(1, _T("PRI ") + str);
+
+		m_wndFileDescription.GetWindowText(str);
+		straMake.InsertAt(1, _T("FILEDESCRIPTION ") + str);
+		m_wndFileVersion.GetWindowText(str);
+		straMake.InsertAt(1, _T("FILEVERSION ") + str);
+		m_wndProductVersion.GetWindowText(str);
+		straMake.InsertAt(1, _T("PRODUCTVERSION ") + str);
+		m_wndProductName.GetWindowText(str);
+		straMake.InsertAt(1, _T("PRODUCTNAME ") + str);
+		m_wndLegalCopyright.GetWindowText(str);
+		straMake.InsertAt(1, _T("LEGALCOPYRIGHT ") + str);
 	}
 
 	str = m_strSrcFolder;
@@ -1031,18 +1157,39 @@ void CNBRDlg::OnBnClickedConsole()
 {
 	m_wndOutput.SetWindowText(_T(""));
 	m_wndStartup.EnableWindow();
+	m_wndIcon.EnableWindow();
+	m_wndPRI.EnableWindow();
+	m_wndFileDescription.EnableWindow();
+	m_wndFileVersion.EnableWindow();
+	m_wndProductVersion.EnableWindow();
+	m_wndProductName.EnableWindow();
+	m_wndLegalCopyright.EnableWindow();
 }
 
 void CNBRDlg::OnBnClickedApplication()
 {
 	m_wndOutput.SetWindowText(_T(""));
 	m_wndStartup.EnableWindow();
+	m_wndIcon.EnableWindow();
+	m_wndPRI.EnableWindow();
+	m_wndFileDescription.EnableWindow();
+	m_wndFileVersion.EnableWindow();
+	m_wndProductVersion.EnableWindow();
+	m_wndProductName.EnableWindow();
+	m_wndLegalCopyright.EnableWindow();
 }
 
 void CNBRDlg::OnBnClickedLibrary()
 {
 	m_wndOutput.SetWindowText(_T(""));
 	m_wndStartup.EnableWindow(FALSE);
+	m_wndIcon.EnableWindow(FALSE);
+	m_wndPRI.EnableWindow(FALSE);
+	m_wndFileDescription.EnableWindow(FALSE);
+	m_wndFileVersion.EnableWindow(FALSE);
+	m_wndProductVersion.EnableWindow(FALSE);
+	m_wndProductName.EnableWindow(FALSE);
+	m_wndLegalCopyright.EnableWindow(FALSE);
 }
 
 void CNBRDlg::OnBnClickedViewcert()
@@ -1125,6 +1272,19 @@ void CNBRDlg::OnLvnItemchangedSource(NMHDR *pNMHDR, LRESULT *pResult)
 			m_wndStartup.SelectString(-1, _T("main.box"));
 			if(!m_strStartup.IsEmpty())
 				m_wndStartup.SelectString(-1, m_strStartup);
+		}
+		else if (str.Find(_T('\\')) == -1 && !str.Right(4).Compare(".ico"))
+		{
+			int nIndex = m_wndIcon.FindString(-1, str);
+
+			if((pNMLV->uNewState & INDEXTOSTATEIMAGEMASK(LVIS_SELECTED)) && nIndex == CB_ERR)
+				m_wndIcon.AddString(str);
+			else if(nIndex != CB_ERR)m_wndIcon.DeleteString(nIndex);
+
+			m_wndIcon.SetCurSel(0);
+			m_wndIcon.SelectString(-1, _T("main.ico"));
+			if(!m_strIcon.IsEmpty())
+				m_wndIcon.SelectString(-1, m_strIcon);
 		}
 	}
 }

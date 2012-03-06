@@ -42,9 +42,18 @@ public:
 	CStatic m_wndName;
 	CStatic m_wndLogo;
 	CComboBox m_wndStartup;
+	CComboBox m_wndIcon;
+	CComboBox m_wndPRI;
+
+	CEdit m_wndFileDescription;
+	CEdit m_wndFileVersion;
+	CEdit m_wndProductVersion;
+	CEdit m_wndProductName;
+	CEdit m_wndLegalCopyright;
 
 	CBPath m_strSrcFolder;
 	CString m_strStartup;
+	CString m_strIcon;
 
 	CMenu m_menuLang;
 
