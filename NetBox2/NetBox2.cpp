@@ -1110,8 +1110,9 @@ LONG WINAPI MyUnhandledFilter(PEXCEPTION_POINTERS lpExceptionInfo)
 	SYSTEMTIME st;
 	::GetLocalTime(&st);
 	strFileName.Format(".%04d%02d%02d %02d%02d%02d.dmp", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+	MoveFile(g_pFile->m_strAppName+".dmp", g_pFile->m_strAppName+strFileName);
 
-	HANDLE hFile = ::CreateFile(g_pFile->m_strAppName+strFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	HANDLE hFile = ::CreateFile(g_pFile->m_strAppName+".dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
 		MINIDUMP_EXCEPTION_INFORMATION ExInfo;

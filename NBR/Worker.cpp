@@ -15,6 +15,25 @@
 #define new DEBUG_NEW
 #endif
 
+const char* memfind(const void *buf, size_t count, const char* str, size_t scount)
+{
+	const char *ptr;
+	const char *ptr1;
+
+	ptr = (const char*)buf;
+	count -= scount - 1;
+
+	while(count && (ptr1 = (const char*)memchr(ptr, str[0], count)))
+	{
+		if(!memcmp(str, ptr1, scount))
+			return ptr1;
+
+		count -= ptr1 - ptr + 1;
+		ptr = ptr1 + 1;
+	}
+
+	return NULL;
+}
 // CWorker
 
 CWorker::CWorker()
@@ -37,6 +56,159 @@ BOOL CWorker::LogLastError(LPCTSTR pstrFile)
 	}
 
 	return FALSE;
+}
+
+BOOL CWorker::ReplaceIcon(LPCTSTR pstrFile)
+{
+	CIconFile icon;
+	CWin32Res res;
+	CString str;
+	CPath path;
+
+	m_pwndMain->m_wndIcon.GetWindowText(str);
+	if (str.IsEmpty())
+		return true;
+	path.m_strPath = m_strRootPath;
+	path.Append(str);
+	str = path.m_strPath;
+	if (!icon.Open(str, CFile::modeRead))
+		return LogLastError(str);
+
+	UINT n = icon.GetCount();
+	if (!n) return LogLastError(_T("Icon Error"));
+
+	if (!res.Open(pstrFile, CFile::modeRead))
+		return LogLastError(str);
+
+	DWORD dwPos, dwSize, index;
+	CAutoPtr<ICONDIR> pIcon;
+	CAutoPtr<MEMICONDIR> pMemIcon;
+	CAutoPtr<BYTE> pbmBits;
+
+	if (!res.FindResource(_T("NETBOX"), RT_GROUP_ICON, 1033, dwPos, dwSize))
+		return LogLastError(_T("Icon of NetBox has not found!"));
+
+	pMemIcon.Attach((MEMICONDIR *)new BYTE[dwSize]);
+	res.Seek(dwPos, CFile::begin);
+	res.Read((LPVOID)pMemIcon, dwSize);
+
+	for (UINT i=0;i<n;i++)
+	{
+		if (icon[i].bWidth == 16 && icon[i].bHeight == 16)
+		{
+			index = 0;
+		}
+		else if (icon[i].bWidth == 32 && icon[i].bHeight == 32)
+		{
+			index = 1;
+		}
+		else if (icon[i].bWidth == 48 && icon[i].bHeight == 48)
+		{
+			index = 2;
+		}
+		else continue;
+
+		if (res.FindResource(MAKEINTRESOURCE(pMemIcon->idEntries[index].nID), RT_ICON, 1033, dwPos, dwSize))
+		{
+			if (dwSize < icon[i].dwBytesInRes)
+				continue;
+			pbmBits.Attach(new BYTE[icon[i].dwBytesInRes]);
+			icon.Seek(icon[i].dwImageOffset, CFile::begin);
+			icon.Read((LPVOID)pbmBits, icon[i].dwBytesInRes);
+			m_file.Seek(dwPos, CFile::begin);
+			m_file.Write((LPVOID)pbmBits, icon[i].dwBytesInRes);
+			pbmBits.Free();
+		}
+	}
+
+	return true;
+}
+
+BOOL CWorker::ReplaceVersionInfo(LPCTSTR pstrFile)
+{
+	CWin32Res res;
+	if (!res.Open(pstrFile, CFile::modeRead))
+		return LogLastError(pstrFile);
+
+	DWORD dwPos, dwSize;
+
+	if (!res.FindResource(MAKEINTRESOURCE(1), RT_VERSION, 1033, dwPos, dwSize))
+		return LogLastError(_T("VersionInfo of NetBox has not found!"));
+
+	CAutoPtr<BYTE> pBits;
+
+	pBits.Attach(new BYTE[dwSize]);
+	res.Seek(dwPos, CFile::begin);
+	res.Read((LPVOID)pBits, dwSize);
+
+	CStringW strW, strRepW;
+	CString str;
+	LPCTSTR pstrfinds[] = {_T("FileDescription"), _T("FileVersion"), _T("ProductVersion"), _T("ProductName"), _T("LegalCopyright")};
+	CEdit* ppwndedits[] = {&m_pwndMain->m_wndFileDescription, &m_pwndMain->m_wndFileVersion, &m_pwndMain->m_wndProductVersion, &m_pwndMain->m_wndProductName, &m_pwndMain->m_wndLegalCopyright};
+	UINT pmaxlen[] = {128, 16, 16, 128, 128};
+	BYTE pspace[256];
+
+	memset(pspace, 0, sizeof(pspace));
+	for (UINT i=0;i<5;i++)
+	{
+		ppwndedits[i]->GetWindowText(str);
+		if (!str.IsEmpty())
+		{
+			strW = pstrfinds[i];
+			strRepW = str;
+			if (strRepW.GetLength()>pmaxlen[i])
+				strRepW.Truncate(pmaxlen[i]);
+			LPBYTE p = (LPBYTE)memfind(pBits, dwSize, (const char *)(LPCWSTR)strW, strW.GetLength()*2);
+			if (p)
+			{
+				m_file.Seek(dwPos+(p-pBits.m_p)+strW.GetLength()*2+(strW.GetLength()%2?4:2), CFile::begin);
+				m_file.Write((LPVOID)(LPCWSTR)strRepW, strRepW.GetLength()*2);
+				m_file.Write((LPVOID)pspace, (pmaxlen[i]-strRepW.GetLength())*2);
+			}
+		}
+	}
+	return true;
+}
+
+BOOL CWorker::ReplaceManifest(LPCTSTR pstrFile)
+{
+	CWin32Res res;
+	if (!res.Open(pstrFile, CFile::modeRead))
+		return LogLastError(pstrFile);
+
+	DWORD dwPos, dwSize;
+	CAutoPtr<BYTE> pBits;
+	CString str;
+	
+	m_pwndMain->m_wndPRI.GetWindowText(str);
+
+	if (!res.FindResource(MAKEINTRESOURCE(1), RT_MANIFEST, 1033, dwPos, dwSize))
+		return LogLastError(_T("Manifest of NetBox has not found!"));
+
+	pBits.Attach(new BYTE[dwSize+1]);
+	res.Seek(dwPos, CFile::begin);
+	res.Read((LPVOID)pBits, dwSize);
+	pBits.m_p[dwSize] = 0;
+	
+	if (!str.Compare(_T("asInvoker")))
+	{
+		LPBYTE p = (LPBYTE)strstr((char *)pBits.m_p, "requireAdministrator");
+		if (p)
+		{
+			m_file.Seek(dwPos+(p-pBits.m_p), CFile::begin);
+			m_file.Write("asInvoker\"           ", 21);
+		}
+	}
+	else
+	{
+		LPBYTE p = (LPBYTE)strstr((char *)pBits.m_p, "asInvoker");
+		if (p)
+		{
+			m_file.Seek(dwPos+(p-pBits.m_p), CFile::begin);
+			m_file.Write("requireAdministrator\"", 21);
+		}
+	}
+	return true;
 }
 
 BOOL CWorker::StartBuild()
@@ -80,14 +252,25 @@ BOOL CWorker::StartBuild()
 		while(nSize = fileNetBox.Read(buffer, sizeof(buffer)))
 			m_file.Write(buffer, nSize);
 
+		fileNetBox.Close();
+
 //		废弃NetBox用户签名证书
 //		m_file.Seek(0x7c, 0);
 //		m_file.Write(&theApp.m_certinfo.m_nDevID, 4);
 
-		//Replace Icon Now!
-		m_file.SeekToBegin();
+//Replace Icon Now!
 		
+		if (!ReplaceIcon(str))
+			return FALSE;
+
+		if (!ReplaceVersionInfo(str))
+			return FALSE;
+
+		if (!ReplaceManifest(str))
+			return FALSE;
+
 //End Replace
+		m_file.SeekToBegin();
 
 	//Code for checking signcode
 		DWORD nSignAddress = 0, nChecksumAddress = 0;
