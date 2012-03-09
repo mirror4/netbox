@@ -527,6 +527,7 @@ void CBoxService::Dispatch(LPCTSTR pstrName)
 		{ NULL, NULL }
 	};
 
+	m_bDesktop = theApp.m_bIsShell;
 	dispatchTable[0].lpServiceName = (LPTSTR)(LPCTSTR)m_strName;
 	StartServiceCtrlDispatcher(dispatchTable);
 }

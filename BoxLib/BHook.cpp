@@ -8,7 +8,7 @@ static CBCriticalSection g_csHook;
 static CBLockResource g_lrHook;
 
 static HMODULE (WINAPI *RealLoadLibraryA)(PCSTR) = LoadLibraryA;
-static HMODULE WINAPI NewLoadLibraryA(PCSTR pszModulePath)
+HMODULE WINAPI NewLoadLibraryA(PCSTR pszModulePath)
 {
 	HMODULE hmod;
 

@@ -85,7 +85,7 @@ CNetBox2App::CNetBox2App() : m_bRunSelfAtExit(FALSE), m_bStep(FALSE), m_nErrorCo
 #ifdef _DEBUG
 	msCheck.Checkpoint();
 #endif
-
+/*
 	STARTUPINFO StartupInfo;
 
 	memset(&StartupInfo, 0, sizeof(STARTUPINFO));
@@ -94,6 +94,16 @@ CNetBox2App::CNetBox2App() : m_bRunSelfAtExit(FALSE), m_bStep(FALSE), m_nErrorCo
 	strlen(StartupInfo.lpDesktop);
 
 	m_bIsShell = strlen(StartupInfo.lpDesktop)>0;//(::FindWindow(_T("progman"), NULL) != NULL);
+*/
+	m_bIsShell = TRUE; 
+
+	HWINSTA hWinStation = GetProcessWindowStation();
+	if (hWinStation != NULL)
+	{
+		USEROBJECTFLAGS uof = {0};
+		if (GetUserObjectInformation(hWinStation, UOI_FLAGS, &uof, sizeof(USEROBJECTFLAGS), NULL) && ((uof.dwFlags & WSF_VISIBLE) == 0))
+			m_bIsShell = FALSE; 
+	}
 
 	OSVERSIONINFO  versionInfo;
 	BOOL bLowOS = FALSE;
@@ -479,7 +489,7 @@ LPDISPATCH CNetBox2App::GetAllProcesses()
     DWORD aProcesses[1024], cbNeeded, cProcesses;
 
 	BOOL (__stdcall *EnumProcesses)(DWORD*, DWORD, DWORD*) = NULL;
-	HMODULE hmod = ::LoadLibrary("Psapi.dll");
+	HMODULE hmod = ::NewLoadLibraryA("Psapi.dll");
 	if(hmod == NULL)
 		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
 

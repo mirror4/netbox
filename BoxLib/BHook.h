@@ -34,3 +34,5 @@ public:
 		Init();
 	}
 };
+
+HMODULE WINAPI NewLoadLibraryA(PCSTR);

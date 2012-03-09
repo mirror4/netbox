@@ -82,6 +82,8 @@
 #define IDT_PRODUCTNAME                 1060
 #define IDT_LEGALCOPYRIGHT              1061
 #define IDT_PRODUCTVERSION              1062
+#define IDC_CHECK1                      1063
+#define IDC_EMBEDVBS                    1063
 
 // Next default values for new objects
 // 
@@ -89,7 +91,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        148
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_CONTROL_VALUE         1064
 #define _APS_NEXT_SYMED_VALUE           104
 #endif
 #endif
