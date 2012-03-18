@@ -72,7 +72,7 @@
 				Name="VCLinkerTool"
 				OutputFile="d:\share\nbdw.exe"
 				LinkIncremental="2"
-				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL;MSIMG32.DLL"
+				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL;MSIMG32.DLL;VERSION.DLL"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"

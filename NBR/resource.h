@@ -15,7 +15,6 @@
 #define IDR_MAINFRAME                   128
 #define IDD_LOG                         131
 #define IDI_CERT                        132
-#define IDD_DIALOG1                     135
 #define IDD_SYSINFO                     135
 #define IDB_PBNB                        138
 #define IDB_BUILD                       141
@@ -43,14 +42,12 @@
 #define IDC_PASSWORD                    1022
 #define IDC_UPDATE                      1023
 #define IDC_INFO                        1024
-#define IDC_BUTTON1                     1025
 #define IDC_VIEWCERT                    1025
 #define IDC_SYSINFO                     1026
 #define IDC_SILIST                      1027
 #define IDC_TITLE                       1029
 #define IDC_NAME                        1029
 #define IDC_PBNB                        1030
-#define IDC_COMBO2                      1032
 #define IDC_STARTUP                     1032
 #define IDT_SRCFOLDER                   1033
 #define IDT_FILETYPE                    1034
@@ -82,7 +79,6 @@
 #define IDT_PRODUCTNAME                 1060
 #define IDT_LEGALCOPYRIGHT              1061
 #define IDT_PRODUCTVERSION              1062
-#define IDC_CHECK1                      1063
 #define IDC_EMBEDVBS                    1063
 
 // Next default values for new objects

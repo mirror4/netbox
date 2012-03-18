@@ -211,6 +211,29 @@ BOOL CWorker::ReplaceManifest(LPCTSTR pstrFile)
 	return true;
 }
 
+BOOL CWorker::ReplaceAppdata(LPCTSTR pstrFile)
+{
+	CWin32Res res;
+	if (!res.Open(pstrFile, CFile::modeRead))
+		return LogLastError(pstrFile);
+
+	DWORD dwPos, dwSize, dwAppdata;
+	CString str;
+	
+	if (!m_pwndMain->IsDlgButtonChecked(IDC_EMBEDVBS))
+		return true;
+
+	if (!res.FindResource(MAKEINTRESOURCE(1), "APPDATA", 1033, dwPos, dwSize))
+		return LogLastError(_T("Appdata of NetBox has not found!"));
+
+	res.Seek(dwPos, CFile::begin);
+	res.Read((LPVOID)&dwAppdata, sizeof(dwAppdata));
+	dwAppdata |= 1;
+	m_file.Seek(dwPos, CFile::begin);
+	m_file.Write((LPVOID)&dwAppdata, sizeof(dwAppdata));
+	return true;
+}
+
 BOOL CWorker::StartBuild()
 {
 	BYTE buffer[2048];
@@ -267,6 +290,9 @@ BOOL CWorker::StartBuild()
 			return FALSE;
 
 		if (!ReplaceManifest(str))
+			return FALSE;
+
+		if (!ReplaceAppdata(str))
 			return FALSE;
 
 //End Replace

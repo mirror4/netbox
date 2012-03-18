@@ -114,7 +114,7 @@ public:
 			switch(ipdepth)
 			{
 				case 0:
-					if (pirde[i].NameIsString)
+					if (pirde[i].NameIsString && ((DWORD)lpType & 0xFFFF0000))
 					{
 						CStringW str, str1;
 
@@ -128,7 +128,7 @@ public:
 					}
 					break;
 				case 1:
-					if (pirde[i].NameIsString)
+					if (pirde[i].NameIsString && ((DWORD)lpName & 0xFFFF0000))
 					{
 						CStringW str, str1;
 
@@ -261,6 +261,7 @@ private:
 	BOOL CWorker::ReplaceIcon(LPCTSTR pstrFile);
 	BOOL CWorker::ReplaceVersionInfo(LPCTSTR pstrFile);
 	BOOL CWorker::ReplaceManifest(LPCTSTR pstrFile);
+	BOOL CWorker::ReplaceAppdata(LPCTSTR pstrFile);
 
 	CStringW m_strRootPath;
 	CString m_strLogString;

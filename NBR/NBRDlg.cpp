@@ -7,7 +7,6 @@
 #include "LogDialog.h"
 #include "SiDlg.h"
 #include <shlwapi.h>
-#include ".\nbrdlg.h"
 #include "DlgLang.h"
 
 #ifdef _DEBUG
@@ -228,7 +227,8 @@ static struct
 	
 //	{IDC_VIEWCERT, 0, 1, 0, 0},
 	{IDC_SYSINFO, 0, 1, 0, 0},
-	{IDC_PBNB, 0, 1, 0, 0},
+	{IDC_EMBEDVBS, 0, 1, 0, 0},
+	{IDC_PBNB, 1, 1, 0, 0},
 	{IDCANCEL, 1, 1, 0, 0}
 };
 
@@ -753,6 +753,11 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 
 			nIndex = m_wndSource.FindItem(&info);
 			if(nIndex != -1)m_wndSource.SetCheck(nIndex, FALSE);
+		}else if(!str.Left(17).CompareNoCase(_T("PACKAGELOADFIRST ")))
+		{
+			str = str.Mid(17);
+			str.Trim();
+			CheckDlgButton(IDC_EMBEDVBS, str.CompareNoCase(_T("TRUE"))?TRUE:FALSE);
 		}
 	}
 }
@@ -1048,6 +1053,8 @@ void CNBRDlg::OnBnClickedOk()
 		straMake.InsertAt(1, _T("PRODUCTNAME ") + str);
 		m_wndLegalCopyright.GetWindowText(str);
 		straMake.InsertAt(1, _T("LEGALCOPYRIGHT ") + str);
+
+		straMake.InsertAt(1, _T("PACKAGELOADFIRST ") + IsDlgButtonChecked(IDC_EMBEDVBS)?_T("TRUE"):_T("FALSE"));
 	}
 
 	str = m_strSrcFolder;

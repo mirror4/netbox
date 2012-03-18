@@ -3,8 +3,7 @@
 
 #include "stdafx.h"
 #include "NBR.h"
-#include "SiDlg.h"
-#include ".\sidlg.h"
+#include "sidlg.h"
 
 
 // CSiDlg dialog

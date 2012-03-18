@@ -180,7 +180,7 @@
 				DelayLoadDLLs="WINSPOOL.DRV;SHELL32.DLL;COMCTL32.DLL;OLEDLG.DLL;netapi32.DLL;WS2_32.DLL;iphlpapi.dll;SHLWAPI.DLL;URLMON.DLL;WININET.DLL;DBGHELP.DLL"
 				GenerateDebugInformation="true"
 				AssemblyDebug="0"
-				SubSystem="1"
+				SubSystem="2"
 				StackReserveSize="0"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

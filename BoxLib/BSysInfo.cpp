@@ -8,6 +8,8 @@
 #include "BDate.h"
 #include <strsafe.h>
 
+#pragma comment(lib, "Version.lib")
+
 BOOL GetOSDisplayString(LPTSTR pszOS, OSVERSIONINFOEX &osvi);
 
 CBSysInfo::CBSysInfo(void)
@@ -517,6 +519,9 @@ void CBSysInfo::determineUSERInfo(void)
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0, NULL, 0, buf)))
 				Append(L"Folder_Desktop", buf);
 
+			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0019, NULL, 0, buf)))
+				Append(L"Folder_DesktopCommon", buf);
+
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0006, NULL, 0, buf)))
 				Append(L"Folder_Favorites", buf);
 
@@ -529,11 +534,29 @@ void CBSysInfo::determineUSERInfo(void)
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0002, NULL, 0, buf)))
 				Append(L"Folder_Programs", buf);
 
+			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0017, NULL, 0, buf)))
+				Append(L"Folder_ProgramsCommon", buf);
+
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x000b, NULL, 0, buf)))
 				Append(L"Folder_StartMenu", buf);
 
+			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0016, NULL, 0, buf)))
+				Append(L"Folder_StartMenuCommon", buf);
+
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0005, NULL, 0, buf)))
 				Append(L"Folder_MyDocuments", buf);
+
+			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x002e, NULL, 0, buf)))
+				Append(L"Folder_MyDocumentsCommon", buf);
+
+			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0007, NULL, 0, buf)))
+				Append(L"Folder_Startup", buf);
+
+			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0018, NULL, 0, buf)))
+				Append(L"Folder_StartupCommon", buf);
+
+			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0021, NULL, 0, buf)))
+				Append(L"Folder_Cookies", buf);
 		}
 
 		::FreeLibrary(hSHFolder);
@@ -547,6 +570,32 @@ void CBSysInfo::determineUSERInfo(void)
 	Append(L"TimeZone", buf);
 	_itot(-tzi.Bias, buf, 10);
 	Append(L"TimeZone_Bias", buf);
+
+
+	HRSRC hrsrc = FindResource(NULL, MAKEINTRESOURCE(1), RT_VERSION);
+	if (hrsrc)
+	{
+		HGLOBAL hglbl = LoadResource(NULL, hrsrc);
+		if (hglbl)
+		{
+			LPVOID pv = LockResource(hglbl);
+			if (pv)
+			{
+				UINT u;
+				LPCWSTR p;
+				if (VerQueryValueW(pv, L"\\StringFileInfo\\040904B0\\FileDescription", (LPVOID *)&p, &u))
+					Append(L"VS_FileDescription", p);
+				if (VerQueryValueW(pv, L"\\StringFileInfo\\040904B0\\FileVersion", (LPVOID *)&p, &u))
+					Append(L"VS_FileVersion", p);
+				if (VerQueryValueW(pv, L"\\StringFileInfo\\040904B0\\LegalCopyright", (LPVOID *)&p, &u))
+					Append(L"VS_LegalCopyright", p);
+				if (VerQueryValueW(pv, L"\\StringFileInfo\\040904B0\\ProductName", (LPVOID *)&p, &u))
+					Append(L"VS_ProductName", p);
+				if (VerQueryValueW(pv, L"\\StringFileInfo\\040904B0\\ProductVersion", (LPVOID *)&p, &u))
+					Append(L"VS_ProductVersion", p);
+			}
+		}
+	}
 
 //------------------------ IP -----------------------------------------------------------
 
@@ -601,7 +650,7 @@ void CBSysInfo::determineScreenInfo(void)
 	HDC hDC = ::GetDC(NULL);
 
 	_itoa(GetDeviceCaps(hDC, BITSPIXEL), str, 10);
-	strcat(str, " bit");
+	strcat_s(str, 32, " bit");
 	Append(L"Screen_Color", str);
 
 	::DeleteDC(hDC);
