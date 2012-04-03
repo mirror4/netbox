@@ -126,7 +126,7 @@ const char* memfind(const void *buf, size_t count, const char* str, size_t scoun
 
 CBoxSystem::CBoxSystem(void)
 {
-	CBHtmlWindow::AddTrustedSite("netbox://");
+	CBHtmlWindow::AddTrustedSite("netbox:/");
 
 	m_pContents.CreateInstance();
 	m_pContents->put_ArrayMode(0);
