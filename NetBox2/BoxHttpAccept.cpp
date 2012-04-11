@@ -933,8 +933,25 @@ int CBoxHttpAccept::BuildFile(void)
 		return 302;
 	}
 
-	if(m_fileResponse->IsKindOf(RUNTIME_CLASS(CMemFile)) && IsExeFile(pstrExt))
-		return 403;
+	if(m_fileResponse->IsKindOf(RUNTIME_CLASS(CMemFile)))
+	{
+		if (IsExeFile(pstrExt))
+		{
+			//maybe? leak
+			//delete m_fileResponse;
+			//m_fileResponse = NULL;
+			return 403;
+		}
+	}
+	else
+	{
+		if (::GetFileType(m_fileResponse->m_hFile) != FILE_TYPE_DISK)
+		{
+			delete m_fileResponse;
+			m_fileResponse = NULL;
+			return 404;
+		}
+	}
 
 	m_nResponseContentLength = (int)m_fileResponse->GetLength();
 	g_pFile->GetFileTimeString(m_fileResponse, m_mapResponseHeader[_T("Last-Modified")]);
@@ -944,7 +961,6 @@ int CBoxHttpAccept::BuildFile(void)
 	{
 		delete m_fileResponse;
 		m_fileResponse = NULL;
-
 		return 304;
 	}
 

@@ -271,6 +271,14 @@ int CBoxScript::LoadScriptFile(LPCTSTR pstrFile, CStringA& strScriptText, int nL
 			}
 		}else
 		{
+			if (::GetFileType(pFile->m_hFile) != FILE_TYPE_DISK)
+			{
+				delete pFile;
+				m_arrayIncludeFlags[nIncludeFlagIndex] = 0;
+				m_strBasePath = strOldPath;
+				return 404;
+			}
+			
 			m_nDiskFileCount ++;
 			if(nSize)
 			{
