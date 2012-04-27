@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include ".\bhtmlwindow.h"
 
+#define URLACTION_LOWRIGHTS									0x00002500
+#define URLACTION_ALLOW_APEVALUATION						0x00002301
+
 static CAtlArray<CBString> s_TrustedSites;
 
 _ATL_FUNC_INFO CBHtmlWindow::StatusTextChangeInfo = {CC_STDCALL, VT_EMPTY, 1, {VT_BSTR}};
@@ -79,6 +82,19 @@ public:
 					case URLACTION_CHANNEL_SOFTDIST_PERMISSIONS:
 						dwPolicy = URLPOLICY_CHANNEL_SOFTDIST_AUTOINSTALL;
 						break;
+
+					case URLACTION_LOWRIGHTS:
+						dwPolicy = URLPOLICY_DISALLOW;
+						break;
+					case URLACTION_SHELL_POPUPMGR:
+						dwPolicy = URLPOLICY_DISALLOW;
+						break;
+					case URLACTION_ALLOW_APEVALUATION:
+						dwPolicy = URLPOLICY_DISALLOW;
+						break;
+					//case URLACTION_ACTIVEX_DYNSRC_VIDEO_AND_ANIMATION:
+					//	dwPolicy = URLPOLICY_DISALLOW;
+					//	break;
 				}
 
 				if (dwPolicy != URLPOLICY_ALLOW)
