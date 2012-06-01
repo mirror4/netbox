@@ -934,7 +934,7 @@ interface IHash : IDispatch {
 	[id(0x00000002), propget]
 	HRESULT HashSize([out, retval] short* pVal);
 	[id(0x00000003)]
-	HRESULT Create([in, optional, defaultvalue("MD5")] BSTR bstrAlgo);
+	HRESULT Create([in, optional, defaultvalue("MD5")] BSTR bstrAlgo, [in, optional] VARIANT varKey);
 	[id(0x00000004)]
 	HRESULT Update([in] VARIANT varData);
 	[id(0x00000000)]

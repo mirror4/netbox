@@ -11,6 +11,7 @@ static ELEMDESC s_mElemDesc[] =
 {
 	// Create
 	{{{NULL}, VT_BSTR}, {(ULONG_PTR)&s_mElemDescEx[0], 0x31}},
+	{{{NULL}, VT_VARIANT}, {NULL, 0x11}},
 	// Update
 	{{{NULL}, VT_VARIANT}, {NULL, 0x1}},
 	// Final
@@ -23,9 +24,9 @@ static CBTypeInfo::METHOD_ENTRY s_mData[] =
 	{L"_NewEnum", {0xFFFFFFFC, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 28, 0, {{{NULL}, VT_UNKNOWN}}, 1}},
 	{L"Name", {0x00000001, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 32, 0, {{{NULL}, VT_BSTR}}, 0}},
 	{L"HashSize", {0x00000002, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 36, 0, {{{NULL}, VT_I2}}, 0}},
-	{L"Create", {0x00000003, NULL, &s_mElemDesc[0], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 40, 0, {{{NULL}, VT_EMPTY}}, 0}},
-	{L"Update", {0x00000004, NULL, &s_mElemDesc[1], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 44, 0, {{{NULL}, VT_EMPTY}}, 0}},
-	{L"Final", {0x00000000, NULL, &s_mElemDesc[2], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 1, 48, 0, {{{NULL}, VT_VARIANT}}, 0}}
+	{L"Create", {0x00000003, NULL, &s_mElemDesc[0], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 1, 40, 0, {{{NULL}, VT_EMPTY}}, 0}},
+	{L"Update", {0x00000004, NULL, &s_mElemDesc[2], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 44, 0, {{{NULL}, VT_EMPTY}}, 0}},
+	{L"Final", {0x00000000, NULL, &s_mElemDesc[3], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 1, 48, 0, {{{NULL}, VT_VARIANT}}, 0}}
 };
 
 static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult)
@@ -72,12 +73,13 @@ static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS
 
 	IF_INVOKE_FUNC(0x00000003)	//Create
 	{
-		if(cArgs1 > 1)
+		if(cArgs1 > 2)
 			return DISP_E_BADPARAMCOUNT;
 
 		INVOKE_PARAM_DEF(VT_BSTR, 0, 0)
+		INVOKE_PARAM_OPT(VT_VARIANT, 1)
 
-		hr = pObject->Create(v0);
+		hr = pObject->Create(v0, v1);
 		return hr;
 	}
 

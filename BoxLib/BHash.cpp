@@ -1,13 +1,12 @@
 #include "StdAfx.h"
 #include "BHash.h"
-#include "BVarType.h"
-#include "BCollection.h"
 
 #include <openssl\md2.h>
 #include <openssl\MD4.h>
 #include <openssl\md5.h>
 #include <openssl\ripemd.h>
 #include <openssl\SHA.h>
+#include <openssl\hmac.h>
 
 WCHAR s_strAlgoError[] = L"Algorithm not initialized.";
 static struct
@@ -17,52 +16,116 @@ static struct
 	int (*Init)(void *);
 	int (*Update)(void *, const unsigned char *, unsigned long);
 	int (*Final)(unsigned char *, void *);
+	const EVP_MD* (*evp_md)(void);
 } s_HashAlgos[]= 
 {
 	{L"MD2", MD2_DIGEST_LENGTH,
 		(int (*)(void *))MD2_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))MD2_Update,
-		(int (*)(unsigned char *, void *))MD2_Final
+		(int (*)(unsigned char *, void *))MD2_Final,
+		NULL
 	},
 	{L"MD4", MD4_DIGEST_LENGTH,
 		(int (*)(void *))MD4_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))MD4_Update,
-		(int (*)(unsigned char *, void *))MD4_Final
+		(int (*)(unsigned char *, void *))MD4_Final,
+		NULL
 	},
 	{L"MD5", MD5_DIGEST_LENGTH,
 		(int (*)(void *))MD5_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))MD5_Update,
-		(int (*)(unsigned char *, void *))MD5_Final
+		(int (*)(unsigned char *, void *))MD5_Final,
+		NULL
 	},
 	{L"RIPEMD160", RIPEMD160_DIGEST_LENGTH,
 		(int (*)(void *))RIPEMD160_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))RIPEMD160_Update,
-		(int (*)(unsigned char *, void *))RIPEMD160_Final
+		(int (*)(unsigned char *, void *))RIPEMD160_Final,
+		NULL
 	},
 	{L"SHA", SHA_DIGEST_LENGTH,
 		(int (*)(void *))SHA_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))SHA_Update,
-		(int (*)(unsigned char *, void *))SHA_Final
+		(int (*)(unsigned char *, void *))SHA_Final,
+		NULL
 	},
 	{L"SHA1", SHA_DIGEST_LENGTH,
 		(int (*)(void *))SHA1_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))SHA1_Update,
-		(int (*)(unsigned char *, void *))SHA1_Final
+		(int (*)(unsigned char *, void *))SHA1_Final,
+		NULL
 	},
 	{L"SHA256", SHA256_DIGEST_LENGTH,
 		(int (*)(void *))SHA256_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))SHA256_Update,
-		(int (*)(unsigned char *, void *))SHA256_Final
+		(int (*)(unsigned char *, void *))SHA256_Final,
+		NULL
 	},
 	{L"SHA384", SHA384_DIGEST_LENGTH,
 		(int (*)(void *))SHA384_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))SHA384_Update,
-		(int (*)(unsigned char *, void *))SHA384_Final
+		(int (*)(unsigned char *, void *))SHA384_Final,
+		NULL
 	},
 	{L"SHA512", SHA512_DIGEST_LENGTH,
 		(int (*)(void *))SHA512_Init,
 		(int (*)(void *, const unsigned char *, unsigned long))SHA512_Update,
-		(int (*)(unsigned char *, void *))SHA512_Final
+		(int (*)(unsigned char *, void *))SHA512_Final,
+		NULL
+	},
+	{L"HMAC_MD2", MD2_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_md2
+	},
+	{L"HMAC_MD4", MD4_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_md4
+	},
+	{L"HMAC_MD5", MD5_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_md5
+	},
+	{L"HMAC_RIPEMD160", RIPEMD160_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_ripemd160
+	},
+	{L"HMAC_SHA", SHA_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_sha
+	},
+	{L"HMAC_SHA1", SHA_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_sha1
+	},
+	{L"HMAC_SHA256", SHA256_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_sha256
+	},
+	{L"HMAC_SHA384", SHA384_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_sha384
+	},
+	{L"HMAC_SHA512", SHA512_DIGEST_LENGTH,
+		(int (*)(void *))(void *)HMAC_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
+		(int (*)(unsigned char *, void *))HMAC_Final,
+		EVP_sha512
 	}
 };
 
@@ -105,7 +168,7 @@ STDMETHODIMP CBHash::get_HashSize(short *pVal)
 	return S_OK;
 }
 
-STDMETHODIMP CBHash::Create(BSTR bstrAlgo)
+STDMETHODIMP CBHash::Create(BSTR bstrAlgo, VARIANT varKey)
 {
 	m_iAlgo = -1;
 	for(int i = 0; i < sizeof(s_HashAlgos) / sizeof(s_HashAlgos[0]); i ++)
@@ -118,7 +181,17 @@ STDMETHODIMP CBHash::Create(BSTR bstrAlgo)
 	if(m_iAlgo == -1)
 		return E_INVALIDARG;
 
-	s_HashAlgos[m_iAlgo].Init(&m_ctx);
+	if (s_HashAlgos[m_iAlgo].evp_md)
+	{
+		HRESULT hr = m_varKey.Attach(varKey);
+		if(FAILED(hr))return hr;
+		
+		((void (*)(void *, const unsigned char *, unsigned long, void *))(void *)s_HashAlgos[m_iAlgo].Init)(&m_ctx, m_varKey.m_pData, m_varKey.m_nSize, (void *)s_HashAlgos[m_iAlgo].evp_md());
+	}
+	else
+	{
+		s_HashAlgos[m_iAlgo].Init(&m_ctx);
+	}
 	return S_OK;
 }
 
@@ -146,8 +219,18 @@ STDMETHODIMP CBHash::Final(VARIANT varData, VARIANT *retVal)
 	CBVarPtr varPtr;
 
 	varPtr.Create(s_HashAlgos[m_iAlgo].Size);
-	s_HashAlgos[m_iAlgo].Final(varPtr.m_pData, &m_ctx);
-	s_HashAlgos[m_iAlgo].Init(&m_ctx);
+	
+	if (s_HashAlgos[m_iAlgo].evp_md)
+	{
+		unsigned long size;
+		((void (*)(void *, const unsigned char *, unsigned long *))(void *)s_HashAlgos[m_iAlgo].Final)(&m_ctx, varPtr.m_pData, &size);
+		((void (*)(void *, const unsigned char *, unsigned long, void *))(void *)s_HashAlgos[m_iAlgo].Init)(&m_ctx, m_varKey.m_pData, m_varKey.m_nSize, (void *)s_HashAlgos[m_iAlgo].evp_md());
+	}
+	else
+	{
+		s_HashAlgos[m_iAlgo].Final(varPtr.m_pData, &m_ctx);
+		s_HashAlgos[m_iAlgo].Init(&m_ctx);
+	}
 
 	return varPtr.GetVariant(retVal);
 }
