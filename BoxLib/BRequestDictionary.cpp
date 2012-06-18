@@ -272,6 +272,46 @@ HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 	UINT uiSplitSize, uiSize;
 	BYTE ch;
 
+/*
+	HANDLE hFile = ::CreateFile("uploads.dat", GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		DWORD written;
+		int nSize;
+		char *buf;
+
+		while (::ReadFile(hFile, &nSize, 4, &written, NULL) && written == 4)
+		{
+			buf = new char[nSize];
+			::ReadFile(hFile, buf, nSize, &written, NULL);
+
+			CBComPtr<CBRequestDictionary> pForm;
+
+			pForm.CreateInstance();
+			pForm->ParseUploadString(buf, written);
+
+			delete buf;
+		}
+		::CloseHandle(hFile);
+	}
+*//*
+	///////////////////////
+	static CBCriticalSection s_cs;
+	char *pFileName = "uploads.dat";
+	char buf[128];
+	CBLock l(&s_cs);
+
+	HANDLE hFile = ::CreateFile(pFileName, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		DWORD written;
+		::SetFilePointer(hFile, 0, NULL, FILE_END);
+		::WriteFile(hFile, &nSize, 4, &written, NULL);
+		::WriteFile(hFile, pstr, nSize, &written, NULL);
+		::CloseHandle(hFile);
+	}
+	///////////////////////
+*/
 	m_modeDict = modeUploadList;
 
 	szQueryString = (const BYTE *)pstr;
@@ -312,6 +352,8 @@ HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 				nSize --;
 				p ++;
 			}
+
+			if (nSize == 0) break;
 
 			p1 = szQueryString;
 			szQueryString = p;
@@ -406,7 +448,7 @@ HRESULT CBRequestDictionary::ParseUploadString(LPCSTR pstr, UINT nSize)
 
 		if(!p || p1 <= p + uiSplitSize)break;
 
-		nSize = (int)(p1 - p);
+		nSize = (int)(p1 - p - uiSplitSize);
 		p1 = szQueryString;
 		szQueryString = p + uiSplitSize;
 
