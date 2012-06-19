@@ -84,6 +84,8 @@ public:
 	afx_msg long GetDlgCtrlID(long hWnd);
 	afx_msg long GetDlgItem(long hDlg, long DlgCtrlID);
 	afx_msg long GetWindowProcessId(long hWnd);
+
+	afx_msg VARIANT RegRead(VARIANT& varKey);
 	DECLARE_DISPATCH_MAP()
 
 public:

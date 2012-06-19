@@ -270,8 +270,182 @@ BEGIN_DISPATCH_MAP(CNetBox2App, CWinApp)
 	DISP_FUNCTION(CNetBox2App, "GetDlgCtrlID", GetDlgCtrlID, VT_I4, VTS_I4)
 	DISP_FUNCTION(CNetBox2App, "GetDlgItem", GetDlgItem, VT_I4, VTS_I4 VTS_I4)
 	DISP_FUNCTION(CNetBox2App, "GetWindowProcessId", GetWindowProcessId, VT_I4, VTS_I4)
+
+	DISP_FUNCTION(CNetBox2App, "RegRead", RegRead, VT_VARIANT, VTS_VARIANT)
+
 END_DISPATCH_MAP()
 
+
+static struct
+{
+	LPCWSTR	Name;
+	HKEY	hKey;
+} s_HKeys[]= 
+{
+	{
+		L"HKEY_CURRENT_USER",
+		HKEY_CURRENT_USER
+	},
+	{
+		L"HKCU",
+		HKEY_CURRENT_USER
+	},
+	{
+		L"HKEY_LOCAL_MACHINE",
+		HKEY_LOCAL_MACHINE
+	},
+	{
+		L"HKLM",
+		HKEY_LOCAL_MACHINE
+	},
+	{
+		L"HKEY_CLASSES_ROOT",
+		HKEY_CLASSES_ROOT
+	},
+	{
+		L"HKCR",
+		HKEY_CLASSES_ROOT
+	},
+	{
+		L"HKEY_USERS",
+		HKEY_USERS
+	},
+	{
+		L"HKEY_CURRENT_CONFIG",
+		HKEY_CURRENT_CONFIG
+	},
+	{
+		L"HKEY_DYN_DATA",
+		HKEY_DYN_DATA
+	},
+	{
+		L"HKEY_PERFORMANCE_DATA",
+		HKEY_PERFORMANCE_DATA
+	},
+	{
+		L"HKEY_PERFORMANCE_TEXT",
+		HKEY_PERFORMANCE_TEXT
+	},
+	{
+		L"HKEY_PERFORMANCE_NLSTEXT",
+		HKEY_PERFORMANCE_NLSTEXT
+	}
+};
+
+
+VARIANT CNetBox2App::RegRead(VARIANT& varKey)
+{
+	while(varKey.vt == (VT_VARIANT | VT_BYREF))
+		varKey = *varKey.pvarVal;
+
+	if (varKey.vt != VT_BSTR)
+		AfxThrowOleException(E_INVALIDARG);
+
+	CComBSTR bstrHKey, bstrKey, bstrValue;
+
+	LPWSTR p = varKey.bstrVal;
+	LPWSTR p0 = wcschr(p, '\\');
+	if (p0 == NULL)
+		AfxThrowOleException(E_INVALIDARG);
+
+	bstrHKey.AppendBytes((const char *)p, (const char *)p0 - (const char *)p);
+
+	int i;
+	for(i = 0; i < sizeof(s_HKeys) / sizeof(s_HKeys[0]); i ++)
+		if(!_wcsicmp(s_HKeys[i].Name, bstrHKey))
+			break;
+	if (i == sizeof(s_HKeys) / sizeof(s_HKeys[0]))
+		AfxThrowOleException(E_INVALIDARG);
+
+	LPWSTR p1 = wcsrchr(p, '\\');
+	if (p1 == NULL)
+		AfxThrowOleException(E_INVALIDARG);
+
+	if (p0 == p1)
+		bstrKey = "";
+	else
+		bstrKey.AppendBytes((const char *)p0 + 2, (const char *)p1 - (const char *)p0 - 2);
+
+	if (*(p1+1) == 0)
+		bstrValue = "";
+	else
+		bstrValue.AppendBytes((const char *)p1 + 2, (const char *)p + SysStringByteLen(varKey.bstrVal) - (const char *)p1 - 2);
+
+	DWORD dwType = 0, dwSize = 0, dwRet;
+
+	dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, NULL, &dwSize);
+	if (dwRet != ERROR_SUCCESS)
+		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+
+	switch(dwType)
+	{
+		case REG_BINARY:
+		{
+			CBoxBinPtr varPtr(dwSize);
+			dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, varPtr, &dwSize);
+			if (dwRet != ERROR_SUCCESS)
+				AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+			return varPtr.GetVariant();
+		}
+		case REG_DWORD:
+		{
+			VARIANT varRet;
+			::VariantInit(&varRet);
+			varRet.vt = VT_I4;
+			dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, &varRet.lVal, &dwSize);
+			if (dwRet != ERROR_SUCCESS)
+				AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+			return varRet;
+		}
+		case REG_MULTI_SZ:
+		{
+			CAutoPtr<WCHAR> wstr((WCHAR *)malloc(dwSize));
+			LPCWSTR wstr1, wstr2;
+			dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, (void*)wstr, &dwSize);
+			if (dwRet != ERROR_SUCCESS)
+				AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+
+			CComSafeArray<VARIANT, VT_VARIANT> sa((ULONG)0);
+			wstr2 = wstr1 = wstr;
+			while (true)
+			{
+				while (*wstr2)
+					wstr2++;
+				if (wstr2 == wstr1)
+					break;
+				else
+				{
+					CComVariant var(wstr1);
+					sa.Add(var);
+				}
+				wstr2++;
+				wstr1 = wstr2;
+			}
+
+			VARIANT varRet;
+			::VariantInit(&varRet);
+			varRet.vt = VT_ARRAY | VT_VARIANT;
+			varRet.parray = sa.Detach();
+			return varRet;
+		}
+		case REG_EXPAND_SZ:
+		case REG_SZ:
+		{
+			CComBSTR bstr;
+			bstr.Attach(SysAllocStringByteLen(NULL, dwSize));
+			dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, bstr, &dwSize);
+			if (dwRet != ERROR_SUCCESS)
+				AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+			*((WCHAR *)((char *)(BSTR)bstr+dwSize)) = 0;
+			VARIANT varRet;
+			::VariantInit(&varRet);
+			varRet.vt = VT_BSTR;
+			varRet.bstrVal = bstr.Detach();;
+			return varRet;
+		}
+	}
+	AfxThrowOleException(E_NOTIMPL);
+}
 
 long CNetBox2App::FindWindow(LPCTSTR lpcsClass, LPCTSTR lpcsTitle)
 {
