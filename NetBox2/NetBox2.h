@@ -86,6 +86,9 @@ public:
 	afx_msg long GetWindowProcessId(long hWnd);
 
 	afx_msg VARIANT RegRead(VARIANT& varKey);
+	afx_msg void RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType);
+	afx_msg void RegDelete(VARIANT& varKey);
+
 	DECLARE_DISPATCH_MAP()
 
 public:
