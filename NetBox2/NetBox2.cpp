@@ -362,13 +362,58 @@ static struct
 	}
 };
 
-void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
+HRESULT CNetBox2App::RegSplitKey(VARIANT& varKey, HKEY* phKey, CBString& strKey, CBString& strValue)
 {
 	while(varKey.vt == (VT_VARIANT | VT_BYREF))
 		varKey = *varKey.pvarVal;
 
 	if (varKey.vt != VT_BSTR)
+		return E_INVALIDARG;
+
+	CStringW strPath(varKey), strHKey;
+
+	int p0, p1;
+	p0 = strPath.Find('\\');
+	if (p0 == -1)
 		AfxThrowOleException(E_INVALIDARG);
+	
+	strHKey = strPath.Left(p0);
+
+	int i;
+	for(i = 0; i < sizeof(s_HKeys) / sizeof(s_HKeys[0]); i ++)
+		if(!_wcsicmp(s_HKeys[i].Name, strHKey))
+			break;
+	if (i == sizeof(s_HKeys) / sizeof(s_HKeys[0]))
+		return E_INVALIDARG;
+
+	*phKey = s_HKeys[i].hKey;
+
+	p1 = strPath.ReverseFind('\\');
+	if (p1 == -1)
+		AfxThrowOleException(E_INVALIDARG);
+
+	if (p0 == p1)
+		strKey = L"";
+	else
+		strKey = strPath.Mid(p0+1, p1 - p0 - 1);
+
+	if (strPath.GetLength()-1 == p1)
+		strValue = L"";
+	else
+		strValue = strPath.Mid(p1 + 1);
+
+	return S_OK;
+}
+
+void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
+{
+	HKEY hKey;
+	CBString strKey, strValue;
+	HRESULT hr;
+
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	if (FAILED(hr))
+		AfxThrowOleException(hr);
 
 	while(varType.vt == (VT_VARIANT | VT_BYREF))
 		varType = *varType.pvarVal;
@@ -384,6 +429,21 @@ void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
 	while(varValue.vt == (VT_VARIANT | VT_BYREF))
 		varValue = *varValue.pvarVal;
 
+	CComVariant value;
+	VARIANT *pvarValue;
+	if(varValue.vt == VT_UNKNOWN || varValue.vt == VT_DISPATCH)
+	{
+		CComDispatchDriver pdisp = varValue.pdispVal;
+		if (pdisp == NULL)
+			AfxThrowOleException(E_INVALIDARG);
+		pdisp.Invoke0((DISPID)0, &value);
+		pvarValue = &value;
+	}
+	else
+	{
+		pvarValue = &varValue;
+	}
+
 	if (iAutoType == 0)
 	{
 		for(iAutoType = 0; iAutoType < sizeof(s_RegTypes) / sizeof(s_RegTypes[0]); iAutoType ++)
@@ -395,7 +455,8 @@ void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
 	}
 	else
 	{
-		switch (varValue.vt)
+		
+		switch (pvarValue->vt)
 		{
 			case VT_I1:
 			case VT_UI1:
@@ -421,94 +482,78 @@ void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
 		}
 	}
 
-	CComBSTR bstrHKey, bstrKey, bstrValue;
-
-	LPWSTR p = varKey.bstrVal;
-	LPWSTR p0 = wcschr(p, '\\');
-	if (p0 == NULL)
-		AfxThrowOleException(E_INVALIDARG);
-
-	bstrHKey.AppendBytes((const char *)p, (const char *)p0 - (const char *)p);
-
-	int i;
-	for(i = 0; i < sizeof(s_HKeys) / sizeof(s_HKeys[0]); i ++)
-		if(!_wcsicmp(s_HKeys[i].Name, bstrHKey))
-			break;
-	if (i == sizeof(s_HKeys) / sizeof(s_HKeys[0]))
-		AfxThrowOleException(E_INVALIDARG);
-
-	LPWSTR p1 = wcsrchr(p, '\\');
-	if (p1 == NULL)
-		AfxThrowOleException(E_INVALIDARG);
-
-	if (p0 == p1)
-		bstrKey = "";
-	else
-		bstrKey.AppendBytes((const char *)p0 + 2, (const char *)p1 - (const char *)p0 - 2);
-
-	if (*(p1+1) == 0)
-		bstrValue = "";
-	else
-		bstrValue.AppendBytes((const char *)p1 + 2, (const char *)p + SysStringByteLen(varKey.bstrVal) - (const char *)p1 - 2);
-	
 	CComVariant var;
 	DWORD dwRet = 0;
 	switch (iAutoType)
 	{
 		case REG_DWORD:
-			var.ChangeType(VT_UI4, &varValue);
-			dwRet = SHSetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, iAutoType, &var.ulVal, 4);
+			var.ChangeType(VT_UI4, pvarValue);
+			dwRet = SHSetValueW(hKey, strKey, strValue, iAutoType, &var.ulVal, 4);
 			break;
 		case REG_SZ:
 		case REG_EXPAND_SZ:
-			if (varValue.vt != VT_BSTR)
+			if (pvarValue->vt != VT_BSTR)
 			{
-				var.ChangeType(VT_BSTR, &varValue);
-				dwRet = SHSetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, iAutoType, var.bstrVal, SysStringByteLen(var.bstrVal));
+				var.ChangeType(VT_BSTR, pvarValue);
+				dwRet = SHSetValueW(hKey, strKey, strValue, iAutoType, var.bstrVal, SysStringByteLen(var.bstrVal));
 			}
 			else
-				dwRet = SHSetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, iAutoType, varValue.bstrVal, SysStringByteLen(varValue.bstrVal));
+				dwRet = SHSetValueW(hKey, strKey, strValue, iAutoType, pvarValue->bstrVal, SysStringByteLen(pvarValue->bstrVal));
 			break;
 		case REG_BINARY:
 			{
-				CBoxBinPtr varPtr(varValue);
-				dwRet = SHSetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, iAutoType, varPtr.m_pData, varPtr.m_nSize);
+				CBoxBinPtr varPtr(*pvarValue);
+				dwRet = SHSetValueW(hKey, strKey, strValue, iAutoType, varPtr.m_pData, varPtr.m_nSize);
 			}
 			break;
 		case REG_MULTI_SZ:
 			{
-				CAtlArray<WCHAR> str;
-				
-				if (varValue.vt == (VT_VARIANT|VT_ARRAY) || varValue.vt == (VT_VARIANT|VT_ARRAY|VT_BYREF))
+				if (pvarValue->vt == (VT_VARIANT|VT_ARRAY) || pvarValue->vt == (VT_VARIANT|VT_ARRAY|VT_BYREF))
 				{
-					DWORD n, l;
-					VARIANT v;
+					int i, nSize = 0;
+					CAutoPtr<WCHAR> pwstr;
+					VARIANT *pv;
 					CComSafeArray<VARIANT> sa;
-					sa.Attach(varValue.vt&VT_BYREF?*varValue.pparray:varValue.parray);
+
+					sa.Attach(pvarValue->vt&VT_BYREF?*pvarValue->pparray:pvarValue->parray);
 					if (sa.GetDimensions() != 1)
 						AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+					CAtlArray<CComVariant> arr_var;
+					CAtlArray<BSTR> arr_bstr;
+					arr_var.SetCount(sa.GetCount());
+					arr_bstr.SetCount(sa.GetCount());
 					for (i = 0;i < sa.GetCount(); i ++)
 					{
-						v = sa.GetAt(i);
-						if (v.vt != VT_BSTR)
+						pv = &sa[i];
+						if (pv->vt == VT_BSTR)
+							arr_bstr[i] = pv->bstrVal;
+						else
 						{
-							var.ChangeType(VT_BSTR, &v);
-							v = *(&var);
+							arr_var[i].ChangeType(VT_BSTR, pv);
+							arr_bstr[i] = arr_var[i].bstrVal;
 						}
-						n = SysStringLen(v.bstrVal);
-						l = str.GetCount();
-						str.SetCount(l+n+1);
-						memcpy(str.GetData()+l, v.bstrVal, 2*(n+1));
+						nSize += SysStringLen(arr_bstr[i]) + 1;
 					}
+					pwstr.Attach(new WCHAR[nSize]);
+					LPWSTR p = pwstr;
+					for (i = 0;i < arr_bstr.GetCount(); i ++)
+					{
+						DWORD n = SysStringLen(arr_bstr[i]);
+						memcpy(p, arr_bstr[i], n*2);
+						p[n] = 0;
+						p+=n+1;
+					}
+					dwRet = SHSetValueW(hKey, strKey, strValue, iAutoType, pwstr, nSize*2);
 				}
 				else
 				{
-					var.ChangeType(VT_BSTR, &varValue);
-					DWORD n = SysStringLen(var.bstrVal);
-					str.SetCount(n+1);
-					memcpy(str.GetData(), var.bstrVal, 2*(n+1));
+					if (pvarValue->vt != VT_BSTR)
+					{
+						var.ChangeType(VT_BSTR, pvarValue);
+						pvarValue = &var;
+					}
+					dwRet = SHSetValueW(hKey, strKey, strValue, iAutoType, pvarValue->bstrVal, SysStringByteLen(pvarValue->bstrVal));
 				}
-				dwRet = SHSetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, iAutoType, str.GetData(), str.GetCount()*2);
 			}
 			break;
 	}
@@ -518,43 +563,20 @@ void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
 
 void CNetBox2App::RegDelete(VARIANT& varKey)
 {
-	while(varKey.vt == (VT_VARIANT | VT_BYREF))
-		varKey = *varKey.pvarVal;
+	HKEY hKey;
+	CBString strKey, strValue;
+	HRESULT hr;
 
-	if (varKey.vt != VT_BSTR)
-		AfxThrowOleException(E_INVALIDARG);
-
-	CComBSTR bstrHKey, bstrKey;
-
-	LPWSTR p = varKey.bstrVal;
-	LPWSTR p0 = wcschr(p, '\\');
-	if (p0 == NULL)
-		AfxThrowOleException(E_INVALIDARG);
-
-	bstrHKey.AppendBytes((const char *)p, (const char *)p0 - (const char *)p);
-
-	int i;
-	for(i = 0; i < sizeof(s_HKeys) / sizeof(s_HKeys[0]); i ++)
-		if(!_wcsicmp(s_HKeys[i].Name, bstrHKey))
-			break;
-	if (i == sizeof(s_HKeys) / sizeof(s_HKeys[0]))
-		AfxThrowOleException(E_INVALIDARG);
-
-	LPWSTR p1 = wcsrchr(p, '\\');
-	if (p1 == NULL)
-		AfxThrowOleException(E_INVALIDARG);
-
-	if (p0 == p1)
-		bstrKey = "";
-	else
-		bstrKey.AppendBytes((const char *)p0 + 2, (const char *)p1 - (const char *)p0 - 2);
-
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	if (FAILED(hr))
+		AfxThrowOleException(hr);
+	
 	DWORD dwRet;
 
-	if (*(p1+1) == 0)
-		dwRet = SHDeleteKeyW(s_HKeys[i].hKey, bstrKey);
+	if (strValue.GetLength() == 0)
+		dwRet = SHDeleteKeyW(hKey, strKey);
 	else
-		dwRet = SHDeleteValueW(s_HKeys[i].hKey, bstrKey, p1 + 1);
+		dwRet = SHDeleteValueW(hKey, strKey, strValue);
 
 	if (dwRet != ERROR_SUCCESS)
 		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
@@ -562,45 +584,17 @@ void CNetBox2App::RegDelete(VARIANT& varKey)
 
 VARIANT CNetBox2App::RegRead(VARIANT& varKey)
 {
-	while(varKey.vt == (VT_VARIANT | VT_BYREF))
-		varKey = *varKey.pvarVal;
+	HKEY hKey;
+	CBString strKey, strValue;
+	HRESULT hr;
 
-	if (varKey.vt != VT_BSTR)
-		AfxThrowOleException(E_INVALIDARG);
-
-	CComBSTR bstrHKey, bstrKey, bstrValue;
-
-	LPWSTR p = varKey.bstrVal;
-	LPWSTR p0 = wcschr(p, '\\');
-	if (p0 == NULL)
-		AfxThrowOleException(E_INVALIDARG);
-
-	bstrHKey.AppendBytes((const char *)p, (const char *)p0 - (const char *)p);
-
-	int i;
-	for(i = 0; i < sizeof(s_HKeys) / sizeof(s_HKeys[0]); i ++)
-		if(!_wcsicmp(s_HKeys[i].Name, bstrHKey))
-			break;
-	if (i == sizeof(s_HKeys) / sizeof(s_HKeys[0]))
-		AfxThrowOleException(E_INVALIDARG);
-
-	LPWSTR p1 = wcsrchr(p, '\\');
-	if (p1 == NULL)
-		AfxThrowOleException(E_INVALIDARG);
-
-	if (p0 == p1)
-		bstrKey = "";
-	else
-		bstrKey.AppendBytes((const char *)p0 + 2, (const char *)p1 - (const char *)p0 - 2);
-
-	if (*(p1+1) == 0)
-		bstrValue = "";
-	else
-		bstrValue.AppendBytes((const char *)p1 + 2, (const char *)p + SysStringByteLen(varKey.bstrVal) - (const char *)p1 - 2);
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	if (FAILED(hr))
+		AfxThrowOleException(hr);
 
 	DWORD dwType = 0, dwSize = 0, dwRet;
 
-	dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, NULL, &dwSize);
+	dwRet = SHGetValueW(hKey, strKey, strValue, &dwType, NULL, &dwSize);
 	if (dwRet != ERROR_SUCCESS)
 		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 
@@ -609,7 +603,7 @@ VARIANT CNetBox2App::RegRead(VARIANT& varKey)
 		case REG_BINARY:
 		{
 			CBoxBinPtr varPtr(dwSize);
-			dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, varPtr, &dwSize);
+			dwRet = SHGetValueW(hKey, strKey, strValue, &dwType, varPtr, &dwSize);
 			if (dwRet != ERROR_SUCCESS)
 				AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 			return varPtr.GetVariant();
@@ -619,16 +613,16 @@ VARIANT CNetBox2App::RegRead(VARIANT& varKey)
 			VARIANT varRet;
 			::VariantInit(&varRet);
 			varRet.vt = VT_I4;
-			dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, &varRet.lVal, &dwSize);
+			dwRet = SHGetValueW(hKey, strKey, strValue, &dwType, &varRet.lVal, &dwSize);
 			if (dwRet != ERROR_SUCCESS)
 				AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 			return varRet;
 		}
 		case REG_MULTI_SZ:
 		{
-			CAutoPtr<WCHAR> wstr((WCHAR *)malloc(dwSize));
+			CAutoPtr<WCHAR> wstr((WCHAR *)new BYTE[dwSize]);
 			LPCWSTR wstr1, wstr2;
-			dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, (void*)wstr, &dwSize);
+			dwRet = SHGetValueW(hKey, strKey, strValue, &dwType, (void*)wstr, &dwSize);
 			if (dwRet != ERROR_SUCCESS)
 				AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 
@@ -647,14 +641,13 @@ VARIANT CNetBox2App::RegRead(VARIANT& varKey)
 			}
 
 			CComSafeArray<VARIANT> sa((ULONG)arrayStr.GetCount());
+			for (int i=0;i<arrayStr.GetCount();i++)
+			{
+				(&sa[i])->vt = VT_BSTR;
+				(&sa[i])->bstrVal = arrayStr[i];
+			}
 			VARIANT var;
 			::VariantInit(&var);
-			for (i=0;i<arrayStr.GetCount();i++)
-			{
-				var.vt = VT_BSTR;
-				var.bstrVal = arrayStr[i];
-				sa.SetAt(i, var, false);
-			}
 			var.vt = VT_ARRAY | VT_VARIANT;
 			var.parray = sa.Detach();
 			return var;
@@ -664,10 +657,10 @@ VARIANT CNetBox2App::RegRead(VARIANT& varKey)
 		{
 			CComBSTR bstr;
 			bstr.Attach(SysAllocStringByteLen(NULL, dwSize));
-			dwRet = SHGetValueW(s_HKeys[i].hKey, bstrKey, bstrValue, &dwType, bstr, &dwSize);
+			dwRet = SHGetValueW(hKey, strKey, strValue, &dwType, bstr, &dwSize);
 			if (dwRet != ERROR_SUCCESS)
 				AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
-			*((WCHAR *)((char *)(BSTR)bstr+dwSize)) = 0;
+			//*((WCHAR *)((char *)(BSTR)bstr.+dwSize)) = 0;
 			VARIANT varRet;
 			::VariantInit(&varRet);
 			varRet.vt = VT_BSTR;

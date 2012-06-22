@@ -114,6 +114,7 @@ public:
 
 private:
 	BSTR DoFileDialog(VARIANT* initFile, VARIANT* initDir, VARIANT* filter, VARIANT* title, BOOL bOpen = TRUE);
+	HRESULT RegSplitKey(VARIANT& varKey, HKEY* phKey, CBString& strKey, CBString& strValue);
 
 	CSSLContext *m_pSSL_CTX;
 
