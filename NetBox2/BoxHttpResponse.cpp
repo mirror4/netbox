@@ -197,9 +197,7 @@ void CBoxHttpResponse::Write(VARIANT& var)
 
 		if(varStr.vt == VT_BSTR)
 		{
-			CStringA str(varStr.bstrVal);
-
-			m_pAccept->WriteToClient(str, str.GetLength());
+			m_pAccept->WriteToClient(varStr.bstrVal, SysStringLen(varStr.bstrVal));
 		}
 	}
 }

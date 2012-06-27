@@ -30,6 +30,19 @@ public:
 		return len;
 	}
 
+	int WriteToClient(LPCWSTR pbuf, int len)
+	{
+		CStringA strTempText;
+
+		int _nTempCount = WideCharToMultiByte(m_uiScriptCodePage, 0, pbuf, len, NULL, 0, NULL, NULL);
+		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+		WideCharToMultiByte(m_uiScriptCodePage, 0, pbuf, len, _pstr, _nTempCount, NULL, NULL);
+		strTempText.ReleaseBuffer(_nTempCount);
+
+		return WriteToClient(strTempText, strTempText.GetLength());
+	}
+
 	void Clear(void)
 	{
 		if(!m_bBuffer)
@@ -265,6 +278,8 @@ private:
 	BOOL m_bSendHeader;
 	BOOL m_bBuffer;
 	BOOL m_bDepth;
+
+	UINT m_uiScriptCodePage;
 
 	CBoxFixString<32> m_strAcceptEncoding;
 	CZipFile *m_zipFile;

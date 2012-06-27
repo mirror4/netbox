@@ -26,6 +26,7 @@ public:
 	void AddNameItem(LPCTSTR pstrName, LPDISPATCH pUnk);
 	void CloneParentNameItem();
 	HRESULT Load(LPCTSTR pstrScriptText);
+	HRESULT Load(LPCWSTR pstrScriptText);
 	long Run(void);
 	long Stop(long nErrorCode);
 	void Close(void);

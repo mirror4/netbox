@@ -803,6 +803,7 @@ int CBoxHttpAccept::BuildFile(void)
 			if(nError == 404)
 				return 404;
 
+			m_uiScriptCodePage = pScript->m_uiCodePage;
 			m_fileResponse = new CBoxMemFile();
 			SetHeader(_T("Content-Type"), _T("text/html"));
 			SetHeader(_T("Cache-control"), _T("private"));

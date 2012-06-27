@@ -153,6 +153,14 @@ HRESULT CScriptHost::Load(LPCTSTR pstrScriptText)
 	else return E_NOTIMPL;
 }
 
+HRESULT CScriptHost::Load(LPCWSTR pstrScriptText)
+{
+	if(m_pActiveScriptParse != NULL)
+		return m_pActiveScriptParse->ParseScriptText(pstrScriptText, 
+			0, 0, NULL, 0, 0, SCRIPTTEXT_ISPERSISTENT, 0, 0);
+	else return E_NOTIMPL;
+}
+
 long CScriptHost::Run(void)
 {
 	extern void (__stdcall *g_pGetObjectContext)(REFIID riid, LPVOID FAR* ppv);

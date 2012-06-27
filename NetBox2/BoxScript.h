@@ -111,6 +111,7 @@ public:
 	afx_msg LPDISPATCH GetLastErrorDISP(void);
 
 	CString m_strLanguage;
+	UINT m_uiCodePage;
 
 	DECLARE_DISPATCH_MAP()
 

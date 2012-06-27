@@ -17,7 +17,8 @@ CBoxScript::CBoxScript() :
 	m_nTransaction(0),
 	m_nDiskFileCount(0),
 	m_nCacheFileCount(0),
-	m_nScriptLine(0)
+	m_nScriptLine(0),
+	m_uiCodePage(0)
 {
 	m_pHost = new CScriptHost();
 	m_strLanguage = _T("VBScript");
@@ -60,15 +61,33 @@ int CBoxScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strScript
 	CStringA strTempText;
 	if(nCount >= 2 && (BYTE)pstrText[0] == 0xff && (BYTE)pstrText[1] == 0xfe)
 	{
-		int _nTempCount = WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
+/*		int _nTempCount = WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
 		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
 
 		WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
 		strTempText.ReleaseBuffer(_nTempCount);
+*/
+//发现是Unicode则转换成UTF8，同时设定m_CodePage为65001
+		int _nTempCount = WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
+		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+		WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
+		strTempText.ReleaseBuffer(_nTempCount);
 
 		pstrText = strTempText;
 		nCount = strTempText.GetLength();
+
+		m_uiCodePage = CP_UTF8;
 	}
+	else if(nCount >= 3 && (BYTE)pstrText[0] == 0xEF && (BYTE)pstrText[1] == 0xBB && (BYTE)pstrText[2] == 0xBF)
+	{
+		pstrText += 3;
+		nCount -= 3;
+		m_uiCodePage = CP_UTF8;
+	}
+	else
+		m_uiCodePage = 0;
+
 
 	static struct
 	{
@@ -80,7 +99,8 @@ int CBoxScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strScript
 		{"#language", 9},
 		{"#debug", 6},
 		{"#timeout", 8},
-		{"#transaction", 12}
+		{"#transaction", 12},
+		{"#codepage", 9}
 	};
 	#define CMD_COUNT (sizeof(CmdName) / sizeof(CmdName[0]))
 	int i;
@@ -172,6 +192,10 @@ int CBoxScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strScript
 				m_nTransaction = 1;
 			else if(!strValue.CompareNoCase("Not_Supported"))
 				m_nTransaction = 0;
+			break;
+		case 5:
+			if (!m_uiCodePage)
+				m_uiCodePage = atoi(strValue);
 		}
 
 		while(nCount > 0 && IsBlank(pstrText[0]))
@@ -385,10 +409,28 @@ long CBoxScript::Load(LPCTSTR pstrFile)
 
 	m_pHost->SetScriptSite();
 
-	if(m_pHost->Load(BOX_CA2CT(strScriptText)) != S_OK)
+	if (m_uiCodePage)
 	{
-		GetScriptErrorInfo();
-		return 500;
+		CStringW strTempText;
+		int _nTempCount = MultiByteToWideChar(m_uiCodePage, 0, strScriptText, strScriptText.GetLength(), NULL, 0);
+		LPWSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+		MultiByteToWideChar(m_uiCodePage, 0, strScriptText, strScriptText.GetLength(), _pstr, _nTempCount);
+		strTempText.ReleaseBuffer(_nTempCount);
+		
+		if(m_pHost->Load(strTempText) != S_OK)
+		{
+			GetScriptErrorInfo();
+			return 500;
+		}
+	}
+	else
+	{
+		if(m_pHost->Load(BOX_CA2CT(strScriptText)) != S_OK)
+		{
+			GetScriptErrorInfo();
+			return 500;
+		}
 	}
 
 	if(AfterParse() != 0)

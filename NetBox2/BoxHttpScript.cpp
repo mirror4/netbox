@@ -38,15 +38,32 @@ int CBoxHttpScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strSc
 	CStringA strTempText;
 	if(nCount >= 2 && (BYTE)pstrText[0] == 0xff && (BYTE)pstrText[1] == 0xfe)
 	{
-		int _nTempCount = WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
+/*		int _nTempCount = WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
 		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
 
 		WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
 		strTempText.ReleaseBuffer(_nTempCount);
+*/
+//发现是Unicode则转换成UTF8，同时设定m_CodePage为65001
+		int _nTempCount = WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
+		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+		WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
+		strTempText.ReleaseBuffer(_nTempCount);
 
 		pstrText = strTempText;
 		nCount = strTempText.GetLength();
+
+		m_uiCodePage = CP_UTF8;
 	}
+	else if(nCount >= 3 && (BYTE)pstrText[0] == 0xEF && (BYTE)pstrText[1] == 0xBB && (BYTE)pstrText[2] == 0xBF)
+	{
+		pstrText += 3;
+		nCount -= 3;
+		m_uiCodePage = CP_UTF8;
+	}
+	else
+		m_uiCodePage = 0;
 
 	LPCSTR pstrTemp, pstrTemp1, pstrTemp2, pstrPath;
 	int nTempCount;
@@ -185,6 +202,8 @@ int CBoxHttpScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strSc
 
 						if(!strTemp.CompareNoCase("LANGUAGE"))
 							m_strLanguage = strTemp1;
+						else if(!strTemp.CompareNoCase("CODEPAGE") && !m_uiCodePage)
+							m_uiCodePage = atoi(strTemp1);
 						else if(!strTemp.CompareNoCase("ENABLESESSIONSTATE"))
 							m_pHost->m_arrayExtData[0] = !strTemp1.CompareNoCase("True");
 						else if(!strTemp.CompareNoCase("DEBUG"))
