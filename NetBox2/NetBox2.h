@@ -89,6 +89,9 @@ public:
 	afx_msg void RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType);
 	afx_msg void RegDelete(VARIANT& varKey);
 
+	afx_msg VARIANT RegEnumKey(VARIANT& varKey);
+	afx_msg VARIANT RegEnumValue(VARIANT& varKey);
+
 	DECLARE_DISPATCH_MAP()
 
 public:

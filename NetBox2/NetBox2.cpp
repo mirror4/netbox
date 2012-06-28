@@ -275,6 +275,8 @@ BEGIN_DISPATCH_MAP(CNetBox2App, CWinApp)
 	DISP_FUNCTION(CNetBox2App, "RegWrite", RegWrite, VT_EMPTY, VTS_VARIANT VTS_VARIANT VTS_VARIANT)
 	DISP_FUNCTION(CNetBox2App, "RegDelete", RegDelete, VT_EMPTY, VTS_VARIANT)
 
+	DISP_FUNCTION(CNetBox2App, "RegEnumKey", RegEnumKey, VT_VARIANT, VTS_VARIANT)
+	DISP_FUNCTION(CNetBox2App, "RegEnumValue", RegEnumValue, VT_VARIANT, VTS_VARIANT)
 END_DISPATCH_MAP()
 
 
@@ -674,6 +676,169 @@ VARIANT CNetBox2App::RegRead(VARIANT& varKey)
 		}
 	}
 	AfxThrowOleException(E_NOTIMPL);
+}
+
+#define MAX_KEY_LENGTH 255
+#define MAX_VALUE_NAME 16383
+
+VARIANT CNetBox2App::RegEnumValue(VARIANT& varKey)
+{
+	HKEY hKey;
+	CBString strKey, strValue;
+	HRESULT hr;
+
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	if (FAILED(hr))
+		AfxThrowOleException(hr);
+
+	if (strValue.GetLength()>0)
+		AfxThrowOleException(E_INVALIDARG);
+	
+	DWORD dwRet, i;
+
+	dwRet = RegOpenKeyExW(hKey, strKey, 0, KEY_READ, &hKey);
+	if (dwRet != ERROR_SUCCESS)
+		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+
+    WCHAR    achClass[MAX_PATH] = L"";  // buffer for class name 
+    DWORD    cchClassName = MAX_PATH;  // size of class string 
+    DWORD    cSubKeys=0;               // number of subkeys 
+    DWORD    cbMaxSubKey;              // longest subkey size 
+    DWORD    cchMaxClass;              // longest class string 
+    DWORD    cValues;              // number of values for key 
+    DWORD    cchMaxValue;          // longest value name 
+    DWORD    cbMaxValueData;       // longest value data 
+    DWORD    cbSecurityDescriptor; // size of security descriptor 
+    FILETIME ftLastWriteTime;      // last write time 
+ 
+    // Get the class name and the value count. 
+    dwRet = RegQueryInfoKeyW(
+        hKey,                    // key handle 
+        achClass,                // buffer for class name 
+        &cchClassName,           // size of class string 
+        NULL,                    // reserved 
+        &cSubKeys,               // number of subkeys 
+        &cbMaxSubKey,            // longest subkey size 
+        &cchMaxClass,            // longest class string 
+        &cValues,                // number of values for this key 
+        &cchMaxValue,            // longest value name 
+        &cbMaxValueData,         // longest value data 
+        &cbSecurityDescriptor,   // security descriptor 
+        &ftLastWriteTime);       // last write time 
+	if (dwRet != ERROR_SUCCESS)
+	{
+		RegCloseKey(hKey);
+		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+	}
+
+    WCHAR achValue[MAX_VALUE_NAME];
+    DWORD cchValue = MAX_VALUE_NAME;
+
+	CAtlArray<BSTR> arrayStr;
+    if (cValues)
+    {
+        for (i=0; i<cValues; i++) 
+        { 
+            cchValue = MAX_VALUE_NAME;
+			achValue[0] = 0; 
+            dwRet = RegEnumValueW(hKey, i, achValue, &cchValue, NULL, NULL, NULL, NULL);
+            if (dwRet != ERROR_SUCCESS)
+                break;
+			arrayStr.Add(SysAllocString(achValue));
+        }
+    } 
+	RegCloseKey(hKey);
+
+	CComSafeArray<VARIANT> sa((ULONG)arrayStr.GetCount());
+	for (int i=0;i<arrayStr.GetCount();i++)
+	{
+		(&sa[i])->vt = VT_BSTR;
+		(&sa[i])->bstrVal = arrayStr[i];
+	}
+	VARIANT var;
+	::VariantInit(&var);
+	var.vt = VT_ARRAY | VT_VARIANT;
+	var.parray = sa.Detach();
+	return var;
+}
+
+VARIANT CNetBox2App::RegEnumKey(VARIANT& varKey)
+{
+	HKEY hKey;
+	CBString strKey, strValue;
+	HRESULT hr;
+
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	if (FAILED(hr))
+		AfxThrowOleException(hr);
+
+	if (strValue.GetLength()>0)
+		AfxThrowOleException(E_INVALIDARG);
+	
+	DWORD dwRet, i;
+
+	dwRet = RegOpenKeyExW(hKey, strKey, 0, KEY_READ, &hKey);
+	if (dwRet != ERROR_SUCCESS)
+		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+
+    WCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
+    DWORD    cbName;                   // size of name string 
+    WCHAR    achClass[MAX_PATH] = L"";  // buffer for class name 
+    DWORD    cchClassName = MAX_PATH;  // size of class string 
+    DWORD    cSubKeys=0;               // number of subkeys 
+    DWORD    cbMaxSubKey;              // longest subkey size 
+    DWORD    cchMaxClass;              // longest class string 
+    DWORD    cValues;              // number of values for key 
+    DWORD    cchMaxValue;          // longest value name 
+    DWORD    cbMaxValueData;       // longest value data 
+    DWORD    cbSecurityDescriptor; // size of security descriptor 
+    FILETIME ftLastWriteTime;      // last write time 
+ 
+    // Get the class name and the value count. 
+    dwRet = RegQueryInfoKeyW(
+        hKey,                    // key handle 
+        achClass,                // buffer for class name 
+        &cchClassName,           // size of class string 
+        NULL,                    // reserved 
+        &cSubKeys,               // number of subkeys 
+        &cbMaxSubKey,            // longest subkey size 
+        &cchMaxClass,            // longest class string 
+        &cValues,                // number of values for this key 
+        &cchMaxValue,            // longest value name 
+        &cbMaxValueData,         // longest value data 
+        &cbSecurityDescriptor,   // security descriptor 
+        &ftLastWriteTime);       // last write time 
+	if (dwRet != ERROR_SUCCESS)
+	{
+		RegCloseKey(hKey);
+		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
+	}
+
+	CAtlArray<BSTR> arrayStr;
+    if (cSubKeys)
+    {
+        for (i=0; i<cSubKeys; i++) 
+        { 
+            cbName = MAX_KEY_LENGTH;
+            dwRet = RegEnumKeyExW(hKey, i, achKey, &cbName, NULL, NULL, NULL, &ftLastWriteTime); 
+            if (dwRet != ERROR_SUCCESS)
+                break;
+			arrayStr.Add(SysAllocString(achKey));
+        }
+    } 
+	RegCloseKey(hKey);
+
+	CComSafeArray<VARIANT> sa((ULONG)arrayStr.GetCount());
+	for (int i=0;i<arrayStr.GetCount();i++)
+	{
+		(&sa[i])->vt = VT_BSTR;
+		(&sa[i])->bstrVal = arrayStr[i];
+	}
+	VARIANT var;
+	::VariantInit(&var);
+	var.vt = VT_ARRAY | VT_VARIANT;
+	var.parray = sa.Detach();
+	return var;
 }
 
 long CNetBox2App::FindWindow(LPCTSTR lpcsClass, LPCTSTR lpcsTitle)
