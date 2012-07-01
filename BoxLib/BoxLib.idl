@@ -1640,6 +1640,56 @@ interface IRegExp : IDispatch {
 
 [
   odl,
+  uuid(94650000-0000-0053-6865-6C6C4C696E6B),
+  dual,
+  oleautomation
+]
+interface IBShellLink : IDispatch {
+	[id(0x00000001), propput]
+	HRESULT Arguments([in] BSTR Val);
+	[id(0x00000001), propget]
+	HRESULT Arguments([out, retval] BSTR *pVal);
+	[id(0x00000002), propput]
+	HRESULT Description([in] BSTR Val);
+	[id(0x00000002), propget]
+	HRESULT Description([out, retval] BSTR *pVal);
+	[id(0x00000003), propput]
+	HRESULT Hotkey([in] int Val);
+	[id(0x00000003), propget]
+	HRESULT Hotkey([out, retval] int *pVal);
+	[id(0x00000004), propput]
+	HRESULT IconLocation([in] BSTR Val);
+	[id(0x00000004), propget]
+	HRESULT IconLocation([out, retval] BSTR *pVal);
+	[id(0x00000005), propput]
+	HRESULT IDList([in] BSTR Val);
+	[id(0x00000005), propget]
+	HRESULT IDList([out, retval] BSTR *pVal);
+	[id(0x00000006), propput]
+	HRESULT Path([in] BSTR Val);
+	[id(0x00000006), propget]
+	HRESULT Path([out, retval] BSTR *pVal);
+	[id(0x00000007), propput]
+	HRESULT ShowCmd([in] int Val);
+	[id(0x00000007), propget]
+	HRESULT ShowCmd([out, retval] int *pVal);
+	[id(0x00000008), propput]
+	HRESULT WorkingDirectory([in] BSTR Val);
+	[id(0x00000008), propget]
+	HRESULT WorkingDirectory([out, retval] BSTR *pVal);
+
+	[id(0x00000009)]
+	HRESULT Load([in] BSTR strFileName);
+	[id(0x0000000A)]
+	HRESULT Save([in] BSTR strFileName);
+	[id(0x0000000B)]
+	HRESULT Resolve(
+					[in] int hWnd,
+					[in] int dwFlag);
+};
+
+[
+  odl,
   uuid(94659465-0000-4943-6163-68654974656D),
   dual,
   oleautomation

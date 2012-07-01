@@ -72,8 +72,12 @@
 
 #include <BRegExp.h>
 
+#include <BShellLink.h>
+
 #include <comsvcs.h>
 //#include "..\nbr\certinfo.h"
+
+#include <wininet.h>
 
 #include "MemoryModule.h"
 
@@ -252,6 +256,7 @@ VBScriptLoaded:
 	AddClassEx(L"NetBox.Recordset", CBRecordset);
 
 	AddClassEx(L"NetBox.RegExp", CBRegExp);
+	AddClassEx(L"NetBox.ShellLink", CBShellLink);
 
 	m_strConfigFile = (LPCTSTR)g_pFile->m_strAppName;
 	m_strConfigFile.ReleaseBuffer(m_strConfigFile.ReverseFind(_T('.')));
@@ -327,9 +332,33 @@ BEGIN_DISPATCH_MAP(CBoxSystem, CBoxSafeObject)
 
 	DISP_FUNCTION(CBoxSystem, "CallByName", CallByName, VT_VARIANT, VTS_DISPATCH VTS_VARIANT VTS_I2 VTS_VARIANT)
 	DISP_FUNCTION(CBoxSystem, "GetIDofName", GetIDofName, VT_I4, VTS_DISPATCH VTS_VARIANT)
+
+	DISP_PROPERTY_EX(CNetBox2App, "HttpMaxConnections", get_HttpMaxConnections, put_HttpMaxConnections, VT_I4)
 END_DISPATCH_MAP()
 
 // CBoxSystem message handlers
+
+long CBoxSystem::get_HttpMaxConnections(void)
+{
+	long nHttpMaxConnections;
+	DWORD dwSize = sizeof(nHttpMaxConnections);
+	
+	if (InternetQueryOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_SERVER, (LPVOID)&nHttpMaxConnections, &dwSize))
+		return nHttpMaxConnections;
+	
+	AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+}
+
+void CBoxSystem::put_HttpMaxConnections(long nHttpMaxConnections)
+{
+	if(nHttpMaxConnections < 2)
+		nHttpMaxConnections = 2;
+
+	InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &nHttpMaxConnections, sizeof(nHttpMaxConnections));
+	nHttpMaxConnections *= 2;
+	InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_1_0_SERVER, &nHttpMaxConnections, sizeof(nHttpMaxConnections));
+}
+
 long CBoxSystem::GetIDofName(LPDISPATCH pDisp, VARIANT *pName)
 {
 	DISPID dispid;

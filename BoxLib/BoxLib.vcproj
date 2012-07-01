@@ -523,6 +523,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BShellLink.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BThread.cpp"
 				>
 			</File>
@@ -922,6 +926,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\BShellLink.h"
+					>
+				</File>
+				<File
 					RelativePath=".\BThread.h"
 					>
 				</File>
@@ -1060,6 +1068,10 @@
 			</File>
 			<File
 				RelativePath=".\typelib\tiIRSA.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\typelib\tiIShellLink.cpp"
 				>
 			</File>
 			<File
