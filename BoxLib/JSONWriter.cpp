@@ -121,7 +121,7 @@ HRESULT JSON_putFloat(IStream *pStrm, double n)
 	WCHAR s[_CVTBUFSIZE];
 	ULONG n1;
 
-	n1 = swprintf_s(s, _CVTBUFSIZE, L"%.17g", n);
+	n1 = swprintf_s(s, _CVTBUFSIZE, L"%.16g", n);
 	return pStrm->Write(s, (ULONG)(n1 * sizeof(WCHAR)), &n1);
 }
 
@@ -511,11 +511,11 @@ HRESULT JSON_putVariant(IStream *pStrm, const VARIANT* pVar, int indent, CAtlArr
 	case VT_UI8:
 		return JSON_putUInt64(pStrm, pVar->ullVal);
 	case VT_CY:
-		hr = VariantChangeType(&var, (VARIANTARG *)pVar, VARIANT_ALPHABOOL, VT_R8);
+		hr = var.ChangeType(VT_R8, pVar);
 		if FAILED(hr) return hr;
 		return JSON_putFloat(pStrm, var.dblVal);
 	case VT_DECIMAL:
-		hr = VariantChangeType(&var, (VARIANTARG *)pVar, VARIANT_ALPHABOOL, VT_I8);
+		hr = var.ChangeType(VT_I8, pVar);
 		if FAILED(hr) return hr;
 		return JSON_putInt64(pStrm, var.llVal);
 	case VT_DISPATCH:
