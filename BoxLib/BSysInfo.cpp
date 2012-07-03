@@ -429,6 +429,12 @@ void CBSysInfo::determineUSERInfo(void)
 	VerLanguageName(lid, buf, sizeof(buf));
 	Append(L"System_Language", buf);
 
+	GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_IDEFAULTANSICODEPAGE, buf, sizeof(buf));
+	Append(L"System_CodePageCommon", buf);
+
+	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IDEFAULTANSICODEPAGE, buf, sizeof(buf));
+	Append(L"System_CodePage", buf);
+
 	HMODULE hNetapi32 = ::LoadLibrary(_T("Netapi32.dll"));
 	if(hNetapi32)
 	{

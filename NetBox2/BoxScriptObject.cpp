@@ -61,6 +61,7 @@ int CBoxScriptObject::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& str
 		return 500;
 	}
 
+	m_uiCodePage = m_pXml->m_uiCodePage;
 	CBoxObject<CBoxSimpleXml> pNodeComponent;
 
 	if(!m_pXml->LookupNode(_T("component"), pNodeComponent))return 500;

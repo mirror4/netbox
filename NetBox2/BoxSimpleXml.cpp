@@ -1,9 +1,10 @@
 #include "StdAfx.h"
 #include "BoxSimpleXml.h"
+#include "BCodePage.h"
 
 #define IsTagChar(c) (((c) == '<') || ((c) == '>') || ((c) == '?') || ((c) == '/') || ((c) == '='))
 
-BOOL CBoxSimpleXml::LookupNode(LPCTSTR pstrName, CBoxObject<CBoxSimpleXml>& pNode)
+BOOL CBoxSimpleXml::_LookupNode(LPCTSTR pstrName, CBoxObject<CBoxSimpleXml>& pNode)
 {
 	CBoxSimpleXml* pItem;
 	POSITION pos = m_listNodes.GetHeadPosition();
@@ -21,7 +22,7 @@ BOOL CBoxSimpleXml::LookupNode(LPCTSTR pstrName, CBoxObject<CBoxSimpleXml>& pNod
 	return FALSE;
 }
 
-BOOL CBoxSimpleXml::LookupProcessing(LPCTSTR pstrName, CBoxObject<CBoxSimpleXml>& pNode)
+BOOL CBoxSimpleXml::_LookupProcessing(LPCTSTR pstrName, CBoxObject<CBoxSimpleXml>& pNode)
 {
 	CBoxSimpleXml* pItem;
 	POSITION pos = m_listProcessings.GetHeadPosition();
@@ -44,16 +45,33 @@ int CBoxSimpleXml::Parse(LPCSTR pstrText, int nCount, BOOL bUTF8)
 	CStringA strTempText;
 	if(nCount >= 2 && (BYTE)pstrText[0] == 0xff && (BYTE)pstrText[1] == 0xfe)
 	{
-		int _nTempCount = WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
+/*		int _nTempCount = WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
 		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
 
 		WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
+		strTempText.ReleaseBuffer(_nTempCount);
+*/
+		int _nTempCount = WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
+		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+		WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
 		strTempText.ReleaseBuffer(_nTempCount);
 
 		pstrText = strTempText;
 		nCount = strTempText.GetLength();
 
-		bUTF8 = FALSE;
+		m_uiCodePage = CP_UTF8;
+
+		bUTF8 = TRUE;
+	}
+	else if(nCount >= 3 && (BYTE)pstrText[0] == 0xEF && (BYTE)pstrText[1] == 0xBB && (BYTE)pstrText[2] == 0xBF)
+	{
+		pstrText += 3;
+		nCount -= 3;
+		
+		m_uiCodePage = CP_UTF8;
+		
+		bUTF8 = TRUE;
 	}
 
 	CBoxObject<CBoxSimpleXml> pNode(this);
@@ -81,7 +99,7 @@ int CBoxSimpleXml::Parse(LPCSTR pstrText, int nCount, BOOL bUTF8)
 			pstrText ++;
 			nCount --;
 
-			if(bUTF8 && (nCount < 4 || pstrText[0] != '?' || pstrText[1] != 'x' ||
+/*			if(bUTF8 && (nCount < 4 || pstrText[0] != '?' || pstrText[1] != 'x' ||
 				pstrText[2] != 'm' || pstrText[3] != 'l' || !IsBlank(pstrText[4])))
 			{
 				CStringW wstr;
@@ -98,7 +116,7 @@ int CBoxSimpleXml::Parse(LPCSTR pstrText, int nCount, BOOL bUTF8)
 
 				bUTF8 = FALSE;
 			}
-
+*/
 			if(pstrText[0] == '!')
 			{
 				pstrText ++;
@@ -354,7 +372,7 @@ int CBoxSimpleXml::Parse(LPCSTR pstrText, int nCount, BOOL bUTF8)
 						pstrText ++;
 						nCount --;
 
-						if(bUTF8 && (!pNode->m_mapAttributes.Lookup(_T("encoding"), str) || !str.CompareNoCase(_T("utf-8"))))
+/*						if(bUTF8 && (!pNode->m_mapAttributes.Lookup(_T("encoding"), str) || !str.CompareNoCase(_T("utf-8"))))
 						{
 							CStringW wstr;
 
@@ -367,6 +385,23 @@ int CBoxSimpleXml::Parse(LPCSTR pstrText, int nCount, BOOL bUTF8)
 							strTempText = wstr;
 							pstrText = strTempText;
 							nCount = strTempText.GetLength();
+						}
+
+						bUTF8 = FALSE;
+*/
+						if (bUTF8 && m_uiCodePage == 0)
+						{
+							if (pNode->m_mapAttributes.Lookup(_T("encoding"), str))
+							{
+								m_uiCodePage = CBCodePage::CodePageFromCharSet(str);
+								
+								char buf[8];
+								if (_AtlGetConversionACP() == 0 && GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_IDEFAULTANSICODEPAGE, buf, sizeof(buf)))
+									if (atoi(buf) == m_uiCodePage)
+										m_uiCodePage = 0;
+							}
+							else
+								m_uiCodePage = CP_UTF8;
 						}
 
 						bUTF8 = FALSE;
