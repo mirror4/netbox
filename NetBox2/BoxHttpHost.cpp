@@ -503,11 +503,14 @@ BOOL CBoxHttpHost::URLRewrite(CString strURL, CString &strNewURL, CString &strNe
 			}
 			else if(*ptr == '0')
 			{
-				const TCHAR* szStart = 0;
-				const TCHAR* szEnd = 0;
+				if (0<uNumGroups)
+				{
+					const TCHAR* szStart = 0;
+					const TCHAR* szEnd = 0;
 
-				mc.GetMatch(0, &szStart, &szEnd);
-				pstrRewrite->Append(szStart, szEnd - szStart);
+					mc.GetMatch(0, &szStart, &szEnd);
+					pstrRewrite->Append(szStart, szEnd - szStart);
+				}
 				ptr ++;
 			}
 			else if(*ptr == '$')

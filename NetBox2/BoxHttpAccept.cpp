@@ -559,8 +559,11 @@ BOOL CBoxHttpAccept::MapRequestPath(BOOL bUTF8)
 		if (str[0] != '/')
 		{
 			m_nStatusCode = 302;
-			str.AppendChar('?');
-			str.Append(m_strQueryString);
+			if (m_strQueryString.GetLength())
+			{
+				str.AppendChar('?');
+				str.Append(m_strQueryString);
+			}
 			AddHeader(_T("Location"), str);
 			return TRUE;
 		}

@@ -238,7 +238,7 @@ BEGIN_DISPATCH_MAP(CNetBox2App, CWinApp)
 	DISP_FUNCTION(CNetBox2App, "UnregisterServer", UnregisterServer, VT_EMPTY, VTS_BSTR)
 
 	DISP_FUNCTION(CNetBox2App, "Execute", Execute, VT_I4, VTS_BSTR VTS_VARIANT)
-	DISP_FUNCTION(CNetBox2App, "Exec", Exec, VT_DISPATCH, VTS_BSTR VTS_VARIANT)
+	DISP_FUNCTION(CNetBox2App, "Exec", Exec, VT_DISPATCH, VTS_BSTR VTS_VARIANT VTS_VARIANT)
 	DISP_FUNCTION(CNetBox2App, "GetAllProcesses", GetAllProcesses, VT_DISPATCH, VTS_NONE)
 	DISP_FUNCTION(CNetBox2App, "GetProcess", GetProcess, VT_DISPATCH, VTS_I4 VTS_VARIANT)
 	DISP_FUNCTION(CNetBox2App, "Shutdown", Shutdown, VT_EMPTY, VTS_BOOL)
@@ -1142,7 +1142,7 @@ LPDISPATCH CNetBox2App::GetProcess(LONG lProcessID, VARIANT* varRights)
 	return pProcess.Detach();
 }
 
-LPDISPATCH CNetBox2App::Exec(LPCTSTR pstrName, VARIANT* varCmdShow)
+LPDISPATCH CNetBox2App::Exec(LPCTSTR pstrName, VARIANT* varCmdShow, VARIANT* varDirectory)
 {
 	long nCmdShow = SW_SHOWNORMAL;
 	BOOL bAdmin = FALSE;
@@ -1192,6 +1192,15 @@ LPDISPATCH CNetBox2App::Exec(LPCTSTR pstrName, VARIANT* varCmdShow)
 	sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
 	sei.nShow = nCmdShow;
 	sei.lpFile = strFile;
+	
+	CStringA strDirectory;
+	if(varDirectory->vt == VT_BSTR)
+	{
+		strDirectory = *varDirectory;
+		if (PathIsDirectory(strDirectory))
+			sei.lpDirectory = strDirectory;
+	}
+
 	sei.lpParameters = pstrName;
 	if (bAdmin)
 		sei.lpVerb = "runas";
