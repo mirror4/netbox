@@ -92,6 +92,8 @@ public:
 	afx_msg VARIANT RegEnumKey(VARIANT& varKey);
 	afx_msg VARIANT RegEnumValue(VARIANT& varKey);
 
+	afx_msg long EnableWow64FsRedirection(long lEnabled);
+
 	DECLARE_DISPATCH_MAP()
 
 public:

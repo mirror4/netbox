@@ -540,9 +540,6 @@ void CBSysInfo::determineUSERInfo(void)
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x002b, NULL, 0, buf)))
 				Append(L"Folder_ProgramFilesCommon", buf);
 			
-			//SHGetKnownFolderPath(FOLDERID_ProgramFilesX64);
-			
-
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0002, NULL, 0, buf)))
 				Append(L"Folder_Programs", buf);
 
@@ -569,6 +566,7 @@ void CBSysInfo::determineUSERInfo(void)
 
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0021, NULL, 0, buf)))
 				Append(L"Folder_Cookies", buf);
+
 		}
 
 		::FreeLibrary(hSHFolder);
@@ -1619,3 +1617,4 @@ BOOL IsWow64()
     }
     return bIsWow64;
 }
+

@@ -277,8 +277,21 @@ BEGIN_DISPATCH_MAP(CNetBox2App, CWinApp)
 
 	DISP_FUNCTION(CNetBox2App, "RegEnumKey", RegEnumKey, VT_VARIANT, VTS_VARIANT)
 	DISP_FUNCTION(CNetBox2App, "RegEnumValue", RegEnumValue, VT_VARIANT, VTS_VARIANT)
+
+	DISP_FUNCTION(CNetBox2App, "EnableWow64FsRedirection", EnableWow64FsRedirection, VT_I4, VTS_I4)
 END_DISPATCH_MAP()
 
+
+typedef BOOLEAN (WINAPI *LPFN_Wow64EnableWow64FsRedirection) (BOOLEAN);
+
+LPFN_Wow64EnableWow64FsRedirection 
+fnWow64EnableWow64FsRedirection = (LPFN_Wow64EnableWow64FsRedirection)GetProcAddress(
+GetModuleHandle("kernel32"),"Wow64EnableWow64FsRedirection");
+
+long CNetBox2App::EnableWow64FsRedirection(long lEnabled)
+{
+	return fnWow64EnableWow64FsRedirection?fnWow64EnableWow64FsRedirection(lEnabled?TRUE:FALSE):FALSE;
+}
 
 static struct
 {
