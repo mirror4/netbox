@@ -364,7 +364,7 @@ static struct
 	}
 };
 
-HRESULT CNetBox2App::RegSplitKey(VARIANT& varKey, HKEY* phKey, CBString& strKey, CBString& strValue)
+HRESULT CNetBox2App::RegSplitKey(VARIANT& varKey, HKEY* phKey, CBString& strKey, CBString& strValue, int *pIs64KEY)
 {
 	while(varKey.vt == (VT_VARIANT | VT_BYREF))
 		varKey = *varKey.pvarVal;
@@ -380,6 +380,13 @@ HRESULT CNetBox2App::RegSplitKey(VARIANT& varKey, HKEY* phKey, CBString& strKey,
 		AfxThrowOleException(E_INVALIDARG);
 	
 	strHKey = strPath.Left(p0);
+	if (strHKey.Find(L"Win64::") == 0)
+	{
+		*pIs64KEY = 1;
+		strHKey = strHKey.Mid(7);
+	}
+	else
+		*pIs64KEY = 0;
 
 	int i;
 	for(i = 0; i < sizeof(s_HKeys) / sizeof(s_HKeys[0]); i ++)
@@ -412,8 +419,9 @@ void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
 	HKEY hKey;
 	CBString strKey, strValue;
 	HRESULT hr;
+	int Is64Key = 0;
 
-	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue, &Is64Key);
 	if (FAILED(hr))
 		AfxThrowOleException(hr);
 
@@ -485,7 +493,9 @@ void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
 	}
 
 	CComVariant var;
-	DWORD dwRet = 0;
+	DWORD dwRet = RegOpenKeyExW(hKey, L"", 0, KEY_READ|(Is64Key?KEY_WOW64_64KEY:0), &hKey);
+	if (dwRet != ERROR_SUCCESS)
+		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 	switch (iAutoType)
 	{
 		case REG_DWORD:
@@ -519,6 +529,7 @@ void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
 					if (sa.GetDimensions() != 1)
 					{
 						sa.Detach();
+						RegCloseKey(hKey);
 						AfxThrowOleException(E_INVALIDARG);
 					}
 					CAtlArray<CComVariant> arr_var;
@@ -574,6 +585,7 @@ void CNetBox2App::RegWrite(VARIANT& varKey, VARIANT& varValue, VARIANT& varType)
 			}
 			break;
 	}
+	RegCloseKey(hKey);
 	if (dwRet != ERROR_SUCCESS)
 		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 }
@@ -583,17 +595,20 @@ void CNetBox2App::RegDelete(VARIANT& varKey)
 	HKEY hKey;
 	CBString strKey, strValue;
 	HRESULT hr;
+	int Is64Key = 0;
 
-	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue, &Is64Key);
 	if (FAILED(hr))
 		AfxThrowOleException(hr);
 	
-	DWORD dwRet;
-
+	DWORD dwRet = RegOpenKeyExW(hKey, L"", 0, KEY_WRITE|(Is64Key?KEY_WOW64_64KEY:0), &hKey);
+	if (dwRet != ERROR_SUCCESS)
+		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 	if (strValue.GetLength() == 0)
 		dwRet = SHDeleteKeyW(hKey, strKey);
 	else
 		dwRet = SHDeleteValueW(hKey, strKey, strValue);
+	RegCloseKey(hKey);
 
 	if (dwRet != ERROR_SUCCESS)
 		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
@@ -604,14 +619,15 @@ VARIANT CNetBox2App::RegRead(VARIANT& varKey)
 	HKEY hKey;
 	CBString strKey, strValue;
 	HRESULT hr;
+	int Is64Key = 0;
 
-	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue, &Is64Key);
 	if (FAILED(hr))
 		AfxThrowOleException(hr);
 
 	DWORD dwType = 0, dwSize = 0, dwRet;
 	
-	dwRet = RegOpenKeyExW(hKey, strKey, 0, KEY_READ, &hKey);
+	dwRet = RegOpenKeyExW(hKey, strKey, 0, KEY_READ|(Is64Key?KEY_WOW64_64KEY:0), &hKey);
 	if (dwRet != ERROR_SUCCESS)
 		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 
@@ -714,8 +730,9 @@ VARIANT CNetBox2App::RegEnumValue(VARIANT& varKey)
 	HKEY hKey;
 	CBString strKey, strValue;
 	HRESULT hr;
+	int Is64Key = 0;
 
-	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue, &Is64Key);
 	if (FAILED(hr))
 		AfxThrowOleException(hr);
 
@@ -724,7 +741,7 @@ VARIANT CNetBox2App::RegEnumValue(VARIANT& varKey)
 	
 	DWORD dwRet, i;
 
-	dwRet = RegOpenKeyExW(hKey, strKey, 0, KEY_READ, &hKey);
+	dwRet = RegOpenKeyExW(hKey, strKey, 0, KEY_READ|(Is64Key?KEY_WOW64_64KEY:0), &hKey);
 	if (dwRet != ERROR_SUCCESS)
 		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 
@@ -795,8 +812,9 @@ VARIANT CNetBox2App::RegEnumKey(VARIANT& varKey)
 	HKEY hKey;
 	CBString strKey, strValue;
 	HRESULT hr;
+	int Is64Key = 0;
 
-	hr = RegSplitKey(varKey, &hKey, strKey, strValue);
+	hr = RegSplitKey(varKey, &hKey, strKey, strValue, &Is64Key);
 	if (FAILED(hr))
 		AfxThrowOleException(hr);
 
@@ -805,7 +823,7 @@ VARIANT CNetBox2App::RegEnumKey(VARIANT& varKey)
 	
 	DWORD dwRet, i;
 
-	dwRet = RegOpenKeyExW(hKey, strKey, 0, KEY_READ, &hKey);
+	dwRet = RegOpenKeyExW(hKey, strKey, 0, KEY_READ|(Is64Key?KEY_WOW64_64KEY:0), &hKey);
 	if (dwRet != ERROR_SUCCESS)
 		AfxThrowOleException(HRESULT_FROM_WIN32(dwRet));
 

@@ -11,6 +11,7 @@
 #pragma comment(lib, "Version.lib")
 
 BOOL GetOSDisplayString(LPTSTR pszOS, OSVERSIONINFOEX &osvi);
+BOOL IsWow64();
 
 CBSysInfo::CBSysInfo(void)
 {
@@ -206,6 +207,8 @@ void CBSysInfo::determineOSInfo(void)
 	GetStartupInfo(&StartupInfo);
 
 	Append(L"OS_Desktop", StartupInfo.lpDesktop);
+	if (IsWow64())
+		Append(L"OS_WOW64", L"WOW64");
 
 	::ZeroMemory(&versionInfo, sizeof(OSVERSIONINFOEX));
 	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
@@ -536,6 +539,9 @@ void CBSysInfo::determineUSERInfo(void)
 
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x002b, NULL, 0, buf)))
 				Append(L"Folder_ProgramFilesCommon", buf);
+			
+			//SHGetKnownFolderPath(FOLDERID_ProgramFilesX64);
+			
 
 			if(SUCCEEDED(pSHGetFolderPath(NULL, 0x0002, NULL, 0, buf)))
 				Append(L"Folder_Programs", buf);
@@ -1592,4 +1598,24 @@ BOOL GetOSDisplayString(LPTSTR pszOS, OSVERSIONINFOEX &osvi)
    {  
       return FALSE;
    }
+}
+
+typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
+LPFN_ISWOW64PROCESS 
+fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+GetModuleHandle("kernel32"),"IsWow64Process");
+ 
+BOOL IsWow64()
+{
+    BOOL bIsWow64 = FALSE;
+ 
+    if (NULL != fnIsWow64Process)
+    {
+        if (!fnIsWow64Process(GetCurrentProcess(),&bIsWow64))
+        {
+            // handle error
+        }
+    }
+    return bIsWow64;
 }
