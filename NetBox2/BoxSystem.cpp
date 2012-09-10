@@ -226,8 +226,6 @@ VBScriptLoaded:
 	AddClass(RUNTIME_CLASS(CBoxTcpServer));
 	AddClass(RUNTIME_CLASS(CBoxHttpServer));
 
-	AddClass(RUNTIME_CLASS(CBoxSmtp));
-
 	AddClassEx(L"NetBox.Dictionary", CBDictionary);
 	AddClassEx(L"NetBox.Queue", CBQueue);
 	AddClassEx(L"NetBox.Arguments", CBArguments);
@@ -249,14 +247,18 @@ VBScriptLoaded:
 
 	AddClassEx(L"NetBox.HtmlWindow", CBHtmlWindow);
 	AddClassEx(L"NetBox.UDPSocket", CBUDPSocket);
+	AddClassEx(L"NetBox.ShellLink", CBShellLink);
 
 	AddClassEx(L"NetBox.MessageManager", CBMessageManager);
 
+#ifndef NETBOXMINI
 	AddClassEx(L"NetBox.Database", CBDatabase);
 	AddClassEx(L"NetBox.Recordset", CBRecordset);
 
 	AddClassEx(L"NetBox.RegExp", CBRegExp);
-	AddClassEx(L"NetBox.ShellLink", CBShellLink);
+
+	AddClass(RUNTIME_CLASS(CBoxSmtp));
+#endif
 
 	m_strConfigFile = (LPCTSTR)g_pFile->m_strAppName;
 	m_strConfigFile.ReleaseBuffer(m_strConfigFile.ReverseFind(_T('.')));

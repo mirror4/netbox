@@ -757,7 +757,7 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 		{
 			str = str.Mid(17);
 			str.Trim();
-			CheckDlgButton(IDC_EMBEDVBS, str.CompareNoCase(_T("TRUE"))?TRUE:FALSE);
+			CheckDlgButton(IDC_EMBEDVBS, str.CompareNoCase(_T("TRUE"))?FALSE:TRUE);
 		}
 	}
 }
@@ -1054,7 +1054,8 @@ void CNBRDlg::OnBnClickedOk()
 		m_wndLegalCopyright.GetWindowText(str);
 		straMake.InsertAt(1, _T("LEGALCOPYRIGHT ") + str);
 
-		straMake.InsertAt(1, _T("PACKAGELOADFIRST ") + IsDlgButtonChecked(IDC_EMBEDVBS)?_T("TRUE"):_T("FALSE"));
+		str = IsDlgButtonChecked(IDC_EMBEDVBS)?_T("TRUE"):_T("FALSE");
+		straMake.InsertAt(1, _T("PACKAGELOADFIRST ") + str);
 	}
 
 	str = m_strSrcFolder;

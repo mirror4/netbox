@@ -36,3 +36,4 @@ public:
 };
 
 HMODULE WINAPI NewLoadLibraryA(PCSTR);
+FARPROC WINAPI NewGetProcAddress(HMODULE hModule, LPCSTR lpProcName);

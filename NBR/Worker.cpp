@@ -92,6 +92,7 @@ BOOL CWorker::ReplaceIcon(LPCTSTR pstrFile)
 	res.Seek(dwPos, CFile::begin);
 	res.Read((LPVOID)pMemIcon, dwSize);
 
+	int icons[3] = {0, 0, 0};
 	for (UINT i=0;i<n;i++)
 	{
 		if (icon[i].bWidth == 16 && icon[i].bHeight == 16)
@@ -108,6 +109,7 @@ BOOL CWorker::ReplaceIcon(LPCTSTR pstrFile)
 		}
 		else continue;
 
+		icons[index] = 1;
 		if (res.FindResource(MAKEINTRESOURCE(pMemIcon->idEntries[index].nID), RT_ICON, 1033, dwPos, dwSize))
 		{
 			if (dwSize < icon[i].dwBytesInRes)
@@ -121,6 +123,21 @@ BOOL CWorker::ReplaceIcon(LPCTSTR pstrFile)
 		}
 	}
 
+	if (!res.FindResource(_T("NETBOX"), RT_GROUP_ICON, 1033, dwPos, dwSize))
+		return LogLastError(_T("Icon of NetBox has not found!"));
+
+	UINT nIcons = sizeof(icons)/sizeof(int);
+	pMemIcon->idCount = 0;
+	for (UINT i=0;i<nIcons;i++)
+	{
+		if (icons[i])
+			pMemIcon->idCount++;
+		else
+			for (UINT j=i+1;j<nIcons;j++)
+				pMemIcon->idEntries[j-1] = pMemIcon->idEntries[j];
+	}
+	m_file.Seek(dwPos, CFile::begin);
+	m_file.Write((LPVOID)pMemIcon, dwSize);
 	return true;
 }
 

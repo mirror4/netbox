@@ -273,10 +273,10 @@ BuildImportTable(PMEMORYMODULE module)
 			}
 			for (; *thunkRef; thunkRef++, funcRef++) {
 				if (IMAGE_SNAP_BY_ORDINAL(*thunkRef)) {
-					*funcRef = (FARPROC)GetProcAddress(handle, (LPCSTR)IMAGE_ORDINAL(*thunkRef));
+					*funcRef = (FARPROC)::NewGetProcAddress(handle, (LPCSTR)IMAGE_ORDINAL(*thunkRef));
 				} else {
 					PIMAGE_IMPORT_BY_NAME thunkData = (PIMAGE_IMPORT_BY_NAME) (codeBase + (*thunkRef));
-					*funcRef = (FARPROC)GetProcAddress(handle, (LPCSTR)&thunkData->Name);
+					*funcRef = (FARPROC)::NewGetProcAddress(handle, (LPCSTR)&thunkData->Name);
 				}
 				if (*funcRef == 0) {
 					result = 0;

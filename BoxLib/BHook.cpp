@@ -65,7 +65,7 @@ static BOOL WINAPI NewFreeLibrary(HMODULE hLibModule)
 static CBHook m_FreeLibrary(FreeLibrary, NewFreeLibrary);
 
 static FARPROC (WINAPI *RealGetProcAddress)(HMODULE, LPCSTR) = GetProcAddress;
-static FARPROC WINAPI NewGetProcAddress(HMODULE hModule, LPCSTR lpProcName)
+FARPROC WINAPI NewGetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 {
 	FARPROC pfn = RealGetProcAddress(hModule, lpProcName);
 

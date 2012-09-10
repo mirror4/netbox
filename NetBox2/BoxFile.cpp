@@ -171,9 +171,9 @@ CBoxFile::~CBoxFile()
 void CBoxFile::SetRuntimeFile(LPCTSTR pstrFile)
 {
 	TCHAR buffer[_MAX_PATH] = _T("");
-	LPTSTR p;
+	TCHAR * p[_MAX_PATH]={NULL};
 
-	GetFullPathName(pstrFile, _MAX_PATH, buffer, &p);
+	GetFullPathName(pstrFile, _MAX_PATH, buffer, p);
 
 	m_strAppName = buffer;
 	m_strBasePath = m_strAppName.Left(m_strAppName.ReverseFind('\\') + 1);
