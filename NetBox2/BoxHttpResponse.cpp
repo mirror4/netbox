@@ -182,9 +182,7 @@ void CBoxHttpResponse::Write(VARIANT& var)
 
 	if(var.vt == VT_BSTR)
 	{
-		CStringA str(var.bstrVal);
-
-		m_pAccept->WriteToClient(str, str.GetLength());
+		m_pAccept->WriteToClient(var.bstrVal, SysStringLen(var.bstrVal));
 	}else if(var.vt & VT_ARRAY)
 		m_pAccept->WriteToClient("[Array]", 7);
 	else if(var.vt == VT_UNKNOWN)
