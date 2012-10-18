@@ -28,7 +28,7 @@ public:
 	afx_msg BOOL get_Installed(void);
 	afx_msg BOOL get_Running(void);
 
-	afx_msg void Install(void);
+	afx_msg void Install(VARIANT& varType);
 	afx_msg void Remove(void);
 	afx_msg void Start(void);
 	afx_msg void Restart(void);

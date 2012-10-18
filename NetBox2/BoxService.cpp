@@ -59,7 +59,7 @@ BEGIN_DISPATCH_MAP(CBoxService, CBoxSafeObject)
 	DISP_PROPERTY_EX(CBoxService, "Installed", get_Installed, SetNotSupported, VT_BOOL)
 	DISP_PROPERTY_EX(CBoxService, "Running", get_Running, SetNotSupported, VT_BOOL)
 
-	DISP_FUNCTION(CBoxService, "Install", Install, VT_EMPTY, VTS_NONE)
+	DISP_FUNCTION(CBoxService, "Install", Install, VT_EMPTY, VTS_VARIANT)
 	DISP_FUNCTION(CBoxService, "Remove", Remove, VT_EMPTY, VTS_NONE)
 	DISP_FUNCTION(CBoxService, "Restart", Restart, VT_EMPTY, VTS_NONE)
 	DISP_FUNCTION(CBoxService, "Start", Start, VT_EMPTY, VTS_NONE)
@@ -89,7 +89,8 @@ void CBoxService::RunService(LPCTSTR pstrName, VARIANT* pVarDisplay, VARIANT* pV
 
 		if(!str.CompareNoCase(_T("-install")))
 		{
-			Install();
+			CComVariant v(1);
+			Install(v);
 			theApp.Quit(0);
 
 			return;
@@ -202,8 +203,19 @@ BOOL CBoxService::get_Running(void)
 	return bIsRunning;
 }
 
-void CBoxService::Install(void)
+void CBoxService::Install(VARIANT& varType)
 {
+	while(varType.vt == (VT_VARIANT | VT_BYREF))
+		varType = *varType.pvarVal;
+
+	int iAutoRun = 1;
+	if(varType.vt != VT_ERROR)
+	{
+		CComVariant v;
+		v.ChangeType(VT_I4, &varType);
+		iAutoRun = v.lVal?1:0;
+	}
+
 	CString str;
 
 	str = _T('\"') + g_pFile->m_strExeName + _T('\"');
@@ -224,6 +236,19 @@ void CBoxService::Install(void)
 		schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 		if ( schSCManager )
 		{
+			if (iAutoRun)
+			{
+				schService = OpenService(schSCManager, m_strName, SERVICE_ALL_ACCESS);
+
+				if(schService)
+				{
+					StartService( schService, 0, NULL);
+					CloseServiceHandle(schService);
+					CloseServiceHandle(schSCManager);
+					return;
+				}
+			}
+
 			schService = CreateService(schSCManager, m_strName,
 				m_strDisplayName.IsEmpty() ? m_strName : m_strDisplayName,
 				SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS | (m_bDesktop ? SERVICE_INTERACTIVE_PROCESS : 0),
@@ -258,7 +283,8 @@ void CBoxService::Install(void)
 					}
 				}
 
-				StartService( schService, 0, NULL);
+				if (iAutoRun)
+					StartService( schService, 0, NULL);
 				CloseServiceHandle(schService);
 			}
 			CloseServiceHandle(schSCManager);
@@ -280,7 +306,8 @@ void CBoxService::Install(void)
 		RegSetValueEx(hk, m_strName, 0, REG_SZ, (CONST LPBYTE)(LPCTSTR)str, (DWORD)str.GetLength() + 1);
 
 		RegCloseKey(hk);
-		WinExec(str, SW_SHOW);
+		if (iAutoRun)
+			WinExec(str, SW_SHOW);
 	}
 }
 
