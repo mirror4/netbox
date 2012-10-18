@@ -236,17 +236,16 @@ void CBoxService::Install(VARIANT& varType)
 		schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 		if ( schSCManager )
 		{
-			if (iAutoRun)
-			{
-				schService = OpenService(schSCManager, m_strName, SERVICE_ALL_ACCESS);
+			schService = OpenService(schSCManager, m_strName, SERVICE_ALL_ACCESS);
 
-				if(schService)
-				{
-					StartService( schService, 0, NULL);
-					CloseServiceHandle(schService);
-					CloseServiceHandle(schSCManager);
-					return;
-				}
+			if(schService)
+			{
+				ChangeServiceConfig(schService, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+				if (iAutoRun)
+					StartService(schService, 0, NULL);
+				CloseServiceHandle(schService);
+				CloseServiceHandle(schSCManager);
+				return;
 			}
 
 			schService = CreateService(schSCManager, m_strName,
