@@ -90,14 +90,14 @@ VOID CALLBACK CBoxHttpServer::IoCompletionRoutine(DWORD dwErrorCode, DWORD dwNum
 
 	if(!dwErrorCode)
 	{
-		pSend->m_nStart += dwNumberOfBytesTransfered;
-		pSend->m_nLen -= dwNumberOfBytesTransfered;
+		pSend->m_ullStart += dwNumberOfBytesTransfered;
+		pSend->m_ullLen -= dwNumberOfBytesTransfered;
 
 		pSend->m_nPos += dwNumberOfBytesTransfered;
 
 		InterlockedExchangeAdd(&((CBoxHttpServer*)pSend->m_pSocket->m_pContext)->m_ntotalBytes, dwNumberOfBytesTransfered);
 
-		if(pSend->m_nLen)
+		if(pSend->m_ullLen)
 			SendFile((ULONG_PTR)pSend);
 		else
 		{
@@ -127,8 +127,8 @@ void CALLBACK CBoxHttpServer::SendFile(ULONG_PTR dwParam)
 		{
 			long l = sizeof(pSend->buf);
 
-			if(l > pSend->m_nLen)
-				l = pSend->m_nLen;
+			if(l > pSend->m_ullLen)
+				l = pSend->m_ullLen;
 
 			pSend->m_nPos = 0;
 			pSend->m_nSize = pSend->m_pFile->Read(pSend->buf, l);
@@ -138,8 +138,8 @@ void CALLBACK CBoxHttpServer::SendFile(ULONG_PTR dwParam)
 			bRet = WriteFileEx((HANDLE)pSend->m_pSocket->m_hSocket, pSend->buf + pSend->m_nPos,
 				pSend->m_nSize - pSend->m_nPos, pSend, IoCompletionRoutine);
 	}else
-		bRet = WriteFileEx((HANDLE)pSend->m_pSocket->m_hSocket, pSend->m_pBuf + pSend->m_nStart,
-				pSend->m_nLen, pSend, IoCompletionRoutine);
+		bRet = WriteFileEx((HANDLE)pSend->m_pSocket->m_hSocket, pSend->m_pBuf + pSend->m_ullStart,
+				pSend->m_ullLen, pSend, IoCompletionRoutine);
 
 	if(!bRet)
 	{
@@ -148,7 +148,7 @@ void CALLBACK CBoxHttpServer::SendFile(ULONG_PTR dwParam)
 	}
 }
 
-void CBoxHttpServer::SendFile(CBoxSocket* pSocket, CFile* pFile, long nStart, long nLen, long retVal)
+void CBoxHttpServer::SendFile(CBoxSocket* pSocket, CFile* pFile, ULONGLONG ullStart, ULONGLONG ullLen, long retVal)
 {
 	CSendFile* pSend = new CSendFile;
 
@@ -156,8 +156,8 @@ void CBoxHttpServer::SendFile(CBoxSocket* pSocket, CFile* pFile, long nStart, lo
 
 	pSend->m_pSocket = pSocket;
 	pSend->m_pFile = pFile;
-	pSend->m_nStart = nStart;
-	pSend->m_nLen = nLen;
+	pSend->m_ullStart = ullStart;
+	pSend->m_ullLen = ullLen;
 	pSend->m_retVal = retVal;
 
 	if(pFile->IsKindOf(RUNTIME_CLASS(CMemFile)))
@@ -166,7 +166,7 @@ void CBoxHttpServer::SendFile(CBoxSocket* pSocket, CFile* pFile, long nStart, lo
 
 		pFile->GetBufferPtr(CFile::bufferRead, 0, (void**)&pSend->m_pBuf, (void**)&bufptr);
 	}else
-		pFile->Seek(nStart, CFile::begin);
+		pFile->Seek(ullStart, CFile::begin);
 
 	QueueUserAPC(SendFile, m_pSendThread->m_hThread, (ULONG_PTR)pSend);
 }

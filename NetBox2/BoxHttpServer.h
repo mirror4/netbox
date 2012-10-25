@@ -12,7 +12,7 @@ public:
 	virtual void OnSleepTimer(__int64 nNowTime);
 	virtual CBoxJobWorker* CreateNewWorker(void);
 
-	void SendFile(CBoxSocket* pSocket, CFile* pFile, long nStart, long nLen, long retVal);
+	void SendFile(CBoxSocket* pSocket, CFile* pFile, ULONGLONG ullStart, ULONGLONG ullLen, long retVal);
 
 public:
 	afx_msg long Create(LPCTSTR pstrSocketAddress, UINT nSocketPort);
@@ -45,8 +45,8 @@ private:
 
 		CBoxObject<CBoxSocket> m_pSocket;
 		CFile *m_pFile;
-		long m_nStart;
-		long m_nLen;
+		ULONGLONG m_ullStart;
+		ULONGLONG m_ullLen;
 		long m_retVal;
 
 		char *m_pBuf;

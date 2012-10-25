@@ -224,15 +224,15 @@ static SYSTEMTIME StringToTime(const char *date)
 // CBoxHttpAccept
 
 CBoxHttpAccept::CBoxHttpAccept() :
-	m_nRangeBegin(0),
-	m_nRangeEnd(0),
+	m_llRangeBegin(0),
+	m_llRangeEnd(0),
 	m_nContentLength(0),
 	m_nContentPosition(0),
 	m_bKeepAlive(FALSE),
 	m_bDepth(FALSE),
 	m_fileResponse(NULL),
 	m_nStatusCode(200),
-	m_nResponseContentLength(0),
+	m_llResponseContentLength(0),
 	m_bBuffer(TRUE),
 	m_zipFile(NULL),
 	m_nMethod(HTTP_GET),
@@ -452,8 +452,8 @@ void CBoxHttpAccept::ReadHeader(void)
 						{
 							pstr ++;
 
-							m_nRangeBegin = _tstoi(pstr1);
-							m_nRangeEnd = _tstoi(pstr);
+							m_llRangeBegin = _tstoi64(pstr1);
+							m_llRangeEnd = _tstoi64(pstr);
 						}
 					}
 				}else if(!str1.CompareNoCase(_T("Content-Type")))
@@ -885,8 +885,8 @@ int CBoxHttpAccept::BuildFile(void)
 			{
 				e->Delete();
 
-				m_nRangeBegin = 0;
-				m_nRangeEnd = 0;
+				m_llRangeBegin = 0;
+				m_llRangeEnd = 0;
 
 				return FALSE;
 			}
@@ -898,12 +898,12 @@ int CBoxHttpAccept::BuildFile(void)
 
 			if(m_strMapToFile.IsEmpty())
 			{
-				m_nRangeBegin = 0;
-				m_nRangeEnd = 0;
+				m_llRangeBegin = 0;
+				m_llRangeEnd = 0;
 
 				if(m_zipFile)m_zipFile->Close();
 				m_fileResponse->SeekToBegin();
-				m_nResponseContentLength = (int)m_fileResponse->GetLength();
+				m_llResponseContentLength = m_fileResponse->GetLength();
 
 				return nError;
 			}
@@ -957,7 +957,7 @@ int CBoxHttpAccept::BuildFile(void)
 		}
 	}
 
-	m_nResponseContentLength = (int)m_fileResponse->GetLength();
+	m_llResponseContentLength = m_fileResponse->GetLength();
 	g_pFile->GetFileTimeString(m_fileResponse, m_mapResponseHeader[_T("Last-Modified")]);
 
 	SYSTEMTIME tm = g_pFile->GetFileTime(m_fileResponse);
@@ -971,23 +971,23 @@ int CBoxHttpAccept::BuildFile(void)
 	AddHeader(_T("Content-Type"), theApp.GetContentTypeFromFileName(m_strMapedPath));
 	AddHeader(_T("Accept-Ranges"), _T("bytes"));
 
-	if(m_nResponseContentLength > 1 && (m_nRangeBegin != 0 || m_nRangeEnd != 0))
+	if(m_llResponseContentLength > 1 && (m_llRangeBegin != 0 || m_llRangeEnd != 0))
 	{
-		if(m_nRangeEnd == 0)
-			m_nRangeEnd = m_nResponseContentLength - 1;
+		if(m_llRangeEnd == 0)
+			m_llRangeEnd = m_llResponseContentLength - 1;
 
-		if(m_nRangeBegin == -m_nRangeEnd)
+		if(m_llRangeBegin == -m_llRangeEnd)
 		{
-			m_nRangeEnd = m_nResponseContentLength - 1;
-			m_nRangeBegin += m_nResponseContentLength;
+			m_llRangeEnd = m_llResponseContentLength - 1;
+			m_llRangeBegin += m_llResponseContentLength;
 		}
 
 		CString str;
 
-		str.Format(_T("bytes %d-%d/%d"), m_nRangeBegin, m_nRangeEnd, m_nResponseContentLength);
+		str.Format(_T("bytes %I64d-%I64d/%I64d"), m_llRangeBegin, m_llRangeEnd, m_llResponseContentLength);
 		AddHeader(_T("Content-Range"), str);
 
-		m_nResponseContentLength = m_nRangeEnd - m_nRangeBegin + 1;
+		m_llResponseContentLength = m_llRangeEnd - m_llRangeBegin + 1;
 
 		m_nStatusCode = 206;
 	}
@@ -1121,7 +1121,7 @@ int CBoxHttpAccept::BuildDirectory(void)
 
 	if(m_zipFile)m_zipFile->Close();
 	m_fileResponse->SeekToBegin();
-	m_nResponseContentLength = (int)m_fileResponse->GetLength();
+	m_llResponseContentLength = m_fileResponse->GetLength();
 
 	return 0;
 }
@@ -1225,7 +1225,7 @@ int CBoxHttpAccept::FindProperty(void)
 	WriteToClient("</a:multistatus>", 16);
 
 	m_fileResponse->SeekToBegin();
-	m_nResponseContentLength = (int)m_fileResponse->GetLength();
+	m_llResponseContentLength = m_fileResponse->GetLength();
 
 	return 207;
 }
@@ -1354,7 +1354,7 @@ void CBoxHttpAccept::SendHeader()
 {
 	static int shortcut[6] = {0, LEVEL_200, LEVEL_300, LEVEL_400, LEVEL_500, RESPONSE_CODES};
 	int n, pos;
-	char strContentLength[16];
+	char strContentLength[32];
 
 	if(m_strStatus.IsEmpty())
 	{
@@ -1423,7 +1423,7 @@ void CBoxHttpAccept::SendHeader()
 		if(m_bBuffer)
 		{
 			str.Append("Content-Length: ", 16);
-			_ltoa(m_nResponseContentLength, strContentLength, 10);
+			_i64toa(m_llResponseContentLength, strContentLength, 20);
 			str.Append(strContentLength);
 			str.Append("\r\n\r\n", 4);
 		}else str.Append("\r\n", 2);
@@ -1454,7 +1454,7 @@ BOOL CBoxHttpAccept::SendResponse(void)
 	if(!m_bSendHeader && !m_strProtocol.IsEmpty())
 		SendHeader();
 
-	if(m_fileResponse != NULL && m_nResponseContentLength != 0 && m_nMethod != HTTP_HEAD)
+	if(m_fileResponse != NULL && m_llResponseContentLength != 0 && m_nMethod != HTTP_HEAD)
 	{
 		InterlockedIncrement(&((CBoxHttpServer*)m_pServer)->m_nDownloadWorkers);
 
@@ -1465,22 +1465,22 @@ BOOL CBoxHttpAccept::SendResponse(void)
 				char *bufptr, *bufptr1;
 
 				m_fileResponse->GetBufferPtr(CFile::bufferRead, 0, (void**)&bufptr, (void**)&bufptr1);
-				m_pSocket->WriteBlock(bufptr + m_nRangeBegin, m_nResponseContentLength);
+				m_pSocket->WriteBlock(bufptr + (long)m_llRangeBegin, (long)m_llResponseContentLength);
 
-				m_nResponseContentLength = 0;
+				m_llResponseContentLength = 0;
 			}else
 			{
 				int n;
 
-				m_fileResponse->Seek(m_nRangeBegin, CFile::begin);
-				while(m_nResponseContentLength)
+				m_fileResponse->Seek(m_llRangeBegin, CFile::begin);
+				while(m_llResponseContentLength)
 				{
 					n = m_fileResponse->Read(buf, sizeof(buf));
 
 					if(m_pSocket->WriteBlock(buf, n) != n)
 						break;
 
-					m_nResponseContentLength -= n;
+					m_llResponseContentLength -= n;
 					InterlockedExchangeAdd(&((CBoxHttpServer*)m_pServer)->m_ntotalBytes, n);
 				}
 			}
@@ -1488,7 +1488,7 @@ BOOL CBoxHttpAccept::SendResponse(void)
 			InterlockedDecrement(&((CBoxHttpServer*)m_pServer)->m_nDownloadWorkers);
 		}else
 		{
-			((CBoxHttpServer*)m_pServer)->SendFile(m_pSocket, m_fileResponse, m_nRangeBegin, m_nResponseContentLength, m_bKeepAlive);
+			((CBoxHttpServer*)m_pServer)->SendFile(m_pSocket, m_fileResponse, m_llRangeBegin, m_llResponseContentLength, m_bKeepAlive);
 			m_fileResponse = NULL;
 			m_bKeepAlive = FALSE;
 		}
@@ -1533,8 +1533,8 @@ void CBoxHttpAccept::ClearAll(void)
 	m_strMapToFile.Empty();
 	ZeroMemory(&m_tmLastModify, sizeof(m_tmLastModify));
 
-	m_nRangeBegin = 0,
-	m_nRangeEnd = 0,
+	m_llRangeBegin = 0,
+	m_llRangeEnd = 0,
 
 	m_bBuffer = TRUE;
 	m_strAcceptEncoding.Empty();
@@ -1567,5 +1567,5 @@ void CBoxHttpAccept::ClearAll(void)
 	m_strAddHeader.Empty();
 	m_nStatusCode = 200;
 	m_strStatus.Empty();
-	m_nResponseContentLength = 0;
+	m_llResponseContentLength = 0;
 }

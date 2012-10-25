@@ -269,8 +269,8 @@ private:
 	int m_nAgentVersion;
 
 	BOOL m_bIsDirectory;
-	int m_nRangeBegin;
-	int m_nRangeEnd;
+	LONGLONG m_llRangeBegin;
+	LONGLONG m_llRangeEnd;
 	int m_nContentLength;
 	int m_nContentPosition;
 	CBoxFixString<128> m_strContentType;
@@ -289,7 +289,7 @@ private:
 
 	int m_nStatusCode;
 	CBoxFixString<128> m_strStatus;
-	int m_nResponseContentLength;
+	LONGLONG m_llResponseContentLength;
 	CFile* m_fileResponse;
 	CMapStringToString m_mapResponseHeader;
 	CBoxFixString<4096> m_strAddHeader;
