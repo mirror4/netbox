@@ -50,7 +50,8 @@ private:
 		long m_retVal;
 
 		char *m_pBuf;
-		char buf[4096];
+		char *buf;
+		long sizeofbuf;
 		long m_nSize;
 		long m_nPos;
 	};

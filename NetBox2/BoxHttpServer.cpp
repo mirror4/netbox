@@ -125,7 +125,8 @@ void CALLBACK CBoxHttpServer::SendFile(ULONG_PTR dwParam)
 	{
 		if(pSend->m_nPos == pSend->m_nSize)
 		{
-			long l = sizeof(pSend->buf);
+			//long l = sizeof(pSend->buf);
+			long l = pSend->sizeofbuf;
 
 			if(l > pSend->m_ullLen)
 				l = pSend->m_ullLen;
@@ -166,7 +167,10 @@ void CBoxHttpServer::SendFile(CBoxSocket* pSocket, CFile* pFile, ULONGLONG ullSt
 
 		pFile->GetBufferPtr(CFile::bufferRead, 0, (void**)&pSend->m_pBuf, (void**)&bufptr);
 	}else
+	{
+		pSend->sizeofbuf = ullLen<1024*1024?ullLen:1024*1024;
 		pFile->Seek(ullStart, CFile::begin);
+	}
 
 	QueueUserAPC(SendFile, m_pSendThread->m_hThread, (ULONG_PTR)pSend);
 }

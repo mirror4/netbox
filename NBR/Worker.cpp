@@ -77,7 +77,7 @@ BOOL CWorker::ReplaceIcon(LPCTSTR pstrFile)
 	UINT n = icon.GetCount();
 	if (!n) return LogLastError(_T("Icon Error"));
 
-	if (!res.Open(pstrFile, CFile::modeRead))
+	if (!res.Open(pstrFile, CFile::shareDenyNone | CFile::modeRead | CFile::typeBinary))
 		return LogLastError(str);
 
 	DWORD dwPos, dwSize, index;
@@ -144,7 +144,7 @@ BOOL CWorker::ReplaceIcon(LPCTSTR pstrFile)
 BOOL CWorker::ReplaceVersionInfo(LPCTSTR pstrFile)
 {
 	CWin32Res res;
-	if (!res.Open(pstrFile, CFile::modeRead))
+	if (!res.Open(pstrFile, CFile::shareDenyNone | CFile::modeRead | CFile::typeBinary))
 		return LogLastError(pstrFile);
 
 	DWORD dwPos, dwSize;
@@ -190,7 +190,7 @@ BOOL CWorker::ReplaceVersionInfo(LPCTSTR pstrFile)
 BOOL CWorker::ReplaceManifest(LPCTSTR pstrFile)
 {
 	CWin32Res res;
-	if (!res.Open(pstrFile, CFile::modeRead))
+	if (!res.Open(pstrFile, CFile::shareDenyNone | CFile::modeRead | CFile::typeBinary))
 		return LogLastError(pstrFile);
 
 	DWORD dwPos, dwSize;
@@ -231,7 +231,7 @@ BOOL CWorker::ReplaceManifest(LPCTSTR pstrFile)
 BOOL CWorker::ReplaceAppdata(LPCTSTR pstrFile)
 {
 	CWin32Res res;
-	if (!res.Open(pstrFile, CFile::modeRead))
+	if (!res.Open(pstrFile, CFile::shareDenyNone | CFile::modeRead | CFile::typeBinary))
 		return LogLastError(pstrFile);
 
 	DWORD dwPos, dwSize, dwAppdata;
