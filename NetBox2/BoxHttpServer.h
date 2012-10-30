@@ -37,8 +37,11 @@ private:
 	class CSendFile : public OVERLAPPED
 	{
 	public:
+		CSendFile():buf(NULL), sizeofbuf(0)
+		{}
 		~CSendFile(void)
 		{
+			if (buf) delete buf;
 			InterlockedDecrement(&((CBoxHttpServer*)m_pSocket->m_pContext)->m_nDownloadWorkers);
 			delete m_pFile;
 		}
@@ -51,7 +54,7 @@ private:
 
 		char *m_pBuf;
 		char *buf;
-		long sizeofbuf;
+		DWORD sizeofbuf;
 		long m_nSize;
 		long m_nPos;
 	};

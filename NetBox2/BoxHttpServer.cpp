@@ -168,7 +168,8 @@ void CBoxHttpServer::SendFile(CBoxSocket* pSocket, CFile* pFile, ULONGLONG ullSt
 		pFile->GetBufferPtr(CFile::bufferRead, 0, (void**)&pSend->m_pBuf, (void**)&bufptr);
 	}else
 	{
-		pSend->sizeofbuf = ullLen<1024*1024?ullLen:1024*1024;
+		pSend->sizeofbuf = ullLen<65536?ullLen:65536;
+		pSend->buf = new char[pSend->sizeofbuf];
 		pFile->Seek(ullStart, CFile::begin);
 	}
 
