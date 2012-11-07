@@ -41,6 +41,8 @@ protected:
 		return -1;
 	}
 
+	UINT ParseScriptTextCodePage(LPCSTR pstrText, int nCount);
+
 private:
 	CString m_strHttpBasePath;
 	BOOL m_bSessionState;

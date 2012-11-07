@@ -33,6 +33,221 @@ private:
 	int	m_chLineBreak;
 };
 
+UINT CBoxHttpScript::ParseScriptTextCodePage(LPCSTR pstrText, int nCount)
+{
+	LPCSTR pstrTemp, pstrTemp1, pstrTemp2;
+	int nTempCount;
+	int nLineCount = 1, nTempLineCount = 0;
+	BOOL bCountBlankLine;
+	BOOL bIsSpace = TRUE;
+	_checkLine cl;
+
+	pstrTemp = pstrText;
+	nTempCount = nCount;
+
+	while(nTempCount > 0)
+		if(pstrTemp[0] == '<' && nTempCount > 1)
+		{
+			if(pstrTemp[1] == '%')
+			{
+				if(nCount - nTempCount > 0 && !bIsSpace)
+				{
+					bIsSpace = TRUE;
+				}
+
+				pstrTemp += 2;
+				nTempCount -= 2;
+
+				while(nTempCount > 0 && IsBlank(pstrTemp[0]))
+				{
+					if(cl.IsBreak(pstrTemp[0]))
+						nLineCount ++;
+
+					pstrTemp ++;
+					nTempCount --;
+				}
+
+				while(nTempCount > 0 && pstrTemp[0] == '@')
+				{
+					while(nTempCount > 1 && !IsLineChar(pstrTemp[0]) &&
+						(pstrTemp[0] != '%' || pstrTemp[1] != '>'))
+					{
+						CStringA strTemp, strTemp1;
+
+						pstrTemp ++;
+						nTempCount --;
+
+						while(nTempCount > 0 && IsBlankChar(pstrTemp[0]))
+						{
+							pstrTemp ++;
+							nTempCount --;
+						}
+
+						if(!nTempCount)
+							break;
+
+						pstrTemp2 = pstrTemp;
+						while(nTempCount > 1 && pstrTemp[0] != '=' && !IsBlank(pstrTemp[0]) &&
+							(pstrTemp[0] != '%' || pstrTemp[1] != '>'))
+						{
+							if(cl.IsBreak(pstrTemp[0]))
+								nLineCount ++;
+
+							pstrTemp ++;
+							nTempCount --;
+						}
+
+						if(!nTempCount || IsLineChar(pstrTemp[0]))
+							break;
+
+						strTemp.SetString(pstrTemp2, (int)(pstrTemp - pstrTemp2));
+
+						while(nTempCount > 0 && IsBlankChar(pstrTemp[0]))
+						{
+							pstrTemp ++;
+							nTempCount --;
+						}
+
+						if(!nTempCount || pstrTemp[0] != '=')
+							break;
+
+						pstrTemp ++;
+						nTempCount --;
+
+						while(nTempCount > 0 && IsBlankChar(pstrTemp[0]))
+						{
+							pstrTemp ++;
+							nTempCount --;
+						}
+
+						if(!nTempCount)
+							break;
+
+						if(pstrTemp[0] == '\"' || pstrTemp[0] == '\'')
+						{
+							while(nTempCount > 0 && (pstrTemp[0] == '\"' || pstrTemp[0] == '\''))
+							{
+								pstrTemp ++;
+								nTempCount --;
+							}
+
+							pstrTemp2 = pstrTemp;
+							while(nTempCount > 1 && pstrTemp[0] != '\"' && !IsLineChar(pstrTemp[0]) &&
+								(pstrTemp[0] != '%' || pstrTemp[1] != '>'))
+							{
+								pstrTemp ++;
+								nTempCount --;
+							}
+
+							strTemp1.SetString(pstrTemp2, (int)(pstrTemp - pstrTemp2));
+
+							while(nTempCount > 0 && (pstrTemp[0] == '\"' || pstrTemp[0] == '\''))
+							{
+								pstrTemp ++;
+								nTempCount --;
+							}
+						}else
+						{
+							pstrTemp2 = pstrTemp;
+							while(nTempCount > 1 && !IsBlank(pstrTemp[0]) &&
+								(pstrTemp[0] != '%' || pstrTemp[1] != '>'))
+							{
+								if(cl.IsBreak(pstrTemp[0]))
+									nLineCount ++;
+
+								pstrTemp ++;
+								nTempCount --;
+							}
+
+							strTemp1.SetString(pstrTemp2, (int)(pstrTemp - pstrTemp2));
+						}
+
+						if(!strTemp.CompareNoCase("CODEPAGE"))
+							return atoi(strTemp1);
+
+					}
+
+					while(nTempCount > 0 && IsBlank(pstrTemp[0]))
+					{
+						if(cl.IsBreak(pstrTemp[0]))
+							nLineCount ++;
+
+						pstrTemp ++;
+						nTempCount --;
+					}
+				}
+
+				while(nTempCount > 1 && (pstrTemp[0] != '%' || pstrTemp[1] != '>'))
+				{
+					bCountBlankLine = FALSE;
+
+					pstrTemp1 = pstrTemp2 = pstrTemp;
+					nTempLineCount = 0;
+					while(nTempCount > 1 && (pstrTemp1[0] != '%' || pstrTemp1[1] != '>'))
+					{
+						if(cl.IsBreak(pstrTemp1[0]))
+						{
+							if(bCountBlankLine)
+								break;
+
+							bCountBlankLine = TRUE;
+							nTempLineCount ++;
+						}else if(!IsBlank(pstrTemp1[0]))
+						{
+							bCountBlankLine = FALSE;
+							pstrTemp2 = pstrTemp1;
+						}
+
+						pstrTemp1 ++;
+						nTempCount --;
+					}
+
+					nLineCount += nTempLineCount;
+					pstrTemp = pstrTemp1;
+
+					while(nTempCount > 0 && IsBlank(pstrTemp[0]))
+					{
+						if(cl.IsBreak(pstrTemp[0]))
+							nLineCount ++;
+
+						pstrTemp ++;
+						nTempCount --;
+					}
+
+					if(nTempCount < 2)
+					{
+						return 0;
+					}
+				}
+
+				if(nTempCount > 0)
+				{
+					pstrTemp += 2;
+					nTempCount -= 2;
+				}
+
+				pstrText = pstrTemp;
+				nCount = nTempCount;
+			}else
+			{
+				pstrTemp ++;
+				nTempCount --;
+			}
+		}else
+		{
+			if(!isspace((BYTE)pstrTemp[0]))
+				bIsSpace = FALSE;
+
+			if(cl.IsBreak(pstrTemp[0]))
+				nLineCount ++;
+
+			pstrTemp ++;
+			nTempCount --;
+		}
+
+	return 0;
+}
+
 int CBoxHttpScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strScriptText, int nIncludeFlagIndex)
 {
 	CStringA strTempText;
@@ -44,26 +259,74 @@ int CBoxHttpScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strSc
 		WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
 		strTempText.ReleaseBuffer(_nTempCount);
 */
-//发现是Unicode则转换成UTF8，同时设定m_CodePage为65001
-		int _nTempCount = WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
+//发现是Unicode则检查是否已经存在CodePage，存在就转换到当前CodePage，否则转换成UTF8同时设定m_CodePage为65001
+		if (m_uiCodePage == 0)
+			m_uiCodePage = CP_UTF8;
+
+		int _nTempCount = WideCharToMultiByte(m_uiCodePage, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
 		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
 
-		WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
+		WideCharToMultiByte(m_uiCodePage, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
 		strTempText.ReleaseBuffer(_nTempCount);
 
 		pstrText = strTempText;
 		nCount = strTempText.GetLength();
-
-		m_uiCodePage = CP_UTF8;
 	}
 	else if(nCount >= 3 && (BYTE)pstrText[0] == 0xEF && (BYTE)pstrText[1] == 0xBB && (BYTE)pstrText[2] == 0xBF)
 	{
 		pstrText += 3;
 		nCount -= 3;
-		m_uiCodePage = CP_UTF8;
+
+		if (m_uiCodePage && m_uiCodePage != CP_UTF8)
+		{
+			CStringW strTempTextW;
+			int _nTempCount = MultiByteToWideChar(CP_UTF8, 0, pstrText, nCount, NULL, 0);
+			LPWSTR _pstrW = strTempTextW.GetBuffer(_nTempCount);
+
+			MultiByteToWideChar(CP_UTF8, 0, pstrText, nCount, _pstrW, _nTempCount);
+			strTempTextW.ReleaseBuffer(_nTempCount);
+			
+			_nTempCount = WideCharToMultiByte(m_uiCodePage, 0, strTempTextW, strTempTextW.GetLength(), NULL, 0, NULL, NULL);
+			LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+			WideCharToMultiByte(m_uiCodePage, 0, strTempTextW, strTempTextW.GetLength(), _pstr, _nTempCount, NULL, NULL);
+			strTempText.ReleaseBuffer(_nTempCount);
+
+			pstrText = strTempText;
+			nCount = strTempText.GetLength();
+		}
+		else
+			m_uiCodePage = CP_UTF8;
 	}
 	else
-		m_uiCodePage = 0;
+	{
+		UINT uiCodePage = ParseScriptTextCodePage(pstrText, nCount);
+		if (uiCodePage == 0)
+			uiCodePage = GetACP();
+
+		if (m_uiCodePage && m_uiCodePage != uiCodePage)
+		{
+			CStringW strTempTextW;
+			int _nTempCount = MultiByteToWideChar(uiCodePage, 0, pstrText, nCount, NULL, 0);
+			LPWSTR _pstrW = strTempTextW.GetBuffer(_nTempCount);
+
+			MultiByteToWideChar(uiCodePage, 0, pstrText, nCount, _pstrW, _nTempCount);
+			strTempTextW.ReleaseBuffer(_nTempCount);
+			
+			_nTempCount = WideCharToMultiByte(m_uiCodePage, 0, strTempTextW, strTempTextW.GetLength(), NULL, 0, NULL, NULL);
+			LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+			WideCharToMultiByte(m_uiCodePage, 0, strTempTextW, strTempTextW.GetLength(), _pstr, _nTempCount, NULL, NULL);
+			strTempText.ReleaseBuffer(_nTempCount);
+
+			pstrText = strTempText;
+			nCount = strTempText.GetLength();
+		}
+		else
+		{
+			m_uiCodePage = uiCodePage;
+		}
+	}
 
 	LPCSTR pstrTemp, pstrTemp1, pstrTemp2, pstrPath;
 	int nTempCount;
@@ -202,8 +465,8 @@ int CBoxHttpScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strSc
 
 						if(!strTemp.CompareNoCase("LANGUAGE"))
 							m_strLanguage = strTemp1;
-						else if(!strTemp.CompareNoCase("CODEPAGE") && !m_uiCodePage)
-							m_uiCodePage = atoi(strTemp1);
+						else if(!strTemp.CompareNoCase("CODEPAGE"))
+							;//m_uiCodePage = atoi(strTemp1);
 						else if(!strTemp.CompareNoCase("ENABLESESSIONSTATE"))
 							m_pHost->m_arrayExtData[0] = !strTemp1.CompareNoCase("True");
 						else if(!strTemp.CompareNoCase("DEBUG"))

@@ -56,6 +56,94 @@ void CBoxScript::clearCache(void)
 
 // CBoxScript message handlers
 
+UINT CBoxScript::ParseScriptTextCodePage(LPCSTR pstrText, int nCount)
+{
+	static struct
+	{
+		char *pstrName;
+		int nSize;
+	}CmdName[] =
+	{
+		{"#codepage", 9}
+	};
+	#define CMD_COUNT (sizeof(CmdName) / sizeof(CmdName[0]))
+	int i;
+	LPCSTR pstrTemp, pstrTemp1;
+	int nTempCount;
+	int nLineCount = 1;
+
+	while(nCount > 0 && IsBlank(pstrText[0]))
+	{
+		if(pstrText[0] == '\n')
+			nLineCount ++;
+
+		pstrText ++;
+		nCount --;
+	}
+
+	while(nCount > 0 && pstrText[0] == '#')
+	{
+		for(i = 0; i < CMD_COUNT; i ++)
+			if(nCount > CmdName[i].nSize &&
+				!_strnicmp(pstrText, CmdName[i].pstrName, CmdName[i].nSize) &&
+				IsBlankChar(pstrText[CmdName[i].nSize]))
+				break;
+
+		if(i == CMD_COUNT)
+			break;
+
+		pstrText += CmdName[i].nSize;
+		nCount -= CmdName[i].nSize;
+
+		while(nCount > 0 && IsBlankChar(pstrText[0]))
+		{
+			pstrText ++;
+			nCount --;
+		}
+
+		if(nCount > 0 && pstrText[0] == '\"')
+		{
+			pstrText ++;
+			nCount --;
+		}
+
+		pstrTemp = pstrText;
+		nTempCount = nCount;
+		while(nTempCount > 0 && !IsLineChar(pstrTemp[0]))
+		{
+			pstrTemp ++;
+			nTempCount --;
+		}
+
+		pstrTemp1 = pstrTemp;
+		while(pstrTemp1 > pstrText && IsBlankChar(pstrTemp1[0]))
+			pstrTemp1 --;
+
+		if(pstrTemp1 > pstrText && pstrTemp1[-1] == '\"')
+			pstrTemp1 --;
+
+		CStringA strValue;
+
+		strValue.SetString(pstrText, (int)(pstrTemp1 - pstrText));
+
+		pstrText = pstrTemp;
+		nCount = nTempCount;
+
+		if (i == 0) return atoi(strValue);
+
+		while(nCount > 0 && IsBlank(pstrText[0]))
+		{
+			if(pstrText[0] == '\n')
+				nLineCount ++;
+
+			pstrText ++;
+			nCount --;
+		}
+	}
+
+	return 0;
+}
+
 int CBoxScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strScriptText, int nIncludeFlagIndex)
 {
 	CStringA strTempText;
@@ -67,27 +155,78 @@ int CBoxScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strScript
 		WideCharToMultiByte(_AtlGetConversionACP(), 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
 		strTempText.ReleaseBuffer(_nTempCount);
 */
-//发现是Unicode则转换成UTF8，同时设定m_CodePage为65001
-		int _nTempCount = WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
+
+//发现是Unicode则检查是否已经存在CodePage，存在就转换到当前CodePage，否则转换成UTF8同时设定m_CodePage为65001
+		if (m_uiCodePage == 0)
+			m_uiCodePage = CP_UTF8;
+
+		int _nTempCount = WideCharToMultiByte(m_uiCodePage, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, NULL, 0, NULL, NULL);
 		LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
 
-		WideCharToMultiByte(CP_UTF8, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
+		WideCharToMultiByte(m_uiCodePage, 0, LPWSTR(pstrText + 2), (nCount - 2) / 2, _pstr, _nTempCount, NULL, NULL);
 		strTempText.ReleaseBuffer(_nTempCount);
 
 		pstrText = strTempText;
 		nCount = strTempText.GetLength();
-
-		m_uiCodePage = CP_UTF8;
 	}
 	else if(nCount >= 3 && (BYTE)pstrText[0] == 0xEF && (BYTE)pstrText[1] == 0xBB && (BYTE)pstrText[2] == 0xBF)
 	{
 		pstrText += 3;
 		nCount -= 3;
-		m_uiCodePage = CP_UTF8;
+
+		if (m_uiCodePage && m_uiCodePage != CP_UTF8)
+		{
+			CStringW strTempTextW;
+			int _nTempCount = MultiByteToWideChar(CP_UTF8, 0, pstrText, nCount, NULL, 0);
+			LPWSTR _pstrW = strTempTextW.GetBuffer(_nTempCount);
+
+			MultiByteToWideChar(CP_UTF8, 0, pstrText, nCount, _pstrW, _nTempCount);
+			strTempTextW.ReleaseBuffer(_nTempCount);
+			
+			_nTempCount = WideCharToMultiByte(m_uiCodePage, 0, strTempTextW, strTempTextW.GetLength(), NULL, 0, NULL, NULL);
+			LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+			WideCharToMultiByte(m_uiCodePage, 0, strTempTextW, strTempTextW.GetLength(), _pstr, _nTempCount, NULL, NULL);
+			strTempText.ReleaseBuffer(_nTempCount);
+
+			pstrText = strTempText;
+			nCount = strTempText.GetLength();
+		}
+		else
+			m_uiCodePage = CP_UTF8;
 	}
 	else
-		m_uiCodePage = 0;
+	{
+		UINT uiCodePage = ParseScriptTextCodePage(pstrText, nCount);
+		if (uiCodePage == 0)
+			uiCodePage = GetACP();
 
+		//if (m_uiCodePage == 0)
+		//	m_uiCodePage = CP_UTF8;
+
+		if (m_uiCodePage && m_uiCodePage != uiCodePage)
+		{
+			CStringW strTempTextW;
+			int _nTempCount = MultiByteToWideChar(uiCodePage, 0, pstrText, nCount, NULL, 0);
+			LPWSTR _pstrW = strTempTextW.GetBuffer(_nTempCount);
+
+			MultiByteToWideChar(uiCodePage, 0, pstrText, nCount, _pstrW, _nTempCount);
+			strTempTextW.ReleaseBuffer(_nTempCount);
+			
+			_nTempCount = WideCharToMultiByte(m_uiCodePage, 0, strTempTextW, strTempTextW.GetLength(), NULL, 0, NULL, NULL);
+			LPSTR _pstr = strTempText.GetBuffer(_nTempCount);
+
+			WideCharToMultiByte(m_uiCodePage, 0, strTempTextW, strTempTextW.GetLength(), _pstr, _nTempCount, NULL, NULL);
+			strTempText.ReleaseBuffer(_nTempCount);
+
+			pstrText = strTempText;
+			nCount = strTempText.GetLength();
+		}
+		else
+		{
+			m_uiCodePage = uiCodePage;
+		}
+	}
 
 	static struct
 	{
@@ -194,8 +333,8 @@ int CBoxScript::ParseScriptText(LPCSTR pstrText, int nCount, CStringA& strScript
 				m_nTransaction = 0;
 			break;
 		case 5:
-			if (!m_uiCodePage)
-				m_uiCodePage = atoi(strValue);
+			//(uiCodePage)
+			break;
 		}
 
 		while(nCount > 0 && IsBlank(pstrText[0]))
@@ -499,6 +638,7 @@ void CBoxScript::ClearScript(void)
 	m_nDiskFileCount = 0;
 	m_nCacheFileCount = 0;
 	m_nScriptLine = 0;
+	m_uiCodePage = 0;
 }
 
 void CBoxScript::Close(void)

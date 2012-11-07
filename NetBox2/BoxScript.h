@@ -99,6 +99,8 @@ protected:
 	int LoadScriptFile(LPCTSTR pstrFile, CStringA& strScriptText, int nLineNo = 0);
 	void GetScriptErrorInfo(void);
 
+	UINT ParseScriptTextCodePage(LPCSTR pstrText, int nCount);
+
 public:
 	afx_msg long Load(LPCTSTR pstrFile);
 	afx_msg long put_Source(LPCTSTR pstrScript);
