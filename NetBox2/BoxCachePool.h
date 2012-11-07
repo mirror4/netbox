@@ -25,8 +25,9 @@ public:
 
 	static void CheckOpenFile(LPCTSTR pstrFile, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwFlagsAndAttributes, HANDLE& hd);
 
-private:
 	CBoxFile* m_pOldFile;
+
+private:
 
 	CCriticalSection m_cs;
 	CBoxLRUCache<CBoxCacheNode> m_cache;

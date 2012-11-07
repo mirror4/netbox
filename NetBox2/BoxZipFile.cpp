@@ -288,3 +288,60 @@ SYSTEMTIME CBoxZipFile::GetFileTime(CFile* pFile)
 
 	return CBoxFile::GetFileTime(pFile);
 }
+
+int CBoxZipFile::ExtractFile(LPCTSTR pstrName, LPCTSTR pstrDest)
+{
+	CString str;
+
+	if(pstrName[0] != _T('\\'))
+		str = _T('\\');
+	str += pstrName;
+
+	str.MakeLower();
+
+	DWORD dwPos = 0;
+	m_mapIndex.Lookup(str, *(void**)&dwPos);
+
+	if(dwPos == 0xFFFFFFFF)
+		return 0;
+
+	char buf[1024];
+	long n;
+	CFile FileDest;
+
+	if(dwPos == 0)
+	{
+		CFile *pFileSrc = CBoxFile::Open(pstrName);
+		
+		if (pFileSrc == NULL)
+			return 0;//AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		
+		if (!FileDest.Open(pstrDest, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
+		{
+			delete pFileSrc;
+			return 0;//AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		}
+
+		while(n = pFileSrc->Read(buf, sizeof(buf)))
+			FileDest.Write(buf, n);
+
+		delete pFileSrc;
+		return 1;
+	}	
+
+	if (!FileDest.Open(pstrDest, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
+		return 0;//AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+
+	CZipFile zipFile;
+
+	zipFile.SetKey(ZipKey);
+
+	CSingleLock l(&m_cs, TRUE);
+	m_fileMe.Seek(dwPos, CFile::begin);
+	zipFile.Open(&m_fileMe, CFile::modeRead);
+	while(n = zipFile.Read(buf, sizeof(buf)))
+		FileDest.Write(buf, n);
+	l.Unlock();
+	
+	return 1;
+}

@@ -685,17 +685,17 @@ VARIANT CNetBox2App::RegRead(VARIANT& varKey)
 			CAtlArray<BSTR> arrayStr;
 			wstr2 = wstr1 = wstr;
 			estr = (LPWSTR)((LPBYTE)(void *)wstr + dwSize);
-			while (true)
+			while (wstr2<estr)
 			{
-				while (wstr2<estr && *wstr2)
+				while (*wstr2)
 					wstr2++;
-				if (wstr2 == wstr1)
-					break;
-				else
-					arrayStr.Add(SysAllocString(wstr1));
 				wstr2++;
+				if (wstr2<estr || wstr2-wstr1-1>0)
+					arrayStr.Add(SysAllocString(wstr1));
 				wstr1 = wstr2;
 			}
+			if (wstr2-wstr1)
+				arrayStr.Add(SysAllocStringLen(wstr1, wstr2-wstr1));
 
 			CComSafeArray<VARIANT> sa((ULONG)arrayStr.GetCount());
 			for (int i=0;i<arrayStr.GetCount();i++)

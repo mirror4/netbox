@@ -130,7 +130,7 @@ void CBoxCachePool::CheckOpenFile(LPCTSTR pstrFile, DWORD dwDesiredAccess, DWORD
 
 	th_bInHook = TRUE;
 
-	CBAutoPtr<TCHAR, _MAX_PATH> buffer;
+	CBAutoPtr<TCHAR, 1024> buffer;
 	LPTSTR p;
 	DWORD dwSize;
 
@@ -189,7 +189,7 @@ void CBoxCachePool::CheckOpenFile(LPCTSTR pstrFile, DWORD dwDesiredAccess, DWORD
 
 	dwSize = 0;
 
-	while(dwSize = pFile->Read(buffer, sizeof(buffer)))
+	while(dwSize = pFile->Read(buffer, 1024))
 	{
 		if(!WriteFile(hd, buffer, dwSize, &dwSize, NULL))
 		{

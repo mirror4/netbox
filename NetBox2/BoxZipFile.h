@@ -9,6 +9,7 @@ public:
 public:
 	virtual CFile* Open(LPCTSTR pstrName);
 	virtual SYSTEMTIME GetFileTime(CFile* pFile);
+	int ExtractFile(LPCTSTR pstrName, LPCTSTR pstrDest);
 
 private:
 	CCriticalSection m_cs;

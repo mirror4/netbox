@@ -9,6 +9,7 @@
 #include "BoxBinPtr.h"
 
 #include "BoxSystem.h"
+#include "BoxZipFile.h"
 #include "BoxMemFile.h"
 
 #include "BoxFile.h"
@@ -335,10 +336,19 @@ BEGIN_DISPATCH_MAP(CBoxSystem, CBoxSafeObject)
 	DISP_FUNCTION(CBoxSystem, "CallByName", CallByName, VT_VARIANT, VTS_DISPATCH VTS_VARIANT VTS_I2 VTS_VARIANT)
 	DISP_FUNCTION(CBoxSystem, "GetIDofName", GetIDofName, VT_I4, VTS_DISPATCH VTS_VARIANT)
 
+	DISP_FUNCTION(CBoxSystem, "ExtractFile", ExtractFile, VT_EMPTY, VTS_BSTR VTS_BSTR)
+
 	DISP_PROPERTY_EX(CNetBox2App, "HttpMaxConnections", get_HttpMaxConnections, put_HttpMaxConnections, VT_I4)
 END_DISPATCH_MAP()
 
 // CBoxSystem message handlers
+
+void CBoxSystem::ExtractFile(LPCTSTR pstrName, LPCTSTR pstrDest)
+{
+	if (((CBoxZipFile *)((CBoxCachePool *)g_pFile)->m_pOldFile)->ExtractFile(pstrName, pstrDest) == 0)
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+	return;
+}
 
 long CBoxSystem::get_HttpMaxConnections(void)
 {

@@ -91,6 +91,8 @@ public:
 	afx_msg VARIANT CallByName(LPDISPATCH pDisp, VARIANT *pName, short sType, VARIANT *pArgs);
 	afx_msg long GetIDofName(LPDISPATCH pDisp, VARIANT *pName);
 
+	afx_msg void ExtractFile(LPCTSTR pstrName, LPCTSTR pstrDest);
+
 	afx_msg long get_HttpMaxConnections(void);
 	afx_msg void put_HttpMaxConnections(long nHttpMaxConnections);
 

@@ -251,18 +251,14 @@ HRESULT CBStream::CopyStream(IStream* pdst, IStream* psrc, ULARGE_INTEGER cb, UL
 		return STG_E_INVALIDPOINTER;
 
 	__int64 cbRead = 0, cbWritten = 0;
-	CBAutoPtr<char> copyBuff;
-	long sizeofcopyBuff = cb.QuadPart>65536?65536:cb.QuadPart;
-	if (sizeofcopyBuff>0)
-		copyBuff.Allocate(sizeofcopyBuff);
-	//char copyBuff[1024];
+	char copyBuff[1024];
 	ULONG cbLeft;
 	HRESULT hr = S_OK;
 
 
 	while(cb.QuadPart)
 	{
-		cbLeft = (ULONG)(cb.QuadPart > sizeofcopyBuff ? sizeofcopyBuff : cb.QuadPart);
+		cbLeft = (ULONG)(cb.QuadPart > sizeof(copyBuff) ? sizeof(copyBuff) : cb.QuadPart);
 
 		hr = psrc->Read(copyBuff, cbLeft, &cbLeft);
 		if (FAILED(hr) || cbLeft == 0)break;
