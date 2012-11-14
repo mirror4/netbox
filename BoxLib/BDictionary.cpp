@@ -476,8 +476,20 @@ STDMETHODIMP CBDictionary::Save(VARIANT VarDesc, short mode)
 	hr = CBStream::GetStream(&VarDesc, &pStream, FALSE);
 	if(FAILED(hr))return hr;
 
-	SetPersistMode(mode);
-	return WriteObjectToStream((IVariantDictionary*)this, pStream);
+	if (mode & 256)
+	{
+		CAtlArray<void*> arrObjects;
+		return JSON_join(pStream, mode&512?1:0, arrObjects);
+	}
+	else
+	{
+		SetPersistMode(mode);
+		hr = WriteObjectToStream((IVariantDictionary*)this, pStream);
+		if(FAILED(hr))return hr;
+		if (mode & 0x4000)
+			return pStream->Commit(STGC_DEFAULT);
+		return hr;
+	}
 }
 
 STDMETHODIMP CBDictionary::toJson(int intStyle, BSTR* pvar)

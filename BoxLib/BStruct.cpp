@@ -260,7 +260,11 @@ STDMETHODIMP CBStruct::Save(VARIANT VarDesc, short mode)
 	if(FAILED(hr))return hr;
 
 	SetPersistMode(mode);
-	return WriteObjectToStream((IQueue*)this, pStream);
+	hr = WriteObjectToStream((IQueue*)this, pStream);
+	if(FAILED(hr))return hr;
+	if (mode & 0x4000)
+		return pStream->Commit(STGC_DEFAULT);
+	return hr;
 }
 
 STDMETHODIMP CBStruct::GetClassID(CLSID *pClassID)

@@ -599,6 +599,8 @@ interface IBaseStream : IDispatch {
 					[in, optional, defaultvalue(-1)] DOUBLE nSize);
 	[id(0x00000027)]
 	HRESULT setEOS();
+	[id(0x00000028)]
+	HRESULT Flush();
 };
 
 [

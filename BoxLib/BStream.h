@@ -143,6 +143,7 @@ public:
 	STDMETHOD(CopyTo)(VARIANT varDestStream, DOUBLE nSize = -1);
 	STDMETHOD(CopyFrom)(VARIANT varSrcStream, DOUBLE nSize = -1);
 	STDMETHOD(setEOS)(void);
+	STDMETHOD(Flush)(void);
 
 private:
 	HRESULT ReadBuffer();

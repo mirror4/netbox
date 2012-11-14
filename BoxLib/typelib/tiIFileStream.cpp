@@ -24,7 +24,7 @@ static ELEMDESC s_mElemDesc[] =
 static CBTypeInfo::METHOD_ENTRY s_mData[] =
 {
 	{L"Create", {0x00000065, NULL, &s_mElemDesc[0], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 0, 28, 0, {{{NULL}, VT_EMPTY}}, 0}},
-	{L"Open", {0x00000066, NULL, &s_mElemDesc[2], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 3, 0, 32, 0, {{{NULL}, VT_EMPTY}}, 0}}
+	{L"Open", {0x00000066, NULL, &s_mElemDesc[2], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 3, 0, 32, 0, {{{NULL}, VT_EMPTY}}, 0}},
 };
 
 static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult)

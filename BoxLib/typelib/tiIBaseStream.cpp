@@ -117,7 +117,8 @@ static CBTypeInfo::METHOD_ENTRY s_mData[] =
 	{L"Attach", {0x00000024, NULL, &s_mElemDesc[23], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 180, 0, {{{NULL}, VT_EMPTY}}, 0}},
 	{L"CopyTo", {0x00000025, NULL, &s_mElemDesc[24], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 0, 184, 0, {{{NULL}, VT_EMPTY}}, 0}},
 	{L"CopyFrom", {0x00000026, NULL, &s_mElemDesc[26], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 0, 188, 0, {{{NULL}, VT_EMPTY}}, 0}},
-	{L"setEOS", {0x00000027, NULL, NULL, FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 0, 0, 192, 0, {{{NULL}, VT_EMPTY}}, 0}}
+	{L"setEOS", {0x00000027, NULL, NULL, FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 0, 0, 192, 0, {{{NULL}, VT_EMPTY}}, 0}},
+	{L"Flush", {0x00000028, NULL, NULL, FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 0, 0, 196, 0, {{{NULL}, VT_EMPTY}}, 0}}
 };
 
 static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult)
@@ -637,8 +638,17 @@ static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS
 		return hr;
 	}
 
+	IF_INVOKE_FUNC(0x00000028)	//Flush
+	{
+		if(cArgs1 > 0)
+			return DISP_E_BADPARAMCOUNT;
+
+		hr = pObject->Flush();
+		return hr;
+	}
+
 	return DISP_E_MEMBERNOTFOUND;
 }
 
-CBTypeInfo CBDispatch<IBaseStream>::g_typeinfo(__uuidof(IBaseStream), L"IBaseStream", s_mData, 42, _Invoke);
+CBTypeInfo CBDispatch<IBaseStream>::g_typeinfo(__uuidof(IBaseStream), L"IBaseStream", s_mData, 43, _Invoke);
 

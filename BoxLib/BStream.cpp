@@ -289,7 +289,13 @@ STDMETHODIMP CBStream::Commit(DWORD grfCommitFlags)
 	if((pStream = m_pStream) != NULL)
 		return pStream->Commit(grfCommitFlags);
 
-	return E_NOTIMPL;
+	if(m_hFile.m_h == NULL)
+		return E_HANDLE;
+
+	if (::FlushFileBuffers(m_hFile.m_h))
+		return S_OK;
+	else
+		return GetErrorResult();
 }
 
 STDMETHODIMP CBStream::Revert(void)
@@ -1018,6 +1024,11 @@ STDMETHODIMP CBStream::setEOS(void)
 	if(FAILED(hr))return hr;
 
 	return SetSize(*(ULARGE_INTEGER*)&lVal);
+}
+
+STDMETHODIMP CBStream::Flush(void)
+{
+	return Commit(STGC_DEFAULT);
 }
 
 STDMETHODIMP CBStream::GetClassID(CLSID *pClassID)
