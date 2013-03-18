@@ -150,9 +150,15 @@ CNetBox2App::CNetBox2App() : m_bRunSelfAtExit(FALSE), m_bStep(FALSE), m_nErrorCo
 		ExitProcess(0);
 	}
 
+	LogEvent(0, "CheckOS");
+
 	EnableAutomation();
 
+	LogEvent(0, "EnableAutomation()");
+
 	m_pService.CreateInstance();
+
+	LogEvent(0, "m_pService.CreateInstance()");
 
 	m_mapMimeType.InitHashTable(127);
 
@@ -1748,6 +1754,33 @@ static LONG WINAPI MyUnhandledExceptionFilter(PEXCEPTION_POINTERS ep)
 	return 0;
 }
 
+void CNetBox2App::LogEvent(long nType, LPCTSTR pstrMsg)
+{
+#ifndef LOGEVENT
+	return;
+#endif
+	CString strFileName;
+	TCHAR buffer[_MAX_PATH] = _T("");
+
+	::GetModuleFileName(NULL, buffer, _MAX_PATH);
+	strFileName = buffer;
+
+	HANDLE hFile = ::CreateFile(strFileName+".evt", GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		SetFilePointer(hFile, 0, NULL, FILE_END);
+
+		SYSTEMTIME st;
+		::GetLocalTime(&st);
+
+		CString strMessage;
+		strMessage.Format("%04d-%02d-%02d %02d:%02d:%02d\t%d\t%s\r\n", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, nType, pstrMsg);
+
+		DWORD dwWritten;
+		WriteFile(hFile, strMessage, strMessage.GetLength(), &dwWritten, NULL);
+		::CloseHandle(hFile);
+	}
+}
 
 LONG WINAPI MyUnhandledFilter(PEXCEPTION_POINTERS lpExceptionInfo)
 {
@@ -1803,6 +1836,8 @@ void CNetBox2App::CallProc(void (*proc)(void*), void* pParam, BOOL AsynCall)
 
 BOOL CNetBox2App::InitInstance()
 {
+	LogEvent(0, "CNetBox2App::InitInstance()");
+
 	//s_previousFilter = SetUnhandledExceptionFilter(MyUnhandledExceptionFilter);
 	s_previousFilter = SetUnhandledExceptionFilter(MyUnhandledFilter);
 
@@ -1812,45 +1847,78 @@ BOOL CNetBox2App::InitInstance()
 	WSAStartup(MAKEWORD(1,1), &wsaData);
 
 	CWinApp::InitInstance();
+	LogEvent(0, "CWinApp::InitInstance()");
 
 	SSL_library_init();
+	LogEvent(0, "SSL_library_init()");
+
 	CRYPTO_thread_setup();
+	LogEvent(0, "CRYPTO_thread_setup()");
+
 	RAND_poll();
+	LogEvent(0, "RAND_poll()");
+
 	OpenSSL_add_all_ciphers();
+	LogEvent(0, "OpenSSL_add_all_ciphers()");
 
 	g_pFileSystem.CreateInstance();
+	LogEvent(0, "g_pFileSystem.CreateInstance()");
+
 	g_pFile = new CBoxZipFile();
+	LogEvent(0, "g_pFile = new CBoxZipFile()");
+
 	g_pFile = new CBoxCachePool(g_pFile);
+	LogEvent(0, "g_pFile = new CBoxCachePool(g_pFile)");
 
 	DWORD dwConnNum = 0x10;
-	InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &dwConnNum, sizeof(dwConnNum));
+	//InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &dwConnNum, sizeof(dwConnNum));
+	LogEvent(0, "-InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &dwConnNum, sizeof(dwConnNum))");
+
 	dwConnNum = 0x20;
-	InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_1_0_SERVER, &dwConnNum, sizeof(dwConnNum));
+	//InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_1_0_SERVER, &dwConnNum, sizeof(dwConnNum));
+	LogEvent(0, "-InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_1_0_SERVER, &dwConnNum, sizeof(dwConnNum))");
 
 	CBHook::DoHook();
+	LogEvent(0, "CBHook::DoHook()");
 
 	//::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	AfxOleInit();
+	LogEvent(0, "AfxOleInit()");
 
 	_Module.Init(NULL, m_hInstance);
+	LogEvent(0, "_Module.Init(NULL, m_hInstance)");
 
 	CComPtr<IDataInitialize> pIDataInitialize;
+	LogEvent(0, "CComPtr<IDataInitialize> pIDataInitialize");
 
 	pIDataInitialize.CoCreateInstance(CLSID_MSDAINITIALIZE);
+	LogEvent(0, "pIDataInitialize.CoCreateInstance(CLSID_MSDAINITIALIZE)");
 
 	CBComPtr<IInternetSession> pSession;
+	LogEvent(0, "CBComPtr<IInternetSession> pSession");
+
 	CBComPtr< CBFactory<CBoxProtocol> > pFactory;
+	LogEvent(0, "CBComPtr< CBFactory<CBoxProtocol> > pFactory");
 
 	pFactory.Attach(new CBFactory<CBoxProtocol>);
+	LogEvent(0, "pFactory.Attach(new CBFactory<CBoxProtocol>)");
 
 	CoInternetGetSession(0, &pSession, 0);
+	LogEvent(0, "CoInternetGetSession(0, &pSession, 0)");
 
 	if (pSession && pFactory)
+	{
 		pSession->RegisterNameSpace(pFactory, IID_NULL, L"NETBOX", 0, 0, 0);
+		LogEvent(0, "pSession->RegisterNameSpace(pFactory, IID_NULL, L\"NETBOX\", 0, 0, 0)");
+	}
 
 	m_pSSL_CTX = new CSSLContext;
+	LogEvent(0, "m_pSSL_CTX = new CSSLContext");
 
 	CBoxScriptObject::m_pGlobalObject.CoCreateInstance(CLSID_StdGlobalInterfaceTable);
+	LogEvent(0, "CBoxScriptObject::m_pGlobalObject.CoCreateInstance");
+	
+	LogEvent(0, GetCommandLine());
 
 	{
 		CBThread th;
@@ -1859,10 +1927,14 @@ BOOL CNetBox2App::InitInstance()
 		m_pArguments.CreateInstance();
 		m_pArguments->put_CommandLine((BSTR)(LPCWSTR)CBString(GetCommandLine()));
 
+		LogEvent(0, "CommandLine parsing...");
+
 		if(g_pFile->m_strStartup.IsEmpty())
 		{
 			if(m_pArguments->GetCount() >= 3 && !m_pArguments->GetString(1).CompareNoCase(L"-debug"))
 			{
+				LogEvent(0, "CommandLine Debug");
+				
 				g_pFile->SetRuntimeFile(CString(m_pArguments->GetString(2)));
 				g_pFileSystem->SetRuntimeFile(m_pArguments->GetString(2));
 				g_pFile->m_strStartup = (LPCTSTR)g_pFile->m_strAppName + (g_pFile->m_strBasePath.GetLength() - 1);
@@ -1871,6 +1943,8 @@ BOOL CNetBox2App::InitInstance()
 				m_bStep = TRUE;
 			}else if(m_pArguments->GetCount() >= 3 && !m_pArguments->GetString(1).CompareNoCase(L"-run"))
 			{
+				LogEvent(0, "CommandLine Run");
+				
 				g_pFile->SetRuntimeFile(CString(m_pArguments->GetString(2)));
 				g_pFileSystem->SetRuntimeFile(m_pArguments->GetString(2));
 				g_pFile->m_strStartup = (LPCTSTR)g_pFile->m_strAppName + (g_pFile->m_strBasePath.GetLength() - 1);
@@ -1878,6 +1952,8 @@ BOOL CNetBox2App::InitInstance()
 				m_pArguments->Remove(0);
 			}else if(m_pArguments->GetCount() >= 2)
 			{
+				LogEvent(0, "CommandLine Other");
+
 				g_pFile->SetRuntimeFile(CString(m_pArguments->GetString(1)));
 				g_pFileSystem->SetRuntimeFile(m_pArguments->GetString(1));
 				g_pFile->m_strStartup = (LPCTSTR)g_pFile->m_strAppName + (g_pFile->m_strBasePath.GetLength() - 1);
@@ -1887,9 +1963,17 @@ BOOL CNetBox2App::InitInstance()
 
 		if(IS_WINNT && m_pArguments->GetCount() == 3 &&
 			!m_pArguments->GetString(1).CompareNoCase(L"-Dispatch"))
+		{
+			LogEvent(0, "CommandLine NT Service");
+
 			AfxBeginThread(staticStartService, 0);
+		}
 		else
+		{
+			LogEvent(0, "CommandLine Normal Start");
+
 			AfxBeginThread(staticStart, 0);
+		}
 
 		while(GetMessage( &msg, NULL, 0, 0))
 		{
@@ -1908,6 +1992,12 @@ BOOL CNetBox2App::InitInstance()
 			}
 		}
 
+		LogEvent(0, "Exit...");
+		{
+			char _buf[16];
+			LogEvent(0, _itoa(m_nErrorCode, _buf, 10));
+		}
+
 		if(m_nErrorCode)
 		{
 			if(m_bRunSelfAtExit)
@@ -1921,6 +2011,8 @@ BOOL CNetBox2App::InitInstance()
 			ExitProcess(m_nErrorCode & 0x7fffffff);
 		}
 	}
+
+	LogEvent(0, "Releasing...");
 
 	if(m_pSystem != NULL)
 	{
@@ -1963,6 +2055,7 @@ BOOL CNetBox2App::InitInstance()
 
 	SetUnhandledExceptionFilter(s_previousFilter);
 
+	LogEvent(0, "CNetBox2App::InitInstance() End.");
 	return FALSE;
 }
 

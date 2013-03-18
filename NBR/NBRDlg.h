@@ -52,6 +52,7 @@ public:
 	CEdit m_wndLegalCopyright;
 
 	CBPath m_strSrcFolder;
+	CString m_strProjectFileName;
 	CString m_strStartup;
 	CString m_strIcon;
 

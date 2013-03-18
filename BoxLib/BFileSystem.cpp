@@ -602,6 +602,26 @@ STDMETHODIMP CBFileSystem::MoveFile(BSTR Source, BSTR Destination, VARIANT_BOOL 
 	CBString strSource, strDest;
 
 	strSource = MapLocalPath(Source);
+	if (bUntilReboot && !SysStringLen(Destination))
+	{
+		if(IS_NT)
+		{
+			if(!MoveFileExW(strSource, NULL, MOVEFILE_DELAY_UNTIL_REBOOT))
+				return GetErrorResult();
+		}else
+		{
+			char Src[_MAX_PATH];
+
+			if(!::GetShortPathNameA(CBStringA(Source), Src, sizeof(Src)))
+				return GetErrorResult();
+
+			if(!::WritePrivateProfileStringA("Rename", "NUL", Src, "WININIT.INI"))
+				return GetErrorResult();
+		}
+
+		return S_OK;
+	}
+
 	strDest = MapLocalPath(Destination);
 
 	if(!(IS_NT ? ::MoveFileW(strSource, strDest) :

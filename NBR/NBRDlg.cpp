@@ -360,9 +360,13 @@ BOOL CNBRDlg::OnInitDialog()
 	m_menuLang.CheckMenuItem(IDM_LANGUAGE + theApp.m_nLanguage * 0x10, MF_CHECKED);
 	setLanguage();
 
+	m_strProjectFileName = _T("netbox.dwf");
 	if(!theApp.m_strStartPath.IsEmpty())
 	{
 		m_strSrcFolder = theApp.m_strStartPath;
+		m_strProjectFileName = m_strSrcFolder.GetFileName();
+		if (m_strProjectFileName.IsEmpty())
+			m_strProjectFileName = _T("netbox.dwf");
 		m_strSrcFolder.StripPath();
 		m_wndSrcFolder.SetWindowText(CBStringA(m_strSrcFolder.m_strPath));
 		theApp.m_strStartPath.Empty();
@@ -662,7 +666,7 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 	CStringArray straMake;
 	CString str;
 
-	LoadFileArray(CBStringA(m_strSrcFolder) + _T("netbox.dwf"), straMake);
+	LoadFileArray(CBStringA(m_strSrcFolder) + (LPCSTR)m_strProjectFileName, straMake);
 
 	for(i = 0; i < straMake.GetCount(); i ++)
 	{
@@ -677,6 +681,17 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 			str = str.Mid(7);
 			str.Trim();
 			m_wndOutput.SetWindowText(str);
+
+			LVFINDINFO info;
+			int nIndex;
+
+			str.MakeLower();
+
+			info.flags = LVFI_PARTIAL|LVFI_STRING;
+			info.psz = str;
+
+			nIndex = m_wndSource.FindItem(&info);
+			if(nIndex != -1)m_wndSource.SetCheck(nIndex, FALSE);
 		}else if(!str.Left(5).CompareNoCase(_T("TYPE ")))
 		{
 			str = str.Mid(5);
@@ -794,14 +809,14 @@ void CNBRDlg::GetSourceFolder(LPCTSTR szPath)
 			lf.psz = (LPCTSTR)str + CBStringA(m_strSrcFolder).GetLength();
 			n = m_wndSource.FindItem(&lf);
 
-			bNotMake = _tcscmp((LPCTSTR)str + CBStringA(m_strSrcFolder).GetLength(), _T("netbox.dwf"));
+			bNotMake = str.GetLength()>4 && _tcsicmp((LPCSTR)str + str.GetLength() - 4, _T(".dwf"));
 
 			str1 = find.GetFileName();
-			int p = str1.Find('.');
+			int p = str1.ReverseFind('.');
 			if(p != -1)
 			{
 				str1 = str1.Mid(p);
-				if(str1.Compare(_T(".exe")) && str1.Compare(_T(".ico")))
+				if(str1.CompareNoCase(_T(".exe")) && str1.CompareNoCase(_T(".ico")))
 					str = str1;
 			}else str = _T("");
 
@@ -1060,7 +1075,7 @@ void CNBRDlg::OnBnClickedOk()
 
 	str = m_strSrcFolder;
 
-	SaveFileArray(str + _T("netbox.dwf"), straMake);
+	SaveFileArray(str + m_strProjectFileName, straMake);
 
 	while((n = m_wndSrcFolder.FindString(0, str)) != CB_ERR)
 		m_wndSrcFolder.DeleteString(n);

@@ -116,6 +116,8 @@ public:
 	BOOL m_bRunSelfAtExit;
 
 	void CallProc(void (*proc)(void*), void* pParam, BOOL AsynCall = FALSE);
+	
+	static void LogEvent(long nType, LPCTSTR pstrMsg);
 
 private:
 	BSTR DoFileDialog(VARIANT* initFile, VARIANT* initDir, VARIANT* filter, VARIANT* title, BOOL bOpen = TRUE);

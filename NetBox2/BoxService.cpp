@@ -555,7 +555,20 @@ void CBoxService::Dispatch(LPCTSTR pstrName)
 
 	m_bDesktop = theApp.m_bIsShell;
 	dispatchTable[0].lpServiceName = (LPTSTR)(LPCTSTR)m_strName;
-	StartServiceCtrlDispatcher(dispatchTable);
+
+	if (!StartServiceCtrlDispatcher(dispatchTable))
+	{
+		DWORD dw = GetLastError();
+		theApp.m_pService->LogEvent(EVENTLOG_ERROR_TYPE, "StartServiceCtrlDispatcher Error.");
+		
+		LPSTR pMsgBuf = NULL;
+		if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR) &pMsgBuf, 0, NULL ) && pMsgBuf)
+		{
+			theApp.m_pService->LogEvent(EVENTLOG_ERROR_TYPE, pMsgBuf);
+			LocalFree(pMsgBuf);
+		}
+	}
 }
 
 void CBoxService::DoEvents(void)
@@ -643,6 +656,19 @@ void CBoxService::Main()
 		ReportStatusToSCMgr(SERVICE_STOPPED, NO_ERROR, 0);
 
 		m_sshStatusHandle = 0;
+	}
+	else
+	{
+		DWORD dw = GetLastError();
+		theApp.m_pService->LogEvent(EVENTLOG_ERROR_TYPE, "RegisterServiceCtrlHandler Error.");
+		
+		LPSTR pMsgBuf = NULL;
+		if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR) &pMsgBuf, 0, NULL ) && pMsgBuf)
+		{
+			theApp.m_pService->LogEvent(EVENTLOG_ERROR_TYPE, pMsgBuf);
+			LocalFree(pMsgBuf);
+		}
 	}
 }
 
