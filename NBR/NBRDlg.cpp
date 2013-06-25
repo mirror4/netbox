@@ -365,7 +365,7 @@ BOOL CNBRDlg::OnInitDialog()
 	{
 		m_strSrcFolder = theApp.m_strStartPath;
 		m_strProjectFileName = m_strSrcFolder.GetFileName();
-		if (m_strProjectFileName.IsEmpty())
+		if (m_strProjectFileName.Right(4).CompareNoCase(".dwf"))
 			m_strProjectFileName = _T("netbox.dwf");
 		m_strSrcFolder.StripPath();
 		m_wndSrcFolder.SetWindowText(CBStringA(m_strSrcFolder.m_strPath));
