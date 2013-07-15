@@ -32,6 +32,11 @@ public:
 	STDMETHOD(Open)(short lPort, VARIANT varMode = VARIANT_ERROR);
 	STDMETHOD(Config)(VARIANT varMode = VARIANT_ERROR);
 
+	STDMETHOD(get_ReadBuffer)(long *pVal);
+	STDMETHOD(put_ReadBuffer)(long pVal);
+	STDMETHOD(get_WriteBuffer)(long *pVal);
+	STDMETHOD(put_WriteBuffer)(long pVal);
+
 protected:
 	virtual HRESULT InternalRead(void *pv, ULONG cb, ULONG *pcbRead);
 	virtual HRESULT InternalWrite(const void *pv, ULONG cb, ULONG *pcbWritten);

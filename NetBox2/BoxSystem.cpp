@@ -339,9 +339,40 @@ BEGIN_DISPATCH_MAP(CBoxSystem, CBoxSafeObject)
 	DISP_FUNCTION(CBoxSystem, "ExtractFile", ExtractFile, VT_EMPTY, VTS_BSTR VTS_BSTR)
 
 	DISP_PROPERTY_EX(CNetBox2App, "HttpMaxConnections", get_HttpMaxConnections, put_HttpMaxConnections, VT_I4)
+
+	DISP_PROPERTY_EX(CBoxSystem, "PriorityClass", get_PriorityClass, put_PriorityClass, VT_I4)
+	DISP_PROPERTY_EX(CBoxSystem, "ThreadPriority", get_ThreadPriority, put_ThreadPriority, VT_I4)
+
 END_DISPATCH_MAP()
 
 // CBoxSystem message handlers
+long CBoxSystem::get_PriorityClass(void)
+{
+	long ret = GetPriorityClass(GetCurrentProcess());
+	if (!ret)
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+	return ret;
+}
+
+void CBoxSystem::put_PriorityClass(long lVal)
+{
+	if (!SetPriorityClass(GetCurrentProcess(), lVal))
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+}
+
+long CBoxSystem::get_ThreadPriority(void)
+{
+	long ret = GetThreadPriority(GetCurrentThread());
+	if (ret == THREAD_PRIORITY_ERROR_RETURN)
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+	return ret;
+}
+
+void CBoxSystem::put_ThreadPriority(long lVal)
+{
+	if (!SetThreadPriority(GetCurrentThread(), lVal))
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+}
 
 void CBoxSystem::ExtractFile(LPCTSTR pstrName, LPCTSTR pstrDest)
 {

@@ -285,6 +285,10 @@ BEGIN_DISPATCH_MAP(CNetBox2App, CWinApp)
 	DISP_FUNCTION(CNetBox2App, "RegEnumValue", RegEnumValue, VT_VARIANT, VTS_VARIANT)
 
 	DISP_FUNCTION(CNetBox2App, "EnableWow64FsRedirection", EnableWow64FsRedirection, VT_I4, VTS_I4)
+
+	DISP_PROPERTY_EX(CNetBox2App, "StdIn", get_StdIn, SetNotSupported, VT_DISPATCH)
+	DISP_PROPERTY_EX(CNetBox2App, "StdOut", get_StdOut, SetNotSupported, VT_DISPATCH)
+	DISP_PROPERTY_EX(CNetBox2App, "StdErr", get_StdErr, SetNotSupported, VT_DISPATCH)
 END_DISPATCH_MAP()
 
 
@@ -983,6 +987,63 @@ long CNetBox2App::GetWindowProcessId(long hWnd)
 	DWORD uiProcessId;
 	GetWindowThreadProcessId((HWND)hWnd, (LPDWORD)&uiProcessId);
 	return uiProcessId;
+}
+
+LPDISPATCH CNetBox2App::get_StdIn()
+{
+	if(!m_pStdIn)
+	{
+		HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
+		if (h == INVALID_HANDLE_VALUE)
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		if (h == NULL)
+			AfxThrowOleException(HRESULT_FROM_WIN32(E_ACCESSDENIED));
+
+		m_pStdIn.CreateInstance();
+		m_pStdIn->SetHandle(h);
+	}
+
+	CBDispatchPtr pDisp(m_pStdIn);
+
+	return pDisp.Detach();
+}
+
+LPDISPATCH CNetBox2App::get_StdOut()
+{
+	if(!m_pStdOut)
+	{
+		HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (h == INVALID_HANDLE_VALUE)
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		if (h == NULL)
+			AfxThrowOleException(HRESULT_FROM_WIN32(E_ACCESSDENIED));
+
+		m_pStdOut.CreateInstance();
+		m_pStdOut->SetHandle(h);
+	}
+
+	CBDispatchPtr pDisp(m_pStdOut);
+
+	return pDisp.Detach();
+}
+
+LPDISPATCH CNetBox2App::get_StdErr()
+{
+	if(!m_pStdErr)
+	{
+		HANDLE h = GetStdHandle(STD_ERROR_HANDLE);
+		if (h == INVALID_HANDLE_VALUE)
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		if (h == NULL)
+			AfxThrowOleException(HRESULT_FROM_WIN32(E_ACCESSDENIED));
+
+		m_pStdErr.CreateInstance();
+		m_pStdErr->SetHandle(h);
+	}
+
+	CBDispatchPtr pDisp(m_pStdErr);
+
+	return pDisp.Detach();
 }
 
 LPDISPATCH CNetBox2App::get_Console()

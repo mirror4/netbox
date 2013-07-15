@@ -42,7 +42,11 @@ static CBTypeInfo::METHOD_ENTRY s_mData[] =
 	{L"StopBits", {0x0000006A, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 68, 0, {{{NULL}, VT_I2}}, 0}},
 	{L"WriteTimeout", {0x0000006B, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 76, 0, {{{NULL}, VT_I4}}, 0}},
 	{L"Config", {0x0000006C, NULL, &s_mElemDesc[7], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 1, 84, 0, {{{NULL}, VT_EMPTY}}, 0}},
-	{L"Open", {0x0000006D, NULL, &s_mElemDesc[8], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 1, 88, 0, {{{NULL}, VT_EMPTY}}, 0}}
+	{L"Open", {0x0000006D, NULL, &s_mElemDesc[8], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 2, 1, 88, 0, {{{NULL}, VT_EMPTY}}, 0}},
+	{L"ReadBuffer", {0x0000006E, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 92, 0, {{{NULL}, VT_I4}}, 0}},
+	{L"ReadBuffer", {0x0000006E, NULL, &s_mElemDesc[6], FUNC_DISPATCH, INVOKE_PROPERTYPUT, CC_STDCALL, 1, 0, 96, 0, {{{NULL}, VT_EMPTY}}, 0}},
+	{L"WriteBuffer", {0x0000006F, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 100, 0, {{{NULL}, VT_I4}}, 0}},
+	{L"WriteBuffer", {0x0000006F, NULL, &s_mElemDesc[6], FUNC_DISPATCH, INVOKE_PROPERTYPUT, CC_STDCALL, 1, 0, 104, 0, {{{NULL}, VT_EMPTY}}, 0}}
 };
 
 static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult)
@@ -234,8 +238,52 @@ static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS
 		return hr;
 	}
 
+	IF_INVOKE_PROPERTYPUT(0x0000006E)	//ReadBuffer
+	{
+		if(cArgs1 > 0)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_NAMED_VALUE(VT_I4, 0)
+
+		hr = pObject->put_ReadBuffer(v0);
+		return hr;
+	}
+
+	IF_INVOKE_PROPERTYPUT(0x0000006F)	//WriteBuffer
+	{
+		if(cArgs1 > 0)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_NAMED_VALUE(VT_I4, 0)
+
+		hr = pObject->put_WriteBuffer(v0);
+		return hr;
+	}
+
+	IF_INVOKE_PROPERTYGET(0x0000006E)	//ReadBuffer
+	{
+		if(cArgs1 > 0)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_RET(VT_I4, 0)
+
+		hr = pObject->get_ReadBuffer(v0);
+		return hr;
+	}
+
+	IF_INVOKE_PROPERTYGET(0x0000006F)	//WriteBuffer
+	{
+		if(cArgs1 > 0)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_RET(VT_I4, 0)
+
+		hr = pObject->get_WriteBuffer(v0);
+		return hr;
+	}
+
 	return DISP_E_MEMBERNOTFOUND;
 }
 
-CBTypeInfo CBDispatch<ICommStream>::g_typeinfo(__uuidof(ICommStream), L"ICommStream", s_mData, 16, _Invoke);
+CBTypeInfo CBDispatch<ICommStream>::g_typeinfo(__uuidof(ICommStream), L"ICommStream", s_mData, 20, _Invoke);
 

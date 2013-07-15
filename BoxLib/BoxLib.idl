@@ -601,6 +601,8 @@ interface IBaseStream : IDispatch {
 	HRESULT setEOS();
 	[id(0x00000028)]
 	HRESULT Flush();
+	[id(0x00000029), propget]
+	HRESULT LastWritten([out, retval] long* pVal);
 };
 
 [
@@ -675,6 +677,14 @@ interface ICommStream : IDispatch {
 	HRESULT Open(
 					[in] short lPort, 
 					[in, optional] VARIANT varMode);
+	[id(0x0000006e), propget]
+	HRESULT ReadBuffer([out, retval] long* pVal);
+	[id(0x0000006e), propput]
+	HRESULT ReadBuffer([in] long pVal);
+	[id(0x0000006f), propget]
+	HRESULT WriteBuffer([out, retval] long* pVal);
+	[id(0x0000006f), propput]
+	HRESULT WriteBuffer([in] long pVal);
 };
 
 [

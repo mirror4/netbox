@@ -30,6 +30,7 @@ CBWindow::CBWindow(void) :
 	m_hIcon(NULL),
 	m_hWndFocus(NULL),
 	m_bAllowClose(TRUE),
+	m_bForceClose(FALSE),
 	m_pStubThis(this),
 	m_sizeMinTrackSize(0, 0),
 	m_sizeMaxTrackSize(0, 0)
@@ -176,30 +177,58 @@ LRESULT CBWindow::OnParentNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	return 0;
 }
 
-LRESULT CBWindow::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+BOOL CBWindow::OnClose_OnUnload(BOOL bComfirm = FALSE)
 {
-	if(!m_bAllowClose)
-	{
-		bHandled = TRUE;
-		return 0;
-	}
-
 	CComPtr<IWebBrowser2> pWebBrowser2;
 	HRESULT hr = QueryControl(IID_IWebBrowser2, (void**)&pWebBrowser2);
-	if(FAILED(hr)) return hr;
+	if (FAILED(hr)) return FALSE;
 
-	VARIANT vOut;
-	VariantInit(&vOut);
-	hr = pWebBrowser2->ExecWB(OLECMDID_ONUNLOAD, OLECMDEXECOPT_DODEFAULT, NULL, &vOut);
-	if (!SUCCEEDED(hr)) 
+	CComDispatchDriver pdddoc;
+	hr = pWebBrowser2->get_Document(&pdddoc);
+	if(FAILED(hr)) return FALSE;
+	
+	CComPtr<IHTMLDocument2> pidoc;
+	pidoc = pdddoc;
+	if (pidoc == NULL) return FALSE;
+
+	CComPtr<IHTMLWindow2> piwin;
+	hr = pidoc->get_parentWindow(&piwin);
+	if (FAILED(hr)) return FALSE;
+
+	CComVariant varEvent;
+	hr = piwin->get_onbeforeunload(&varEvent);
+	if (FAILED(hr)) return FALSE;
+	if (varEvent.vt != VT_DISPATCH) return FALSE;
+
+	CComDispatchDriver pddEvent;
+	pddEvent = varEvent.pdispVal;
+	if (pddEvent == NULL) return FALSE;
+
+	CComVariant varRet;
+	hr = pddEvent.Invoke0((DISPID)0, &varRet);
+	if(FAILED(hr)) return FALSE;
+
+	if (varRet.vt = VT_BSTR)
+		if (SysStringLen(varRet.bstrVal) > 0)
+			if (bComfirm)
+				return MessageBoxW(m_hWnd, varRet.bstrVal, m_strTitle, MB_OKCANCEL) == IDCANCEL;
+			else
+				return TRUE;
+
+	return FALSE;
+}
+
+LRESULT CBWindow::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	BOOL bForbidden_OnUnload = OnClose_OnUnload(m_bForceClose == FALSE && m_bAllowClose == TRUE);
+	
+	if (!m_bForceClose)
 	{
-		bHandled = TRUE;
-		return 0;
-	}
-    if (vOut.bVal == FALSE) 
-	{
-		bHandled = TRUE;
-		return 0;
+		if(!m_bAllowClose || bForbidden_OnUnload)
+		{
+			bHandled = TRUE;
+			return 0;
+		}
 	}
 
 	if(th_pRunWindow == this && m_hWnds.GetCount())
@@ -212,11 +241,17 @@ LRESULT CBWindow::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandle
 
 	CBComPtr<IOleObject> pObj;
 
-	hr = QueryControl(IID_IOleObject, (void**)&pObj);
+	HRESULT hr = QueryControl(IID_IOleObject, (void**)&pObj);
 	if(FAILED(hr))return 0;
 
 	pObj->Close(0);
 
+	return 0;
+}
+
+LRESULT CBWindow::OnCopyData(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	bHandled = FALSE;
 	return 0;
 }
 
@@ -711,7 +746,7 @@ HRESULT CBWindow::put_Title(BSTR newVal)
 	if(!IsWindow())return E_HANDLE;
 
 	m_strTitle = newVal;
-	SetWindowText(m_strTitle);
+	SetWindowTextW(m_hWnd, m_strTitle);
 
 	return S_OK;
 }
@@ -1148,7 +1183,7 @@ HRESULT CBWindow::Close(void)
 {
 	if(!IsWindow())return E_HANDLE;
 
-	m_bAllowClose = TRUE;
+	m_bForceClose = TRUE;
 	PostMessage(WM_CLOSE);
 
 	return S_OK;

@@ -164,6 +164,17 @@ LRESULT CBHtmlWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	return CBWindow::OnDestroy(uMsg, wParam, lParam, bHandled);
 }
 
+LRESULT CBHtmlWindow::OnCopyData(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	if(m_spBrowser)
+	{
+		//m_spBrowser->
+	}
+
+	bHandled = TRUE;
+	return 0;
+}
+
 HRESULT CBHtmlWindow::get_ContextMenu(VARIANT_BOOL *pVal)
 {
 	if(!IsWindow())return E_HANDLE;

@@ -288,3 +288,61 @@ STDMETHODIMP CBComm::Config(VARIANT varMode)
 	return S_OK;
 }
 
+STDMETHODIMP CBComm::get_ReadBuffer(long *pVal)
+{
+	COMMPROP cp;
+
+	memset(&cp, 0, sizeof(cp));
+	cp.wPacketLength = sizeof(cp);
+	if(!GetCommProperties(m_hFile, &cp))
+		return GetErrorResult();
+
+	*pVal = cp.dwCurrentRxQueue;
+
+	return S_OK;
+}
+
+STDMETHODIMP CBComm::put_ReadBuffer(long pVal)
+{
+	COMMPROP cp;
+
+	memset(&cp, 0, sizeof(cp));
+	cp.wPacketLength = sizeof(cp);
+	if(!GetCommProperties(m_hFile, &cp))
+		return GetErrorResult();
+
+	if(!SetupComm(m_hFile, (DWORD)pVal, cp.dwCurrentTxQueue))
+		return GetErrorResult();
+
+	return S_OK;
+}
+
+STDMETHODIMP CBComm::get_WriteBuffer(long *pVal)
+{
+	COMMPROP cp;
+
+	memset(&cp, 0, sizeof(cp));
+	cp.wPacketLength = sizeof(cp);
+	if(!GetCommProperties(m_hFile, &cp))
+		return GetErrorResult();
+
+	*pVal = cp.dwCurrentTxQueue;
+
+	return S_OK;
+}
+
+STDMETHODIMP CBComm::put_WriteBuffer(long pVal)
+{
+	COMMPROP cp;
+
+	memset(&cp, 0, sizeof(cp));
+	cp.wPacketLength = sizeof(cp);
+	if(!GetCommProperties(m_hFile, &cp))
+		return GetErrorResult();
+
+	if(!SetupComm(m_hFile, cp.dwCurrentRxQueue, (DWORD)pVal))
+		return GetErrorResult();
+
+	return S_OK;
+}
+

@@ -139,18 +139,16 @@ STDMETHODIMP CBStream::Read(void *pv, ULONG cb, ULONG *pcbRead)
 
 STDMETHODIMP CBStream::Write(const void *pv, ULONG cb, ULONG *pcbWritten)
 {
+	m_ulLastWrittren = 0;
+
 	if(pv == NULL)
 		return STG_E_INVALIDPOINTER;
 
-	ULONG cbWritten = 0;
-
-	if(pcbWritten == NULL)pcbWritten = &cbWritten;
+	HRESULT hr;
 
 	if(m_dwType == STGTY_STORAGE)
 	{
 		QLock(m_qlStream);
-
-		HRESULT hr;
 
 		if(m_chLastCrLf != 0)
 		{
@@ -167,7 +165,9 @@ STDMETHODIMP CBStream::Write(const void *pv, ULONG cb, ULONG *pcbWritten)
 		}
 	}
 
-	return InternalWrite(pv, cb, pcbWritten);
+	hr = InternalWrite(pv, cb, &m_ulLastWrittren);
+	if(pcbWritten) *pcbWritten = m_ulLastWrittren;
+	return hr;
 }
 
 // IStream
@@ -950,6 +950,19 @@ STDMETHODIMP CBStream::Close(void)
 	return S_OK;
 }
 
+HRESULT CBStream::SetHandle(HANDLE h)
+{
+	Close();
+	
+	if (h == INVALID_HANDLE_VALUE)
+		return E_HANDLE;
+
+	m_hFile.m_h = h;
+	m_dwType = STGTY_STORAGE;
+
+	return S_OK;
+}
+
 STDMETHODIMP CBStream::Attach(IUnknown *SrcStream)
 {
 	Close();
@@ -1113,4 +1126,10 @@ STDMETHODIMP CBStream::GetSizeMax(ULARGE_INTEGER *pcbSize)
 STDMETHODIMP CBStream::InitNew(void)
 {
 	return Open(0x100000);
+}
+
+STDMETHODIMP CBStream::get_LastWritten(long *pVal)
+{
+	*pVal = m_ulLastWrittren;
+	return S_OK;
 }

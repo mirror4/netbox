@@ -7,6 +7,7 @@
 #include <openssl\ripemd.h>
 #include <openssl\SHA.h>
 #include <openssl\hmac.h>
+#include "crc16.h"
 
 WCHAR s_strAlgoError[] = L"Algorithm not initialized.";
 static struct
@@ -126,6 +127,12 @@ static struct
 		(int (*)(void *, const unsigned char *, unsigned long))HMAC_Update,
 		(int (*)(unsigned char *, void *))HMAC_Final,
 		EVP_sha512
+	},
+	{L"CRC-16-TI", 2,
+		(int (*)(void *))CRC16TI_Init,
+		(int (*)(void *, const unsigned char *, unsigned long))CRC16TI_Update,
+		(int (*)(unsigned char *, void *))CRC16TI_Final,
+		NULL
 	}
 };
 

@@ -94,6 +94,10 @@ public:
 
 	afx_msg long EnableWow64FsRedirection(long lEnabled);
 
+	afx_msg LPDISPATCH get_StdIn(void);
+	afx_msg LPDISPATCH get_StdOut(void);
+	afx_msg LPDISPATCH get_StdErr(void);
+
 	DECLARE_DISPATCH_MAP()
 
 public:
@@ -109,6 +113,11 @@ public:
 	}
 
 	CBComPtr<CBArguments> m_pArguments;
+
+	CBComPtr<CBStream> m_pStdIn;
+	CBComPtr<CBStream> m_pStdOut;
+	CBComPtr<CBStream> m_pStdErr;
+
 	CBComPtr<CBConsole> m_pConsole;
 	CBoxObject<CBoxService> m_pService;
 

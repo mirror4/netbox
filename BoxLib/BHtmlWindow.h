@@ -15,6 +15,7 @@ public:
 
 public:
 	virtual LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	virtual LRESULT OnCopyData(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 	BEGIN_SINK_MAP(CBHtmlWindow)
 //		SINK_ENTRY_INFO(0, DIID_DWebBrowserEvents2, 102, __StatusTextChange, &StatusTextChangeInfo)

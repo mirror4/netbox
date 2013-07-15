@@ -31,6 +31,7 @@ public:
 		MESSAGE_HANDLER(WM_WINDOWPOSCHANGING, OnWindowPosChinging)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
+		MESSAGE_HANDLER(WM_COPYDATA, OnCopyData)
 	END_MSG_MAP()
 
 	LRESULT OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -45,9 +46,10 @@ public:
 	LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 	virtual LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	virtual LRESULT OnCopyData(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 protected:
-	CBStringA	m_strTitle;
+	CBString	m_strTitle;
 
 private:
 	HWND m_hWndFocus;
@@ -71,7 +73,7 @@ private:
 
 	HICON m_hIcon;
 
-	BOOL m_bAllowClose;
+	BOOL m_bAllowClose, m_bForceClose;
 	CBString m_strIcon;
 
 	CAtlArray<HWND> m_hWnds;
@@ -81,6 +83,7 @@ public:
 	~CBWindow(void);
 
 	static HICON LoadIcon(LPCWSTR newVal);
+	BOOL CBWindow::OnClose_OnUnload(BOOL bComfirm);
 
 public:
 	//	IWindow

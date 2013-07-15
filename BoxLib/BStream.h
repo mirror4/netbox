@@ -20,7 +20,8 @@ public:
 		m_ulPosition(0),
 		m_dwType(STGTY_STREAM),
 		m_chLastCrLf(0),
-		m_ulCodePage(0)
+		m_ulCodePage(0),
+		m_ulLastWrittren(0)
 	{}
 
 	enum SeekPosition { begin = 0x0, current = 0x1, end = 0x2 };
@@ -60,6 +61,8 @@ public:
 	CBStringA ReadLine();
 	void WriteLine(LPCSTR str);
 	void WriteText(LPCSTR str);
+
+	HRESULT SetHandle(HANDLE h);
 
 protected:
 	virtual HRESULT InternalRead(void *pv, ULONG cb, ULONG *pcbRead);
@@ -144,6 +147,7 @@ public:
 	STDMETHOD(CopyFrom)(VARIANT varSrcStream, DOUBLE nSize = -1);
 	STDMETHOD(setEOS)(void);
 	STDMETHOD(Flush)(void);
+	STDMETHOD(get_LastWritten)(long *pVal);
 
 private:
 	HRESULT ReadBuffer();
@@ -181,6 +185,7 @@ protected:
 	ULONG m_ulPosition;
 	char m_chLastCrLf;
 	ULONG m_ulCodePage;
+	ULONG m_ulLastWrittren;
 
 public:
 	static HRESULT GetStream(VARIANT* pvar, IStream** pStm, BOOL bOpen = TRUE);

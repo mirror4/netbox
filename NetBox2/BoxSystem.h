@@ -96,6 +96,11 @@ public:
 	afx_msg long get_HttpMaxConnections(void);
 	afx_msg void put_HttpMaxConnections(long nHttpMaxConnections);
 
+	afx_msg long CBoxSystem::get_PriorityClass(void);
+	afx_msg void CBoxSystem::put_PriorityClass(long lVal);
+	afx_msg long CBoxSystem::get_ThreadPriority(void);
+	afx_msg void CBoxSystem::put_ThreadPriority(long lVal);
+
 	DECLARE_DISPATCH_MAP()
 
 private:
