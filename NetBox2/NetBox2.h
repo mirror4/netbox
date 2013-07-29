@@ -15,6 +15,7 @@
 
 #include <BArguments.h>
 #include <BConsole.h>
+#include <BPipe.h>
 
 // CNetBox2App:
 // See NetBox2.cpp for the implementation of this class
@@ -114,9 +115,9 @@ public:
 
 	CBComPtr<CBArguments> m_pArguments;
 
-	CBComPtr<CBStream> m_pStdIn;
-	CBComPtr<CBStream> m_pStdOut;
-	CBComPtr<CBStream> m_pStdErr;
+	CBComPtr<CBPipe> m_pStdIn;
+	CBComPtr<CBPipe> m_pStdOut;
+	CBComPtr<CBPipe> m_pStdErr;
 
 	CBComPtr<CBConsole> m_pConsole;
 	CBoxObject<CBoxService> m_pService;

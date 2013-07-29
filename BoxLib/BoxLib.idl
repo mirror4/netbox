@@ -625,6 +625,19 @@ interface IFileStream : IDispatch {
 
 [
   odl,
+  uuid(94650000-0000-0000-0000-000050697065),
+  dual,
+  oleautomation
+]
+interface IPipe : IDispatch {
+	[id(0x00000065)]
+	HRESULT Open([in, optional, defaultvalue(0x0)] long Val, [out, retval] IPipe** retVal);
+	[id(0x00000066), propget]
+	HRESULT dataAvailable([out, retval] long* pVal);
+};
+
+[
+  odl,
   uuid(94659465-0000-0000-4943-6F6E736F6C65),
   dual,
   oleautomation
@@ -1246,6 +1259,12 @@ interface IProcess : IDispatch {
 	HRESULT FileName([out, retval] BSTR* pVal);
 	[id(0x00000010)]
 	HRESULT Terminate();
+	[id(0x00000011), propget]
+	HRESULT StdIn([out, retval] IPipe** ppStream);
+	[id(0x00000012), propget]
+	HRESULT StdOut([out, retval] IPipe** ppStream);
+	[id(0x00000013), propget]
+	HRESULT StdErr([out, retval] IPipe** ppStream);
 };
 
 [
@@ -1822,5 +1841,6 @@ library BoxLibrary
 		interface IRegExp;
 
 		interface IProcess;
+		interface IPipe;
 	};
 };

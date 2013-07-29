@@ -429,6 +429,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BPipe.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BPipeLine.cpp"
 				>
 			</File>
@@ -457,6 +461,10 @@
 				</File>
 				<File
 					RelativePath=".\BMStream.h"
+					>
+				</File>
+				<File
+					RelativePath=".\BPipe.h"
 					>
 				</File>
 				<File
@@ -1032,6 +1040,10 @@
 			</File>
 			<File
 				RelativePath=".\typelib\tiIPackage.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\typelib\tiIPipe.cpp"
 				>
 			</File>
 			<File

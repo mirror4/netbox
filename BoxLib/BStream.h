@@ -62,7 +62,7 @@ public:
 	void WriteLine(LPCSTR str);
 	void WriteText(LPCSTR str);
 
-	HRESULT SetHandle(HANDLE h);
+	HRESULT SetHandle(HANDLE h, DWORD dwType = STGTY_STORAGE);
 
 protected:
 	virtual HRESULT InternalRead(void *pv, ULONG cb, ULONG *pcbRead);

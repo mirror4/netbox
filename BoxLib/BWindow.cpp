@@ -69,7 +69,7 @@ CBWindow::~CBWindow(void)
 		th_pRunWindow = this;
 		MSG msg;
 
-		while( GetMessage( &msg, NULL, 0, 0 ))
+		while(GetMessage( &msg, NULL, 0, 0 ))
 			if(!PreTranslateMessage(&msg))
 			{
 				TranslateMessage( &msg );
@@ -1184,6 +1184,15 @@ HRESULT CBWindow::Close(void)
 	if(!IsWindow())return E_HANDLE;
 
 	m_bForceClose = TRUE;
+
+	MSG msg;
+
+	while(PeekMessage( &msg, NULL, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage( &msg );
+		DispatchMessage( &msg );
+	}
+
 	PostMessage(WM_CLOSE);
 
 	return S_OK;

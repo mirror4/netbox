@@ -8,8 +8,6 @@ CBProcess::CBProcess(void) : m_hProcess(NULL)
 
 CBProcess::~CBProcess(void)
 {
-	if (m_hProcess != NULL)
-		CloseHandle(m_hProcess);
 }
 
 STDMETHODIMP CBProcess::get_ExitCode(LONG* newVal)
@@ -84,7 +82,40 @@ STDMETHODIMP CBProcess::Terminate()
 	return HRESULT_FROM_WIN32(GetLastError());
 }
 
-void CBProcess::SetHandle(HANDLE hProcess)
+STDMETHODIMP CBProcess::get_StdIn(IPipe** ppStream)
 {
-	m_hProcess = hProcess;
+	return m_pPipe_StdIn.QueryInterface(ppStream);
+}
+
+STDMETHODIMP CBProcess::get_StdOut(IPipe** ppStream)
+{
+	return m_pPipe_StdOut.QueryInterface(ppStream);
+}
+
+STDMETHODIMP CBProcess::get_StdErr(IPipe** ppStream)
+{
+	return m_pPipe_StdErr.QueryInterface(ppStream);
+}
+
+void CBProcess::SetHandle(HANDLE hProcess, HANDLE hStdIn, HANDLE hStdOut, HANDLE hStdErr)
+{
+	m_hProcess.m_h = hProcess;
+
+	if (hStdIn)
+	{
+		m_pPipe_StdIn.CreateInstance();
+		m_pPipe_StdIn->SetHandle(hStdIn, STGTY_STREAM);
+	}
+
+	if (hStdOut)
+	{
+		m_pPipe_StdOut.CreateInstance();
+		m_pPipe_StdOut->SetHandle(hStdOut, STGTY_STREAM);
+	}
+
+	if (hStdErr)
+	{
+		m_pPipe_StdErr.CreateInstance();
+		m_pPipe_StdErr->SetHandle(hStdErr, STGTY_STREAM);
+	}
 }

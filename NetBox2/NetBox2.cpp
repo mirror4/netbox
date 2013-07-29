@@ -18,6 +18,7 @@
 #include <BFileSystem.h>
 #include <BClassRegistry.h>
 #include <BProcess.h>
+#include <BPipe.h>
 
 #include <mshtmhst.h>
 #include <wininet.h>
@@ -1243,19 +1244,107 @@ LPDISPATCH CNetBox2App::GetProcess(LONG lProcessID, VARIANT* varRights)
 LPDISPATCH CNetBox2App::Exec(LPCTSTR pstrName, VARIANT* varCmdShow, VARIANT* varDirectory)
 {
 	long nCmdShow = SW_SHOWNORMAL;
-	BOOL bAdmin = FALSE;
+	BOOL bAdmin = FALSE, bRedirect = FALSE;
 	DWORD exitCode = 0;
 
 	if(varCmdShow->vt != VT_ERROR)
 		nCmdShow = varGetNumber(varCmdShow);
 
-	OSVERSIONINFO  versionInfo;
-	::ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
-	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	::GetVersionEx(&versionInfo);
-	bAdmin = (nCmdShow & 0x20) > 0 && versionInfo.dwMajorVersion>=6;
+	bRedirect = nCmdShow & 0x40;
+	if (!bRedirect)
+	{
+		OSVERSIONINFO  versionInfo;
+		::ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
+		versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		::GetVersionEx(&versionInfo);
+		bAdmin = (nCmdShow & 0x20) > 0 && versionInfo.dwMajorVersion>=6;
+	}
 
 	nCmdShow &= 0xf;
+
+	if (bRedirect)
+	{
+		STARTUPINFO StartupInfo;
+		PROCESS_INFORMATION  ProcessInformation;
+
+		ZeroMemory(&StartupInfo, sizeof(StartupInfo));
+		ZeroMemory(&ProcessInformation, sizeof(ProcessInformation));
+		StartupInfo.cb = sizeof(STARTUPINFO);
+		StartupInfo.wShowWindow = (WORD)nCmdShow;
+		StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
+
+		SECURITY_ATTRIBUTES saAttr;
+		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+		saAttr.bInheritHandle = TRUE;
+		saAttr.lpSecurityDescriptor = NULL;
+
+		CHandle hChildStdinRd, hChildStdinWr, hChildStdoutRd, hChildStdoutWr, hChildStderrRd, hChildStderrWr;
+		// Create a pipe for the child process's STDERR. 
+		if (!CreatePipe(&hChildStderrRd.m_h, &hChildStderrWr.m_h, &saAttr, 0))
+		{
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+			return NULL;
+		}
+		// Ensure that the read handle to the child process's pipe for STDERR is not inherited.
+		if (!SetHandleInformation(hChildStderrRd, HANDLE_FLAG_INHERIT, 0))
+		{
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+			return NULL;
+		}
+
+		// Create a pipe for the child process's STDOUT. 
+		if (!CreatePipe(&hChildStdoutRd.m_h, &hChildStdoutWr.m_h, &saAttr, 0))
+		{
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+			return NULL;
+		}
+		// Ensure that the read handle to the child process's pipe for STDOUT is not inherited.
+		if (!SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0))
+		{
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+			return NULL;
+		}
+
+		// Create a pipe for the child process's STDIN. 
+		if (!CreatePipe(&hChildStdinRd.m_h, &hChildStdinWr.m_h, &saAttr, 0))
+		{
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+			return NULL;
+		}
+		// Ensure that the write handle to the child process's pipe for STDIN is not inherited. 
+		if (!SetHandleInformation( hChildStdinWr, HANDLE_FLAG_INHERIT, 0))
+		{
+			AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+			return NULL;
+		}
+
+		StartupInfo.hStdError = hChildStderrWr;
+		StartupInfo.hStdOutput = hChildStdoutWr;
+		StartupInfo.hStdInput = hChildStdinRd;
+		StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+		LPCTSTR lpDirectory = NULL;
+		CStringA strDirectory;
+		if(varDirectory->vt == VT_BSTR)
+		{
+			strDirectory = *varDirectory;
+			if (PathIsDirectory(strDirectory))
+				lpDirectory = strDirectory;
+		}
+
+		if(CreateProcess(NULL, (LPTSTR)pstrName, NULL, NULL, TRUE, 0, NULL, lpDirectory, &StartupInfo, &ProcessInformation))
+		{
+			CloseHandle(ProcessInformation.hThread);
+
+			CBComPtr<CBProcess> pProcess;
+			pProcess.CreateInstance();
+			pProcess->SetHandle(ProcessInformation.hProcess, hChildStdinWr.Detach(), hChildStdoutRd.Detach(), hChildStderrRd.Detach());
+			return pProcess.Detach();
+		}
+
+		AfxThrowOleException(HRESULT_FROM_WIN32(GetLastError()));
+		return NULL;
+	}
 
 	SHELLEXECUTEINFO sei;
 	BOOL bIsLong;
@@ -1334,17 +1423,17 @@ long CNetBox2App::Execute(LPCTSTR pstrName, VARIANT* varCmdShow)
 
 	nCmdShow &= 0xf;
 
-	STARTUPINFO StartupInfo;
-	PROCESS_INFORMATION  ProcessInformation;
-
-	ZeroMemory(&StartupInfo, sizeof(StartupInfo));
-    ZeroMemory(&ProcessInformation, sizeof(ProcessInformation));
-	StartupInfo.cb = sizeof(STARTUPINFO);
-	StartupInfo.wShowWindow = (WORD)nCmdShow;
-	StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
-
 	if (!bAdmin)
 	{
+		STARTUPINFO StartupInfo;
+		PROCESS_INFORMATION  ProcessInformation;
+
+		ZeroMemory(&StartupInfo, sizeof(StartupInfo));
+		ZeroMemory(&ProcessInformation, sizeof(ProcessInformation));
+		StartupInfo.cb = sizeof(STARTUPINFO);
+		StartupInfo.wShowWindow = (WORD)nCmdShow;
+		StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
+
 		if(CreateProcess(NULL, (LPTSTR)pstrName, NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInformation))
 		{
 			if(bWait)

@@ -224,7 +224,13 @@ HRESULT CBHtmlWindow::Open(BSTR strURL, VARIANT varArg)
 		return E_INVALIDARG;
 
 	m_varArgument = varArg;
-
+	if (m_spBrowser)
+	{
+		return m_spBrowser->Navigate(strURL, NULL, NULL, NULL, NULL); 
+		//DispEventUnadvise(m_spBrowser, &DIID_DWebBrowserEvents2);
+		//m_spBrowser.Release();
+	}
+	
 	HRESULT hr = CreateControl(strURL);
 	if(FAILED(hr))return hr;
 

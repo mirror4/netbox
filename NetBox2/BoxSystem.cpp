@@ -43,6 +43,7 @@
 #include <BFile.h>
 #include <BComm.h>
 #include <BPipeLine.h>
+#include <BPipe.h>
 
 #include <BDate.h>
 
@@ -238,6 +239,7 @@ VBScriptLoaded:
 	AddClassEx(L"NetBox.File", CBFile);
 	AddClassEx(L"NetBox.Comm", CBComm);
 	AddClassEx(L"NetBox.PipeLine", CBPipeLine);
+	AddClassEx(L"NetBox.Pipe", CBPipe);
 
 	AddClassEx(L"NetBox.Identity", CBIdentity);
 

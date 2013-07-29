@@ -1,5 +1,5 @@
 #pragma once
-
+#include "BPipe.h"
 
 class __declspec(uuid("94650000-0000-0000-0050-726F63657373"))
 
@@ -19,7 +19,15 @@ public:
 
 	STDMETHOD(Terminate)();
 
-	void SetHandle(HANDLE hProcess);
+	STDMETHOD(get_StdIn)(IPipe** ppStream);
+	STDMETHOD(get_StdOut)(IPipe** ppStream);
+	STDMETHOD(get_StdErr)(IPipe** ppStream);
+
+	void SetHandle(HANDLE hProcess, HANDLE hStdIn = NULL, HANDLE hStdOut = NULL, HANDLE hStdErr = NULL);
 private:
-	HANDLE m_hProcess;
+	CHandle m_hProcess;
+	
+	CBComPtr<CBPipe> m_pPipe_StdIn;
+	CBComPtr<CBPipe> m_pPipe_StdOut;
+	CBComPtr<CBPipe> m_pPipe_StdErr;
 };

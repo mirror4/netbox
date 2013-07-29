@@ -950,7 +950,7 @@ STDMETHODIMP CBStream::Close(void)
 	return S_OK;
 }
 
-HRESULT CBStream::SetHandle(HANDLE h)
+HRESULT CBStream::SetHandle(HANDLE h, DWORD dwType)
 {
 	Close();
 	
@@ -958,7 +958,7 @@ HRESULT CBStream::SetHandle(HANDLE h)
 		return E_HANDLE;
 
 	m_hFile.m_h = h;
-	m_dwType = STGTY_STORAGE;
+	m_dwType = dwType;
 
 	return S_OK;
 }

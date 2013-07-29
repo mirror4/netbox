@@ -17,7 +17,11 @@ static CBTypeInfo::METHOD_ENTRY s_mData[] =
 	{L"ProcessID", {0x00000002, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 32, 0, {{{NULL}, VT_I4}}, 0}},
 	{L"Status", {0x00000003, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 36, 0, {{{NULL}, VT_I4}}, 0}},
 	{L"FileName", {0x00000004, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 40, 0, {{{NULL}, VT_BSTR}}, 0}},
-	{L"Terminate", {0x00000010, NULL, NULL, FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 0, 0, 44, 0, {{{NULL}, VT_EMPTY}}, 0}}
+	{L"Terminate", {0x00000010, NULL, NULL, FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 0, 0, 44, 0, {{{NULL}, VT_EMPTY}}, 0}},
+
+	{L"StdIn", {0x000000011, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 48, 0, {{{NULL}, VT_DISPATCH}}, 0}},
+	{L"StdOut", {0x00000012, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 52, 0, {{{NULL}, VT_DISPATCH}}, 0}},
+	{L"StdErr", {0x00000013, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 56, 0, {{{NULL}, VT_DISPATCH}}, 0}}
 };
 
 static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult)
@@ -82,7 +86,40 @@ static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS
 		return hr;
 	}
 
+	IF_INVOKE_PROPERTYGET(0x00000011)	//StdIn
+	{
+		if(cArgs1 > 0)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_RET(VT_DISPATCH, 0)
+
+		hr = pObject->get_StdIn(v0);
+		return hr;
+	}
+
+	IF_INVOKE_PROPERTYGET(0x00000012)	//StdOut
+	{
+		if(cArgs1 > 0)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_RET(VT_DISPATCH, 0)
+
+		hr = pObject->get_StdOut(v0);
+		return hr;
+	}
+
+	IF_INVOKE_PROPERTYGET(0x00000013)	//StdErr
+	{
+		if(cArgs1 > 0)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM_RET(VT_DISPATCH, 0)
+
+		hr = pObject->get_StdErr(v0);
+		return hr;
+	}
+
 	return DISP_E_MEMBERNOTFOUND;
 }
 
-CBTypeInfo CBDispatch<IProcess>::g_typeinfo(__uuidof(IProcess), L"IProcess", s_mData, 5, _Invoke);
+CBTypeInfo CBDispatch<IProcess>::g_typeinfo(__uuidof(IProcess), L"IProcess", s_mData, 8, _Invoke);
