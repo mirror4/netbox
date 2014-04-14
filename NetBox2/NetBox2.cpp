@@ -2020,6 +2020,10 @@ BOOL CNetBox2App::InitInstance()
 	g_pFile = new CBoxCachePool(g_pFile);
 	LogEvent(0, "g_pFile = new CBoxCachePool(g_pFile)");
 
+	//::CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	AfxOleInit();
+	LogEvent(0, "AfxOleInit()");
+
 	DWORD dwConnNum = 0x10;
 	//InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &dwConnNum, sizeof(dwConnNum));
 	LogEvent(0, "-InternetSetOption(NULL, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &dwConnNum, sizeof(dwConnNum))");
@@ -2030,10 +2034,6 @@ BOOL CNetBox2App::InitInstance()
 
 	CBHook::DoHook();
 	LogEvent(0, "CBHook::DoHook()");
-
-	//::CoInitializeEx(NULL, COINIT_MULTITHREADED);
-	AfxOleInit();
-	LogEvent(0, "AfxOleInit()");
 
 	_Module.Init(NULL, m_hInstance);
 	LogEvent(0, "_Module.Init(NULL, m_hInstance)");
@@ -2123,6 +2123,7 @@ BOOL CNetBox2App::InitInstance()
 			LogEvent(0, "CommandLine Normal Start");
 
 			AfxBeginThread(staticStart, 0);
+			//staticStart(NULL);
 		}
 
 		while(GetMessage( &msg, NULL, 0, 0))

@@ -37,6 +37,8 @@ public:
 	STDMETHOD(get_WriteBuffer)(long *pVal);
 	STDMETHOD(put_WriteBuffer)(long pVal);
 
+	STDMETHOD(Purge)(long lFlag);
+
 protected:
 	virtual HRESULT InternalRead(void *pv, ULONG cb, ULONG *pcbRead);
 	virtual HRESULT InternalWrite(const void *pv, ULONG cb, ULONG *pcbWritten);

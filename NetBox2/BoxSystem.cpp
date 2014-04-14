@@ -51,6 +51,7 @@
 
 #include <BHash.h>
 #include <BRSA.h>
+#include <BECC.h>
 #include <BRandom.h>
 #include <BCipher.h>
 
@@ -245,6 +246,7 @@ VBScriptLoaded:
 
 	AddClassEx(L"NetBox.Hash", CBHash);
 	AddClassEx(L"NetBox.RSA", CBRSA);
+	AddClassEx(L"NetBox.ECC", CBECC);
 	AddClassEx(L"NetBox.Random", CBRandom);
 	AddClassEx(L"NetBox.Cipher", CBCipher);
 
@@ -266,6 +268,7 @@ VBScriptLoaded:
 	m_strConfigFile = (LPCTSTR)g_pFile->m_strAppName;
 	m_strConfigFile.ReleaseBuffer(m_strConfigFile.ReverseFind(_T('.')));
 	m_strConfigFile += _T(".ini");
+	m_intConfigSize = 32767;
 }
 
 CBoxSystem::~CBoxSystem(void)
@@ -321,6 +324,7 @@ BEGIN_DISPATCH_MAP(CBoxSystem, CBoxSafeObject)
 
 	DISP_PROPERTY_PARAM(CBoxSystem, "Config", get_Config, put_Config, VT_VARIANT, VTS_VARIANT VTS_VARIANT)
 	DISP_PROPERTY(CBoxSystem, "ConfigFile", m_strConfigFile, VT_BSTR)
+	DISP_PROPERTY(CBoxSystem, "ConfigSize", m_strConfigFile, VT_I4)
 
 	DISP_FUNCTION(CBoxSystem, "LoadObject", LoadObject, VT_DISPATCH, VTS_BSTR VTS_VARIANT)
 	DISP_FUNCTION(CBoxSystem, "CreateObject", CreateObject, VT_DISPATCH, VTS_BSTR)
@@ -850,7 +854,8 @@ VARIANT CBoxSystem::get_Config(VARIANT& varSection, VARIANT& varKey)
 	{
 		CStringArray strArray;
 
-		str.ReleaseBuffer(GetPrivateProfileSectionNames(str.GetBuffer(32767), 32767, m_strConfigFile));
+		if (m_intConfigSize < 32767) m_intConfigSize = 32767;
+		str.ReleaseBuffer(GetPrivateProfileSectionNames(str.GetBuffer(m_intConfigSize), m_intConfigSize, m_strConfigFile));
 
 		pstrString = str;
 		pstrStringEnd = pstrString + str.GetLength();
@@ -885,7 +890,9 @@ VARIANT CBoxSystem::get_Config(VARIANT& varSection, VARIANT& varKey)
 		CString str1;
 		int nLen;
 
-		str.ReleaseBuffer(GetPrivateProfileSection(strSection, str.GetBuffer(32767), 32767, m_strConfigFile));
+		if (m_intConfigSize < 32767) m_intConfigSize = 32767;
+		//str.ReleaseBuffer(GetPrivateProfileSection(strSection, str.GetBuffer(32767), 32767, m_strConfigFile));
+		str.ReleaseBuffer(GetPrivateProfileString(strSection, NULL, NULL, str.GetBuffer(m_intConfigSize), m_intConfigSize, m_strConfigFile));
 
 		pstrString = str;
 		pstrStringEnd = pstrString + str.GetLength();
@@ -893,7 +900,7 @@ VARIANT CBoxSystem::get_Config(VARIANT& varSection, VARIANT& varKey)
 		{
 			str1 = pstrString;
 			nLen = str1.GetLength() + 1;
-			str1.ReleaseBuffer(str1.Find(_T('=')));
+			//str1.ReleaseBuffer(str1.Find(_T('=')));
 			strArray.Add(str1);
 			pstrString += nLen;
 		}

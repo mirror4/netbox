@@ -346,3 +346,10 @@ STDMETHODIMP CBComm::put_WriteBuffer(long pVal)
 	return S_OK;
 }
 
+STDMETHODIMP CBComm::Purge(long lFlag)
+{
+	if(!PurgeComm(m_hFile, lFlag))
+		return GetErrorResult();
+
+	return S_OK;
+}

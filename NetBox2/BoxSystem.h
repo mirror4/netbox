@@ -107,6 +107,7 @@ private:
 	static void staticLoadObject(void* dwParam);
 
 	CString m_strConfigFile;
+	int m_intConfigSize;
 
 	class CLockNode
 	{

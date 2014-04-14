@@ -46,7 +46,8 @@ static CBTypeInfo::METHOD_ENTRY s_mData[] =
 	{L"ReadBuffer", {0x0000006E, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 92, 0, {{{NULL}, VT_I4}}, 0}},
 	{L"ReadBuffer", {0x0000006E, NULL, &s_mElemDesc[6], FUNC_DISPATCH, INVOKE_PROPERTYPUT, CC_STDCALL, 1, 0, 96, 0, {{{NULL}, VT_EMPTY}}, 0}},
 	{L"WriteBuffer", {0x0000006F, NULL, NULL, FUNC_DISPATCH, INVOKE_PROPERTYGET, CC_STDCALL, 0, 0, 100, 0, {{{NULL}, VT_I4}}, 0}},
-	{L"WriteBuffer", {0x0000006F, NULL, &s_mElemDesc[6], FUNC_DISPATCH, INVOKE_PROPERTYPUT, CC_STDCALL, 1, 0, 104, 0, {{{NULL}, VT_EMPTY}}, 0}}
+	{L"WriteBuffer", {0x0000006F, NULL, &s_mElemDesc[6], FUNC_DISPATCH, INVOKE_PROPERTYPUT, CC_STDCALL, 1, 0, 104, 0, {{{NULL}, VT_EMPTY}}, 0}},
+	{L"Purge", {0x00000070, NULL, &s_mElemDesc[6], FUNC_DISPATCH, INVOKE_FUNC, CC_STDCALL, 1, 0, 108, 0, {{{NULL}, VT_EMPTY}}, 0}}
 };
 
 static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult)
@@ -282,8 +283,18 @@ static HRESULT _Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS
 		return hr;
 	}
 
+	IF_INVOKE_FUNC(0x00000070)	//Purge
+	{
+		if(cArgs1 > 1)
+			return DISP_E_BADPARAMCOUNT;
+
+		INVOKE_PARAM(VT_I4, 0)
+
+		hr = pObject->Purge(v0);
+		return hr;
+	}
 	return DISP_E_MEMBERNOTFOUND;
 }
 
-CBTypeInfo CBDispatch<ICommStream>::g_typeinfo(__uuidof(ICommStream), L"ICommStream", s_mData, 20, _Invoke);
+CBTypeInfo CBDispatch<ICommStream>::g_typeinfo(__uuidof(ICommStream), L"ICommStream", s_mData, 21, _Invoke);
 

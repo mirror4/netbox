@@ -317,6 +317,10 @@
 			Name="Form"
 			>
 			<File
+				RelativePath=".\BBackgroudWindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BHtmlWindow.cpp"
 				>
 			</File>
@@ -327,6 +331,10 @@
 			<Filter
 				Name="Header Files"
 				>
+				<File
+					RelativePath=".\BBackgroudWindow.h"
+					>
+				</File>
 				<File
 					RelativePath=".\BHtmlWindow.h"
 					>
@@ -373,6 +381,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BECC.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BHash.cpp"
 				>
 			</File>
@@ -389,6 +401,10 @@
 				>
 				<File
 					RelativePath=".\BCipher.h"
+					>
+				</File>
+				<File
+					RelativePath=".\BECC.h"
 					>
 				</File>
 				<File
@@ -984,6 +1000,10 @@
 			</File>
 			<File
 				RelativePath=".\typelib\tiIDatabase.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\typelib\tiIECC.cpp"
 				>
 			</File>
 			<File

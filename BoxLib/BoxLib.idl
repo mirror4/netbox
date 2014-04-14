@@ -698,6 +698,8 @@ interface ICommStream : IDispatch {
 	HRESULT WriteBuffer([out, retval] long* pVal);
 	[id(0x0000006f), propput]
 	HRESULT WriteBuffer([in] long pVal);
+	[id(0x00000070)]
+	HRESULT Purge([in] long lFlag);
 };
 
 [
@@ -1003,6 +1005,58 @@ interface IRSA : IDispatch {
 					[out, retval] VARIANT* pVal);
 	[id(0x00000009)]
 	HRESULT GenerateKey([in, optional] VARIANT varSize);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0000-000049454343),
+  dual,
+  oleautomation
+]
+interface IECC : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT IsPrivateKey([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000002), propget]
+	HRESULT Key([out, retval] VARIANT* pVal);
+	[id(0x00000003), propget]
+	HRESULT KeySize([out, retval] short* pVal);
+
+	[id(0x00000004), propget]
+	HRESULT Parameter([out, retval] VARIANT* pVal);
+	[id(0x00000004), propput]
+	HRESULT Parameter([in] VARIANT pVal);
+
+	[id(0x00000005), propget]
+	HRESULT PrivateKey([out, retval] VARIANT* pVal);
+	[id(0x00000005), propput]
+	HRESULT PrivateKey([in] VARIANT pVal);
+	[id(0x00000006), propget]
+	HRESULT PublicKey([out, retval] VARIANT* pVal);
+	[id(0x00000006), propput]
+	HRESULT PublicKey([in] VARIANT pVal);
+	[id(0x00000007)]
+	HRESULT Decrypt(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* pVal);
+	[id(0x00000008)]
+	HRESULT Encrypt(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* pVal);
+	[id(0x00000009)]
+	HRESULT GenerateKey([in, optional] VARIANT varSize);
+
+	[id(0x0000000A), propget]
+	HRESULT DSASize([out, retval] short* pVal);
+	[id(0x0000000B)]
+	HRESULT DSASign(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* pVal);
+	[id(0x0000000C)]
+	HRESULT DSAVerify(
+					[in] VARIANT varData, 
+					[in] VARIANT varSig, 
+					[out, retval] VARIANT_BOOL* retVal);
+
 };
 
 [
@@ -1822,6 +1876,7 @@ library BoxLibrary
 
 		interface IHash;
 		interface IRSA;
+		interface IECC;
 		interface IRandom;
 		interface ICipher;
 

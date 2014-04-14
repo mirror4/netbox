@@ -759,11 +759,11 @@ void CNBRDlg::OnCbnSelchangeSrcfolder()
 			LVFINDINFO info;
 			int nIndex;
 
-			str = str.Mid(7);
+			str = str.Mid(8);
 			str.Trim();
 			str.MakeLower();
 
-			info.flags = LVFI_PARTIAL|LVFI_STRING;
+			info.flags = LVFI_STRING;	//LVFI_PARTIAL|
 			info.psz = str;
 
 			nIndex = m_wndSource.FindItem(&info);
