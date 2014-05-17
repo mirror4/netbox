@@ -1,0 +1,8 @@
+创建对象文件
+CBXXX.cpp
+CBXXX.h
+typelib\tiXXX.cpp	此文件需要修改最后一行的方法和属性数组的个数的常熟，很多文件不是sizeof(s_mData)/sizeof(CBTypeInfo::METHOD_ENTRY)
+
+
+修改BoxLib.idl以定义IXXX这个INTERFACE
+

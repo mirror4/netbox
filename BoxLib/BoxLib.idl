@@ -1,0 +1,1901 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+midl_pragma warning(disable: 2400)
+midl_pragma warning(disable: 2401)
+
+[
+  odl,
+  uuid(94659465-4948-7474-7052-657175657374),
+  dual,
+  oleautomation
+]
+interface IHttpRequest : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT dataAvailable([out, retval] short* pVal);
+	[id(0x00000002), propget]
+	HRESULT readyState([out, retval] short* pVal);
+	[id(0x00000003), propget]
+	HRESULT status([out, retval] short* pVal);
+	[id(0x00000004), propget]
+	HRESULT statusText([out, retval] BSTR* pVal);
+	[id(0x00000005), propget]
+	HRESULT TotalBytes([out, retval] DOUBLE* pVal);
+	[id(0x00000006)]
+	HRESULT Abort();
+	[id(0x00000007)]
+	HRESULT getAllResponseHeaders([out, retval] BSTR* retVal);
+	[id(0x00000008)]
+	HRESULT getResponseHeader(
+					[in] BSTR strName, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000009)]
+	HRESULT Open(
+					[in] BSTR strMethod, 
+					[in] BSTR strUrl, 
+					[in, optional, defaultvalue(-1)] VARIANT_BOOL bAsync, 
+					[in, optional] VARIANT varUser, 
+					[in, optional] VARIANT varPassword);
+	[id(0x0000000a), propget]
+	HRESULT Flags([out, retval] long* flags);
+	[id(0x0000000a), propput]
+	HRESULT Flags([in] long flags);
+	[id(0x0000000b)]
+	HRESULT Read(
+					[in, optional, defaultvalue(0)] long nSize, 
+					[out, retval] VARIANT* retVal);
+	[id(0x0000000c)]
+	HRESULT ReadAll([out, retval] VARIANT* retVal);
+	[id(0x0000000d)]
+	HRESULT Send([in, optional] VARIANT varBody);
+	[id(0x0000000e)]
+	HRESULT setRequestHeader(
+					[in] BSTR strHeader, 
+					[in] BSTR strValue);
+	[id(0x0000000f)]
+	HRESULT setProxy(
+					[in] short ProxySetting, 
+					[in, optional, defaultvalue("")] BSTR strProxyServer, 
+					[in, optional, defaultvalue("")] BSTR strBypassList);
+	[id(0x00000010)]
+	HRESULT setProxyCredentials(
+					[in] BSTR strUserName, 
+					[in] BSTR strPassword);
+	[id(0x00000011)]
+	HRESULT WaitForResponse(
+					[in, optional, defaultvalue(-1)] long nTimeout, 
+					[out, retval] VARIANT_BOOL* retVal);
+};
+
+[
+  odl,
+  uuid(D97A6DA0-A85D-11CF-83AE-00A0C90C2BD8),
+  dual,
+  oleautomation
+]
+interface IStringList : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item(
+					[in, optional] VARIANT i, 
+					[out, retval] VARIANT* pVariantReturn);
+	[id(0x60020001), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x60020002), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+};
+
+[
+  odl,
+  uuid(94659465-0049-5570-6C6F-61644C697374),
+  dual,
+  oleautomation
+]
+interface IUploadList : IDispatch {
+	[id(0x60020003), propget]
+	HRESULT FileName([out, retval] BSTR* pStrReturn);
+	[id(0x60020004), propget]
+	HRESULT Size([out, retval] long* pVal);
+	[id(0x60020005), propget]
+	HRESULT ContentType([out, retval] BSTR* pStrReturn);
+};
+
+[
+  odl,
+  uuid(94659465-0049-5570-6C6F-616444617461),
+  dual,
+  oleautomation
+]
+interface IUploadData : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item([out, retval] VARIANT* pVariantReturn);
+	[id(0x00000001), propget]
+	HRESULT FileName([out, retval] BSTR* pStrReturn);
+	[id(0x00000002), propget]
+	HRESULT Size([out, retval] long* pVal);
+	[id(0x00000003), propget]
+	HRESULT ContentType([out, retval] BSTR* pStrReturn);
+};
+
+[
+  odl,
+  uuid(94659465-0000-4941-7267-756D656E7473),
+  dual,
+  oleautomation
+]
+interface IArguments : IDispatch {
+	[id(0x60020002), propget]
+	HRESULT CommandLine([out, retval] BSTR* rhs);
+	[id(0x60020002), propput]
+	HRESULT CommandLine([in] BSTR rhs);
+};
+
+[
+  odl,
+  uuid(D97A6DA0-A85F-11DF-83AE-00A0C90C2BD8),
+  dual,
+  oleautomation
+]
+interface IRequestDictionary : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item(
+					[in, optional] VARIANT Var, 
+					[out, retval] VARIANT* pVariantReturn);
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x60020002), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0x60020003), propget]
+	HRESULT Key(
+					[in] VARIANT VarKey, 
+					[out, retval] VARIANT* pvar);
+	[id(0x60020004)]
+	HRESULT Exists(
+					[in] VARIANT VarKey, 
+					[out, retval] VARIANT_BOOL* pExists);
+	[id(0x60020005), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+	[id(0x60020006), propget]
+	HRESULT Keys([out, retval] VARIANT* pKeysArray);
+};
+
+[
+  odl,
+  uuid(71EAF260-0CE0-11D0-A53E-00A0C90C2091),
+  dual,
+  oleautomation
+]
+interface IReadCookie : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item(
+					[in, optional] VARIANT Var, 
+					[out, retval] VARIANT* pVariantReturn);
+	[id(0x60020001), propget]
+	HRESULT HasKeys([out, retval] VARIANT_BOOL* pfHasKeys);
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x60020003), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0x60020004), propget]
+	HRESULT Key(
+					[in] VARIANT VarKey, 
+					[out, retval] VARIANT* pvar);
+	[id(0x60020005), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+	[id(0x60020006), propget]
+	HRESULT Keys([out, retval] VARIANT* pKeysArray);
+};
+
+[
+  odl,
+  uuid(D97A6DA0-A862-11CF-84AE-00A0C90C2BD8),
+  dual,
+  oleautomation
+]
+interface IWriteCookie : IDispatch {
+	[id(0x00000000), propput]
+	HRESULT Item(
+					[in, optional] VARIANT Key, 
+					[in] BSTR rhs);
+	[id(0x60020001), propput]
+	HRESULT Expires([in] DATE rhs);
+	[id(0x60020002), propput]
+	HRESULT Domain([in] BSTR rhs);
+	[id(0x60020003), propput]
+	HRESULT Path([in] BSTR rhs);
+	[id(0x60020004), propput]
+	HRESULT Secure([in] VARIANT_BOOL rhs);
+	[id(0x60020005), propget]
+	HRESULT HasKeys([out, retval] VARIANT_BOOL* pfHasKeys);
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x60020008), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+	[id(0x60020009), propget]
+	HRESULT Keys([out, retval] VARIANT* pKeysArray);
+};
+
+[
+  odl,
+  uuid(94659465-4942-726F-7773-657243617073),
+  dual,
+  oleautomation
+]
+interface IBrowserCap : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT ActiveXControls([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000002), propget]
+	HRESULT AOL([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000003), propget]
+	HRESULT BackgroundSounds([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000004), propget]
+	HRESULT Beta([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000005), propget]
+	HRESULT CDF([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000006), propget]
+	HRESULT Cookies([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000007), propget]
+	HRESULT Crawler([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000008), propget]
+	HRESULT CSSVersion([out, retval] short* pVal);
+	[id(0x00000009), propget]
+	HRESULT Frames([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000000a), propget]
+	HRESULT IFrames([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000000b), propget]
+	HRESULT JavaApplets([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000000c), propget]
+	HRESULT JavaScript([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000000d), propget]
+	HRESULT MajorVersion([out, retval] BSTR* pVal);
+	[id(0x0000000e), propget]
+	HRESULT MinorVersion([out, retval] BSTR* pVal);
+	[id(0x0000000f), propget]
+	HRESULT Name([out, retval] BSTR* pVal);
+	[id(0x00000010), propget]
+	HRESULT NetCLR([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000011), propget]
+	HRESULT Platform([out, retval] BSTR* pVal);
+	[id(0x00000012), propget]
+	HRESULT Tables([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000013), propget]
+	HRESULT Type([out, retval] BSTR* pVal);
+	[id(0x00000014), propget]
+	HRESULT VBScript([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000015), propget]
+	HRESULT Version([out, retval] BSTR* pVal);
+	[id(0x00000016), propget]
+	HRESULT WAP([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000017), propget]
+	HRESULT Win16([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000018), propget]
+	HRESULT UserAgent([out, retval] BSTR* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0042-537472756374),
+  dual,
+  oleautomation
+]
+interface IVariantStruct : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item(
+					[in, optional, defaultvalue(-1)] long id, 
+					[out, retval] VARIANT* pvar);
+	[id(0x00000000), propput]
+	HRESULT Item(
+					[in] long id, 
+					[in] VARIANT pvar);
+	[id(0x00000000), propputref]
+	HRESULT Item(
+					[in] long id, 
+					[in] VARIANT pvar);
+	[id(0x00000001)]
+	HRESULT Load(
+					[in] VARIANT VarSrc, 
+					[in, optional, defaultvalue(7)] short mode);
+	[id(0x00000002)]
+	HRESULT Save(
+					[in] VARIANT VarDesc, 
+					[in, optional, defaultvalue(7)] short mode);
+};
+
+[
+  odl,
+  uuid(94659465-6172-6961-6E74-4C6973744578),
+  dual,
+  oleautomation
+]
+interface IVariantList : IDispatch {
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x00000010), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+	[id(0x00000011), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0x00000012)]
+	HRESULT Add([in] VARIANT Var);
+	[id(0x00000013)]
+	HRESULT Insert(
+					[in] long i, 
+					[in] VARIANT Var);
+	[id(0x00000014)]
+	HRESULT Remove([in] long i);
+	[id(0x00000015)]
+	HRESULT RemoveAll();
+	[id(0x00000016)]
+	HRESULT Sort([in, optional, defaultvalue(-1)] VARIANT_BOOL bMode);
+	[id(0x00000017)]
+	HRESULT Join(
+					[in, optional, defaultvalue(",")] BSTR bstrDelimiter, 
+					[out, retval] BSTR* pvar);
+	[id(0x00000018)]
+	HRESULT Split(
+					[in] BSTR bstrExpression, 
+					[in, optional, defaultvalue(",")] BSTR bstrDelimiter);
+	[id(0x00000019)]
+	HRESULT toJson(
+					[in, optional, defaultvalue(-1)] int intStyle, 
+					[out, retval] BSTR* pvar);
+	[id(0x0000001A)]
+	HRESULT fromJson([in] BSTR bstrJson);
+};
+
+[
+  odl,
+  uuid(4A7DEB90-B069-11D0-B373-00A0C90C2BD8),
+  dual,
+  oleautomation
+]
+interface IVariantDictionary : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item(
+					[in, optional] VARIANT VarKey, 
+					[out, retval] VARIANT* pvar);
+	[id(0x00000000), propput]
+	HRESULT Item(
+					[in] VARIANT VarKey, 
+					[in] VARIANT pvar);
+	[id(0x00000000), propputref]
+	HRESULT Item(
+					[in] VARIANT VarKey, 
+					[in] VARIANT pvar);
+	[id(0x60020003), propget]
+	HRESULT Key(
+					[in] VARIANT VarKey, 
+					[out, retval] VARIANT* pvar);
+	[id(0x60020004), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x60020006)]
+	HRESULT Remove([in] VARIANT VarKey);
+	[id(0x60020007)]
+	HRESULT RemoveAll();
+	[id(0x60020008), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+	[id(0x60020009), propget]
+	HRESULT Keys([out, retval] VARIANT* pKeysArray);
+	[id(0x6002000a), propget]
+	HRESULT ArrayMode([out, retval] VARIANT_BOOL* pVal);
+	[id(0x6002000a), propput]
+	HRESULT ArrayMode([in] VARIANT_BOOL pVal);
+	[id(0x6002000b)]
+	HRESULT Add(
+					[in] VARIANT VarKey, 
+					[in] VARIANT Var);
+	[id(0x6002000c)]
+	HRESULT Exists(
+					[in] VARIANT VarKey, 
+					[out, retval] VARIANT_BOOL* pExists);
+	[id(0x6002000d)]
+	HRESULT Sort([in, optional, defaultvalue(-1)] VARIANT_BOOL bMode);
+	[id(0x6002000e)]
+	HRESULT Load(
+					[in] VARIANT VarSrc, 
+					[in, optional, defaultvalue(7)] short mode);
+	[id(0x6002000f)]
+	HRESULT Save(
+					[in] VARIANT VarDesc, 
+					[in, optional, defaultvalue(7)] short mode);
+	[id(0x60020010)]
+	HRESULT Join(
+					[in, optional, defaultvalue("=")] BSTR bstrKeyDelimiter, 
+					[in, optional, defaultvalue(",")] BSTR bstrDelimiter, 
+					[out, retval] BSTR* pvar);
+	[id(0x60020011)]
+	HRESULT Split(
+					[in] BSTR bstrExpression, 
+					[in, optional, defaultvalue("=")] BSTR bstrKeyDelimiter, 
+					[in, optional, defaultvalue(",")] BSTR bstrDelimiter);
+	[id(0x60020012)]
+	HRESULT toJson(
+					[in, optional, defaultvalue(-1)] int intStyle, 
+					[out, retval] BSTR* pvar);
+	[id(0x60020013)]
+	HRESULT fromJson([in] BSTR bstrJson);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0000-495175657565),
+  dual,
+  oleautomation
+]
+interface IQueue : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item([out, retval] VARIANT* pvar);
+	[id(0x00000001), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0x00000002), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+	[id(0x00000003)]
+	HRESULT AddHead([in] VARIANT Var);
+	[id(0x00000004)]
+	HRESULT AddTail([in] VARIANT Var);
+	[id(0x00000005)]
+	HRESULT GetHead([out, retval] VARIANT* Var);
+	[id(0x00000006)]
+	HRESULT GetTail([out, retval] VARIANT* Var);
+	[id(0x00000007)]
+	HRESULT RemoveHead([out, retval] VARIANT* Var);
+	[id(0x00000008)]
+	HRESULT RemoveTail([out, retval] VARIANT* Var);
+	[id(0x00000009)]
+	HRESULT RemoveAll();
+	[id(0x0000000a)]
+	HRESULT Load(
+					[in] VARIANT VarSrc, 
+					[in, optional, defaultvalue(7)] short mode);
+	[id(0x0000000b)]
+	HRESULT Save(
+					[in] VARIANT VarDesc, 
+					[in, optional, defaultvalue(7)] short mode);
+	[id(0x0000000c)]
+	HRESULT Join(
+					[in, optional, defaultvalue(",")] BSTR bstrDelimiter, 
+					[out, retval] BSTR* pvar);
+	[id(0x0000000d)]
+	HRESULT Split(
+					[in] BSTR bstrExpression, 
+					[in, optional, defaultvalue(",")] BSTR bstrDelimiter);
+};
+
+[
+  odl,
+  uuid(94659465-6C65-4469-6374-696F6E617279),
+  dual,
+  oleautomation
+]
+interface ISimpleDictionary : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item(
+					[in, optional] VARIANT Var, 
+					[out, retval] VARIANT* pVariantReturn);
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x60020002), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0x60020003), propget]
+	HRESULT Key(
+					[in] VARIANT VarKey, 
+					[out, retval] VARIANT* pvar);
+	[id(0x60020004)]
+	HRESULT Exists(
+					[in] VARIANT VarKey, 
+					[out, retval] VARIANT_BOOL* pExists);
+	[id(0x60020005), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+	[id(0x60020006), propget]
+	HRESULT Keys([out, retval] VARIANT* pKeysArray);
+};
+
+[
+  odl,
+  uuid(94659465-0049-4261-7365-53747265616D),
+  dual,
+  oleautomation
+]
+interface IBaseStream : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT CodePage([out, retval] long* pVal);
+	[id(0x00000001), propput]
+	HRESULT CodePage([in] long pVal);
+	[id(0x00000002), propget]
+	HRESULT EOS([out, retval] VARIANT_BOOL* pEOS);
+	[id(0x00000003), propget]
+	HRESULT Handle([out, retval] long* pVal);
+	[id(0x00000004), propget]
+	HRESULT lastModify([out, retval] DATE* pVal);
+	[id(0x00000005), propget]
+	HRESULT Position([out, retval] DOUBLE* pVal);
+	[id(0x00000005), propput]
+	HRESULT Position([in] DOUBLE pVal);
+	[id(0x00000006), propget]
+	HRESULT Size([out, retval] DOUBLE* pVal);
+	[id(0x00000006), propput]
+	HRESULT Size([in] DOUBLE pVal);
+	[id(0x00000007), propget]
+	HRESULT Type([out, retval] short* pVal);
+	[id(0x00000008)]
+	HRESULT Open([in, optional, defaultvalue(0x100000)] long nSize);
+	[id(0x00000009)]
+	HRESULT Read(
+					[in, optional, defaultvalue(-1)] long nSize, 
+					[out, retval] VARIANT* pVal);
+	[id(0x0000000a)]
+	HRESULT Write([in] VARIANT varBuffer);
+	[id(0x0000000b)]
+	HRESULT ReadLine([out, retval] BSTR* pVal);
+	[id(0x0000000c)]
+	HRESULT WriteLine([in, optional, defaultvalue("")] BSTR Var);
+	[id(0x0000000d)]
+	HRESULT WriteBlankLines([in, optional, defaultvalue(1)] short Var);
+	[id(0x0000000e)]
+	HRESULT ReadRawLine([out, retval] VARIANT* pVal);
+	[id(0x0000000f)]
+	HRESULT ReadText(
+					[in, optional, defaultvalue(-1)] long nSize, 
+					[out, retval] BSTR* pVal);
+	[id(0x00000010)]
+	HRESULT WriteText([in] BSTR str);
+	[id(0x00000011)]
+	HRESULT ReadVariant(
+					[in, optional, defaultvalue(7)] short mode, 
+					[out, retval] VARIANT* pVal);
+	[id(0x00000012)]
+	HRESULT WriteVariant(
+					[in] VARIANT Var, 
+					[in, optional, defaultvalue(7)] short mode);
+	[id(0x00000013)]
+	HRESULT ReadBoolean([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000014)]
+	HRESULT WriteBoolean([in] VARIANT_BOOL Var);
+	[id(0x00000015)]
+	HRESULT ReadByte([out, retval] short* pVal);
+	[id(0x00000016)]
+	HRESULT WriteByte([in] short Var);
+	[id(0x00000017)]
+	HRESULT ReadInt([out, retval] short* pVal);
+	[id(0x00000018)]
+	HRESULT WriteInt([in] short Var);
+	[id(0x00000019)]
+	HRESULT ReadLong([out, retval] long* pVal);
+	[id(0x0000001a)]
+	HRESULT WriteLong([in] long Var);
+	[id(0x0000001b)]
+	HRESULT ReadFloat([out, retval] float* pVal);
+	[id(0x0000001c)]
+	HRESULT WriteFloat([in] float Var);
+	[id(0x0000001d)]
+	HRESULT ReadDouble([out, retval] DOUBLE* pVal);
+	[id(0x0000001e)]
+	HRESULT WriteDouble([in] DOUBLE Var);
+	[id(0x0000001f)]
+	HRESULT ReadDate([out, retval] DATE* pVal);
+	[id(0x00000020)]
+	HRESULT WriteDate([in] DATE Var);
+	[id(0x00000021)]
+	HRESULT ReadObject(
+					[in, optional, defaultvalue(7)] short mode, 
+					[out, retval] IDispatch** pVal);
+	[id(0x00000022)]
+	HRESULT WriteObject(
+					[in] IDispatch* Var, 
+					[in, optional, defaultvalue(7)] short mode);
+	[id(0x00000023)]
+	HRESULT Close();
+	[id(0x00000024)]
+	HRESULT Attach([in] IUnknown* SrcStream);
+	[id(0x00000025)]
+	HRESULT CopyTo(
+					[in] VARIANT varDestStream, 
+					[in, optional, defaultvalue(-1)] DOUBLE nSize);
+	[id(0x00000026)]
+	HRESULT CopyFrom(
+					[in] VARIANT varSrcStream, 
+					[in, optional, defaultvalue(-1)] DOUBLE nSize);
+	[id(0x00000027)]
+	HRESULT setEOS();
+	[id(0x00000028)]
+	HRESULT Flush();
+	[id(0x00000029), propget]
+	HRESULT LastWritten([out, retval] long* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0049-4669-6C65-53747265616D),
+  dual,
+  oleautomation
+]
+interface IFileStream : IDispatch {
+	[id(0x00000065)]
+	HRESULT Create(
+					[in] BSTR bstrName, 
+					[in, optional, defaultvalue(-1)] VARIANT_BOOL bOverwrite);
+	[id(0x00000066)]
+	HRESULT Open(
+					[in] BSTR bstrName, 
+					[in, optional, defaultvalue(1)] short nMode, 
+					[in, optional, defaultvalue(3)] short nShare);
+};
+
+[
+  odl,
+  uuid(94650000-0000-0000-0000-000050697065),
+  dual,
+  oleautomation
+]
+interface IPipe : IDispatch {
+	[id(0x00000065)]
+	HRESULT Open([in, optional, defaultvalue(0x0)] long Val, [out, retval] IPipe** retVal);
+	[id(0x00000066), propget]
+	HRESULT dataAvailable([out, retval] long* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-4943-6F6E736F6C65),
+  dual,
+  oleautomation
+]
+interface IConsole : IDispatch {
+	[id(0x00000065), propget]
+	HRESULT Caption([out, retval] BSTR* pVal);
+	[id(0x00000065), propput]
+	HRESULT Caption([in] BSTR pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0049-436F-6D6D-53747265616D),
+  dual,
+  oleautomation
+]
+interface ICommStream : IDispatch {
+	[id(0x00000065), propget]
+	HRESULT BaudRate([out, retval] short* pVal);
+	[id(0x00000065), propput]
+	HRESULT BaudRate([in] short pVal);
+	[id(0x00000066), propget]
+	HRESULT DataBits([out, retval] short* pVal);
+	[id(0x00000066), propput]
+	HRESULT DataBits([in] short pVal);
+	[id(0x00000067), propget]
+	HRESULT Handshaking([out, retval] short* pVal);
+	[id(0x00000067), propput]
+	HRESULT Handshaking([in] short pVal);
+	[id(0x00000068), propget]
+	HRESULT Parity([out, retval] short* pVal);
+	[id(0x00000068), propput]
+	HRESULT Parity([in] short pVal);
+	[id(0x00000069), propget]
+	HRESULT ReadTimeout([out, retval] long* pVal);
+	[id(0x00000069), propput]
+	HRESULT ReadTimeout([in] long pVal);
+	[id(0x0000006a), propget]
+	HRESULT StopBits([out, retval] short* pVal);
+	[id(0x0000006a), propput]
+	HRESULT StopBits([in] short pVal);
+	[id(0x0000006b), propget]
+	HRESULT WriteTimeout([out, retval] long* pVal);
+	[id(0x0000006b), propput]
+	HRESULT WriteTimeout([in] long pVal);
+	[id(0x0000006c)]
+	HRESULT Config([in, optional] VARIANT varMode);
+	[id(0x0000006d)]
+	HRESULT Open(
+					[in] short lPort, 
+					[in, optional] VARIANT varMode);
+	[id(0x0000006e), propget]
+	HRESULT ReadBuffer([out, retval] long* pVal);
+	[id(0x0000006e), propput]
+	HRESULT ReadBuffer([in] long pVal);
+	[id(0x0000006f), propget]
+	HRESULT WriteBuffer([out, retval] long* pVal);
+	[id(0x0000006f), propput]
+	HRESULT WriteBuffer([in] long pVal);
+	[id(0x00000070)]
+	HRESULT Purge([in] long lFlag);
+};
+
+[
+  odl,
+  uuid(94659465-0000-4942-5069-70654C696E65),
+  dual,
+  oleautomation
+]
+interface IPipeLine : IDispatch {
+	[id(0x00000065)]
+	HRESULT Open([in, optional, defaultvalue(0x100000)] long Val, [out, retval] IPipeLine** retVal);
+	[id(0x00000066), propget]
+	HRESULT dataAvailable([out, retval] long* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0049-456E-636F64696E67),
+  dual,
+  oleautomation
+]
+interface IEncoding : IDispatch {
+	[id(0x00000001)]
+	HRESULT Base32Decode(
+					[in] BSTR base32String, 
+					[out, retval] VARIANT* retVal);
+	[id(0x00000002)]
+	HRESULT Base32Encode(
+					[in] VARIANT varData, 
+					[in, optional, defaultvalue(0)] short nLineBreak, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000003)]
+	HRESULT Base64Decode(
+					[in] BSTR base64String, 
+					[out, retval] VARIANT* retVal);
+	[id(0x00000004)]
+	HRESULT Base64Encode(
+					[in] VARIANT varData, 
+					[in, optional, defaultvalue(0)] short nLineBreak, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000005)]
+	HRESULT BinToStr(
+					[in] VARIANT varData, 
+					[in, optional, defaultvalue(0)] long nCodePage, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000006)]
+	HRESULT CsvDecode([in] BSTR bstrText, 
+					[out, retval] VARIANT* retVal);
+	[id(0x00000007)]
+	HRESULT CsvEncode([in] VARIANT varArray, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000008)]
+	HRESULT Deflate(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* retVal);
+	[id(0x00000009)]
+	HRESULT HexDecode(
+					[in] BSTR HexString, 
+					[out, retval] VARIANT* retVal);
+	[id(0x0000000a)]
+	HRESULT HexEncode(
+					[in] VARIANT varData, 
+					[in, optional, defaultvalue(0)] short nLineBreak, 
+					[out, retval] BSTR* retVal);
+	[id(0x0000000b)]
+	HRESULT HtmlEncode(
+					[in] BSTR TextString, 
+					[out, retval] BSTR* retVal);
+	[id(0x0000000c)]
+	HRESULT HtmlFormat(
+					[in] BSTR TextString, 
+					[out, retval] BSTR* retVal);
+	[id(0x0000000d)]
+	HRESULT Inflate(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* retVal);
+	[id(0x0000000e)]
+	HRESULT JSEncode(
+					[in] BSTR TextString, 
+					[out, retval] BSTR* retVal);
+	[id(0x0000000f)]
+	HRESULT SQLEncode(
+					[in] VARIANT varValue, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000010)]
+	HRESULT StrToBin(
+					[in] BSTR strData, 
+					[in, optional, defaultvalue(0)] long nCodePage, 
+					[out, retval] VARIANT* retVal);
+	[id(0x00000011)]
+	HRESULT UrlDecode(
+					[in] BSTR urlString, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000012)]
+	HRESULT UrlEncode(
+					[in] BSTR urlString, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000013)]
+	HRESULT xmlEncode(
+					[in] BSTR TextString, 
+					[out, retval] BSTR* retVal);
+	[id(0x00000014)]
+	HRESULT FormatMessage(
+					[in] BSTR bstrFmtString, 
+					[in, optional, defaultvalue("")] BSTR bstr1, 
+					[in, optional, defaultvalue("")] BSTR bstr2, 
+					[in, optional, defaultvalue("")] BSTR bstr3, 
+					[in, optional, defaultvalue("")] BSTR bstr4, 
+					[in, optional, defaultvalue("")] BSTR bstr5, 
+					[in, optional, defaultvalue("")] BSTR bstr6, 
+					[in, optional, defaultvalue("")] BSTR bstr7, 
+					[in, optional, defaultvalue("")] BSTR bstr8, 
+                    [out, retval] BSTR* bstrMessage);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-4953-7973496E666F),
+  dual,
+  oleautomation
+]
+interface ISysInfo : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item(
+					[in, optional] VARIANT Var, 
+					[out, retval] VARIANT* pVariantReturn);
+	[id(0x00000001), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x00000002), propget]
+	HRESULT Key(
+					[in] VARIANT VarKey, 
+					[out, retval] VARIANT* pvar);
+	[id(0x00000003)]
+	HRESULT Add(
+					[in] BSTR strKey, 
+					[in] BSTR strValue);
+	[id(0x00000004)]
+	HRESULT Exists(
+					[in] BSTR strKey, 
+					[out, retval] VARIANT_BOOL* pExists);
+	[id(0x00000005)]
+	HRESULT Save([in] VARIANT VarDesc);
+	[id(0x00000006)]
+	HRESULT Update();
+};
+
+[
+  odl,
+  uuid(94659465-0000-0049-4964-656E74697479),
+  dual,
+  oleautomation
+]
+interface IIdentity : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Item(
+					[in] BSTR strKey, 
+					[in, optional, defaultvalue(1)] long nCount, 
+					[out, retval] VARIANT* pvar);
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x00000003), propget]
+	HRESULT Items([out, retval] VARIANT* pItemsArray);
+	[id(0x00000004), propget]
+	HRESULT Keys([out, retval] VARIANT* pKeysArray);
+	[id(0x00000005)]
+	HRESULT Add(
+					[in] BSTR strKey, 
+					[in] VARIANT Var);
+	[id(0x00000006)]
+	HRESULT Exists(
+					[in] BSTR strKey, 
+					[out, retval] VARIANT_BOOL* pExists);
+	[id(0x00000007)]
+	HRESULT GenGUIDString([out, retval] BSTR* retVal);
+};
+
+[
+  odl,
+  uuid(94659465-494D-6573-7361-6765436F6C6C),
+  dual,
+  oleautomation
+]
+interface IMessageColl : IDispatch {
+	[id(0x00000000)]
+	HRESULT GetMessage(
+					[in] BSTR bstrKey, 
+                    [out, retval] BSTR* bstrMessage);
+	[id(0x00000001)]
+	HRESULT FormatMessage(
+					[in] BSTR bstrKey, 
+					[in, optional, defaultvalue("")] BSTR bstr1, 
+					[in, optional, defaultvalue("")] BSTR bstr2, 
+					[in, optional, defaultvalue("")] BSTR bstr3, 
+					[in, optional, defaultvalue("")] BSTR bstr4, 
+					[in, optional, defaultvalue("")] BSTR bstr5, 
+					[in, optional, defaultvalue("")] BSTR bstr6, 
+					[in, optional, defaultvalue("")] BSTR bstr7, 
+					[in, optional, defaultvalue("")] BSTR bstr8, 
+                    [out, retval] BSTR* bstrMessage);
+	[id(0x00000002)]
+	HRESULT AddMessage(
+					[in] BSTR bstrKey, 
+					[in] BSTR bstrMessage);
+	[id(0x00000003)]
+	HRESULT RemoveMessage([in] BSTR bstrKey);
+	[id(0x00000004), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0x00000005), propget]
+	HRESULT Language([out, retval] BSTR* pVal);
+	[id(0x00000006), propget]
+	HRESULT CodePage([out, retval] long* pCodePage);
+	[id(0x00000007), propget]
+	HRESULT Names([out, retval] VARIANT* pItemsArray);
+	[id(0x00000008), propget]
+	HRESULT Messages([out, retval] VARIANT* pItemsArray);
+};
+
+[
+  odl,
+  uuid(94659465-0049-4D73-674D-616E61676572),
+  dual,
+  oleautomation
+]
+interface IMessageManager : IDispatch {
+	[id(0x00000000)]
+	HRESULT GetLanguage(
+					[in] BSTR bstrLanguage, 
+                    [out, retval] IMessageColl** pMessageColl);
+	[id(0x00000001)]
+	HRESULT AddLanguage(
+					[in] BSTR bstrLanguage, 
+                    [in, optional, defaultvalue(0)] long CodePage, 
+					[out, retval] IMessageColl** pMessageColl);
+	[id(0x00000002)]
+	HRESULT RemoveLanguage([in] BSTR bstrLanguage);
+	[id(0x00000003), propget]
+	HRESULT Count([out, retval] long* cStrRet);
+	[id(0x00000004), propget]
+	HRESULT Languages([out, retval] VARIANT* pItemsArray);
+	[id(0x00000005)]
+	HRESULT Load([in] VARIANT VarSrc);
+	[id(0x00000006)]
+	HRESULT Save([in] VARIANT VarDesc);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0000-004948617368),
+  dual,
+  oleautomation
+]
+interface IHash : IDispatch {
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x00000001), propget]
+	HRESULT Name([out, retval] BSTR* pVal);
+	[id(0x00000002), propget]
+	HRESULT HashSize([out, retval] short* pVal);
+	[id(0x00000003)]
+	HRESULT Create([in, optional, defaultvalue("MD5")] BSTR bstrAlgo, [in, optional] VARIANT varKey);
+	[id(0x00000004)]
+	HRESULT Update([in] VARIANT varData);
+	[id(0x00000000)]
+	HRESULT Final(
+					[in, optional] VARIANT varData, 
+					[out, retval] VARIANT* retVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0000-000049525341),
+  dual,
+  oleautomation
+]
+interface IRSA : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT IsPrivateKey([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000002), propget]
+	HRESULT Key([out, retval] VARIANT* pVal);
+	[id(0x00000003), propget]
+	HRESULT KeySize([out, retval] short* pVal);
+	[id(0x00000004), propget]
+	HRESULT Padding([out, retval] short* pVal);
+	[id(0x00000004), propput]
+	HRESULT Padding([in] short pVal);
+	[id(0x00000005), propget]
+	HRESULT PrivateKey([out, retval] VARIANT* pVal);
+	[id(0x00000005), propput]
+	HRESULT PrivateKey([in] VARIANT pVal);
+	[id(0x00000006), propget]
+	HRESULT PublicKey([out, retval] VARIANT* pVal);
+	[id(0x00000006), propput]
+	HRESULT PublicKey([in] VARIANT pVal);
+	[id(0x00000007)]
+	HRESULT Decrypt(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* pVal);
+	[id(0x00000008)]
+	HRESULT Encrypt(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* pVal);
+	[id(0x00000009)]
+	HRESULT GenerateKey([in, optional] VARIANT varSize);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0000-000049454343),
+  dual,
+  oleautomation
+]
+interface IECC : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT IsPrivateKey([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000002), propget]
+	HRESULT Key([out, retval] VARIANT* pVal);
+	[id(0x00000003), propget]
+	HRESULT KeySize([out, retval] short* pVal);
+
+	[id(0x00000004), propget]
+	HRESULT Parameter([out, retval] VARIANT* pVal);
+	[id(0x00000004), propput]
+	HRESULT Parameter([in] VARIANT pVal);
+
+	[id(0x00000005), propget]
+	HRESULT PrivateKey([out, retval] VARIANT* pVal);
+	[id(0x00000005), propput]
+	HRESULT PrivateKey([in] VARIANT pVal);
+	[id(0x00000006), propget]
+	HRESULT PublicKey([out, retval] VARIANT* pVal);
+	[id(0x00000006), propput]
+	HRESULT PublicKey([in] VARIANT pVal);
+	[id(0x00000007)]
+	HRESULT Decrypt(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* pVal);
+	[id(0x00000008)]
+	HRESULT Encrypt(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* pVal);
+	[id(0x00000009)]
+	HRESULT GenerateKey([in, optional] VARIANT varSize);
+
+	[id(0x0000000A), propget]
+	HRESULT DSASize([out, retval] short* pVal);
+	[id(0x0000000B)]
+	HRESULT DSASign(
+					[in] VARIANT varData, 
+					[out, retval] VARIANT* pVal);
+	[id(0x0000000C)]
+	HRESULT DSAVerify(
+					[in] VARIANT varData, 
+					[in] VARIANT varSig, 
+					[out, retval] VARIANT_BOOL* retVal);
+
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0049-52616E646F6D),
+  dual,
+  oleautomation
+]
+interface IRandom : IDispatch {
+	[id(0x00000000)]
+	HRESULT Generate(
+					[in, optional, defaultvalue(16)] short nSize, 
+					[out, retval] VARIANT* pvar);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0049-436970686572),
+  dual,
+  oleautomation
+]
+interface ICipher : IDispatch {
+	[id(0xfffffffc), propget, restricted]
+	HRESULT _NewEnum([out, retval] IUnknown** ppEnumReturn);
+	[id(0x00000001), propget]
+	HRESULT Name([out, retval] BSTR* pVal);
+	[id(0x00000002), propget]
+	HRESULT BlockSize([out, retval] short* pVal);
+	[id(0x00000003), propget]
+	HRESULT CipherMode([out, retval] short* pVal);
+	[id(0x00000004), propget]
+	HRESULT KeySize([out, retval] short* pVal);
+	[id(0x00000005), propget]
+	HRESULT Key([out, retval] VARIANT* pVal);
+	[id(0x00000005), propput]
+	HRESULT Key([in] VARIANT Val);
+	[id(0x00000006)]
+	HRESULT GenerateKey([in, optional, defaultvalue(-1)] short iSize);
+	[id(0x00000007), propget]
+	HRESULT IVSize([out, retval] short* pVal);
+	[id(0x00000008), propget]
+	HRESULT IV([out, retval] VARIANT* pVal);
+	[id(0x00000008), propput]
+	HRESULT IV([in] VARIANT Val);
+	[id(0x00000009)]
+	HRESULT GenerateIV();
+	[id(0x0000000a), propget]
+	HRESULT Padding([out, retval] short* pVal);
+	[id(0x0000000a), propput]
+	HRESULT Padding([in] short Val);
+	[id(0x0000000b)]
+	HRESULT Create(
+				[in, optional, defaultvalue("DES")] BSTR bstrAlgo, 
+				[in, optional, defaultvalue(-1)] short iMode);
+	[id(0x0000000c)]
+	HRESULT Encrypt(
+				[in] VARIANT varInput, 
+				[in, optional] VARIANT varOutput, 
+				[out, retval] VARIANT* pVal);
+	[id(0x0000000d)]
+	HRESULT Decrypt(
+				[in] VARIANT varInput, 
+				[in, optional] VARIANT varOutput, 
+				[out, retval] VARIANT* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0049-57696E646F77),
+  dual,
+  oleautomation
+]
+interface IWindow : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT AllowClose([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000001), propput]
+	HRESULT AllowClose([in] VARIANT_BOOL pVal);
+	[id(0x00000002), propget]
+	HRESULT Border([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000002), propput]
+	HRESULT Border([in] VARIANT_BOOL pVal);
+	[id(0x00000003), propget]
+	HRESULT Caption([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000003), propput]
+	HRESULT Caption([in] VARIANT_BOOL pVal);
+	[id(0x00000004), propget]
+	HRESULT clientHeight([out, retval] short* pVal);
+	[id(0x00000005), propget]
+	HRESULT clientWidth([out, retval] short* pVal);
+	[id(0x00000006), propget]
+	HRESULT DropShadow([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000006), propput]
+	HRESULT DropShadow([in] VARIANT_BOOL pVal);
+	[id(0x00000007), propget]
+	HRESULT Height([out, retval] short* pVal);
+	[id(0x00000007), propput]
+	HRESULT Height([in] short pVal);
+	[id(0x00000008), propget]
+	HRESULT HWND([out, retval] long* pVal);
+	[id(0x00000009), propget]
+	HRESULT Icon([out, retval] BSTR* pVal);
+	[id(0x00000009), propput]
+	HRESULT Icon([in] BSTR pVal);
+	[id(0x0000000a), propget]
+	HRESULT LayeredAlpha([out, retval] short* pVal);
+	[id(0x0000000a), propput]
+	HRESULT LayeredAlpha([in] short pVal);
+	[id(0x0000000b), propget]
+	HRESULT Left([out, retval] short* pVal);
+	[id(0x0000000b), propput]
+	HRESULT Left([in] short pVal);
+	[id(0x0000000c), propget]
+	HRESULT MaximizeBox([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000000c), propput]
+	HRESULT MaximizeBox([in] VARIANT_BOOL pVal);
+	[id(0x0000000d), propget]
+	HRESULT Maximized([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000000d), propput]
+	HRESULT Maximized([in] VARIANT_BOOL pVal);
+	[id(0x0000000e), propget]
+	HRESULT MinimizeBox([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000000e), propput]
+	HRESULT MinimizeBox([in] VARIANT_BOOL pVal);
+	[id(0x0000000f), propget]
+	HRESULT Minimized([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000000f), propput]
+	HRESULT Minimized([in] VARIANT_BOOL pVal);
+	[id(0x00000010), propget]
+	HRESULT ResizAble([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000010), propput]
+	HRESULT ResizAble([in] VARIANT_BOOL pVal);
+	[id(0x00000011), propget]
+	HRESULT ScrollBar([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000011), propput]
+	HRESULT ScrollBar([in] VARIANT_BOOL pVal);
+	[id(0x00000012), propget]
+	HRESULT Title([out, retval] BSTR* pVal);
+	[id(0x00000012), propput]
+	HRESULT Title([in] BSTR pVal);
+	[id(0x00000013), propget]
+	HRESULT ToolWindow([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000013), propput]
+	HRESULT ToolWindow([in] VARIANT_BOOL pVal);
+	[id(0x00000014), propget]
+	HRESULT Top([out, retval] short* pVal);
+	[id(0x00000014), propput]
+	HRESULT Top([in] short pVal);
+	[id(0x00000015), propget]
+	HRESULT TopMost([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000015), propput]
+	HRESULT TopMost([in] VARIANT_BOOL pVal);
+	[id(0x00000016), propget]
+	HRESULT Width([out, retval] short* pVal);
+	[id(0x00000016), propput]
+	HRESULT Width([in] short pVal);
+	[id(0x00000017), propget]
+	HRESULT WindowEdge([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000017), propput]
+	HRESULT WindowEdge([in] VARIANT_BOOL pVal);
+	[id(0x00000018), propget]
+	HRESULT Visible([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000018), propput]
+	HRESULT Visible([in] VARIANT_BOOL pVal);
+	[id(0x00000019)]
+	HRESULT Center();
+	[id(0x0000001a)]
+	HRESULT Close();
+	[id(0x0000001b)]
+	HRESULT Drag([in, optional, defaultvalue(0)] short nMode);
+	[id(0x0000001c)]
+	HRESULT Focus();
+	[id(0x0000001d)]
+	HRESULT isClosed([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000001e)]
+	HRESULT isActived([out, retval] VARIANT_BOOL* pVal);
+	[id(0x0000001f)]
+	HRESULT MoveTo(
+					[in] short Left, 
+					[in] short Top);
+	[id(0x00000020)]
+	HRESULT MoveWindow(
+					[in] short Left, 
+					[in] short Top, 
+					[in] short Width, 
+					[in] short Height);
+	[id(0x00000021)]
+	HRESULT ResizeTo(
+					[in] short Width, 
+					[in] short Height);
+	[id(0x00000022)]
+	HRESULT ShowDialog([out, retval] VARIANT* pVal);
+	[id(0x00000023)]
+	HRESULT EndDialog([in, optional] VARIANT retVal);
+	[id(0x00000024)]
+	HRESULT SetTransparentMask(
+					[in] BSTR newVal, 
+					[in, optional, defaultvalue(0)] short nLeft, 
+					[in, optional, defaultvalue(0)] short nTop, 
+					[in, optional, defaultvalue(0)] short nRight, 
+					[in, optional, defaultvalue(0)] short nBottom);
+	[id(0x00000025)]
+	HRESULT SetMinTrackSize(
+					[in, optional, defaultvalue(0)] short x, 
+					[in, optional, defaultvalue(0)] short y);
+	[id(0x00000026)]
+	HRESULT SetMaxTrackSize(
+					[in, optional, defaultvalue(0)] short x, 
+					[in, optional, defaultvalue(0)] short y);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0049-4874-6D6C466F726D),
+  dual,
+  oleautomation
+]
+interface IHTWindow : IDispatch {
+	[id(0x00000065), propget]
+	HRESULT ContextMenu([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000065), propput]
+	HRESULT ContextMenu([in] VARIANT_BOOL pVal);
+	[id(0x00000066), propget]
+	HRESULT Argument([out, retval] VARIANT* pVal);
+	[id(0x00000067), propget]
+	HRESULT Browser([out, retval] IDispatch** pVal);
+
+	[id(0x00000068)]
+	HRESULT Open(
+					[in] BSTR strUrl, 
+					[in, optional] VARIANT varArg);
+	[id(0x00000069)]
+	HRESULT OpenModalDialog(
+					[in] BSTR strUrl, 
+					[in, optional, defaultvalue(0)] short Width, 
+					[in, optional, defaultvalue(0)] short Height, 
+					[in, optional] VARIANT varArg,
+					[out, retval] VARIANT* pVal);
+};
+
+[
+  odl,
+  uuid(94650000-0000-0000-0050-726F63657373),
+  dual,
+  oleautomation
+]
+interface IProcess : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT ExitCode([out, retval] long* pVal);
+	[id(0x00000002), propget]
+	HRESULT ProcessID([out, retval] long* pVal);
+	[id(0x00000003), propget]
+	HRESULT Status([out, retval] long* pVal);
+	[id(0x00000004), propget]
+	HRESULT FileName([out, retval] BSTR* pVal);
+	[id(0x00000010)]
+	HRESULT Terminate();
+	[id(0x00000011), propget]
+	HRESULT StdIn([out, retval] IPipe** ppStream);
+	[id(0x00000012), propget]
+	HRESULT StdOut([out, retval] IPipe** ppStream);
+	[id(0x00000013), propget]
+	HRESULT StdErr([out, retval] IPipe** ppStream);
+};
+
+[
+  odl,
+  uuid(94659465-0000-4955-4450-5061636B6574),
+  dual,
+  oleautomation
+]
+interface IUDPPacket : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Data([out, retval] VARIANT* pVal);
+	[id(0x00000001), propget]
+	HRESULT LocalAddress([out, retval] BSTR* pVal);
+	[id(0x00000002), propget]
+	HRESULT LocalPort([out, retval] long* pVal);
+	[id(0x00000003), propget]
+	HRESULT RemoteAddress([out, retval] BSTR* pVal);
+	[id(0x00000004), propget]
+	HRESULT RemotePort([out, retval] long* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-4955-4450-536F636B6574),
+  dual,
+  oleautomation
+]
+interface IUDPSocket : IDispatch {
+	[id(0x00000001)]
+	HRESULT Bind(
+					[in] BSTR strAddr, 
+					[in] long port);
+	[id(0x00000002)]
+	HRESULT SendTo(
+					[in] BSTR strAddr, 
+					[in] long port, 
+					[in] VARIANT varData);
+	[id(0x00000003)]
+	HRESULT RecvFrom([out, retval] IUDPPacket** pVal);
+	[id(0x00000004)]
+	HRESULT Close();
+	[id(0x00000005), propget]
+	HRESULT LocalAddress([out, retval] BSTR* pVal);
+	[id(0x00000006), propget]
+	HRESULT LocalPort([out, retval] long* pVal);
+	[id(0x00000007), propget]
+	HRESULT PacketSize([out, retval] long* pVal);
+	[id(0x00000007), propput]
+	HRESULT PacketSize([in] long pVal);
+	[id(0x00000008), propget]
+	HRESULT ReceiveTimeout([out, retval] long* pVal);
+	[id(0x00000008), propput]
+	HRESULT ReceiveTimeout([in] long pVal);
+	[id(0x00000009), propget]
+	HRESULT BroadCast([out, retval] VARIANT_BOOL* pVal);
+	[id(0x00000009), propput]
+	HRESULT BroadCast([in] VARIANT_BOOL pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0000-004946696C65),
+  dual,
+  oleautomation
+]
+interface IFile : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Path([out, retval] BSTR* pbstrPath);
+	[id(0x00000001), propget]
+	HRESULT AbsolutePath([out, retval] BSTR* pbstrPath);
+	[id(0x00000002), propget]
+	HRESULT Name([out, retval] BSTR* pbstrName);
+	[id(0x00000003), propget]
+	HRESULT Attributes([out, retval] short* pfa);
+	[id(0x00000004), propget]
+	HRESULT DateCreated([out, retval] DATE* pdate);
+	[id(0x00000005), propget]
+	HRESULT DateLastModified([out, retval] DATE* pdate);
+	[id(0x00000006), propget]
+	HRESULT DateLastAccessed([out, retval] DATE* pdate);
+	[id(0x00000007), propget]
+	HRESULT Size([out, retval] DOUBLE* pvarSize);
+	[id(0x00000008), propget]
+	HRESULT Type([out, retval] BSTR* pbstrType);
+	[id(0x00000009), propget]
+	HRESULT ContentType([out, retval] BSTR* pbstrType);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0049-466F6C646572),
+  dual,
+  oleautomation
+]
+interface IFolder : IDispatch {
+	[id(0x00000010), propget]
+	HRESULT Files([out, retval] IStringList** ppfiles);
+	[id(0x00000011), propget]
+	HRESULT SubFolders([out, retval] IStringList** ppfolders);
+	[id(0x00000012), propget]
+	HRESULT IsModified([out, retval] VARIANT_BOOL* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-4950-61636B616765),
+  dual,
+  oleautomation
+]
+interface IPackage : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT FileName([out, retval] BSTR* pbstrName);
+	[id(0x00000001), propget]
+	HRESULT CheckSum([out, retval] BSTR* pbstrVal);
+	[id(0x00000002), propget]
+	HRESULT Files([out, retval] ISimpleDictionary** pVal);
+	[id(0x00000003), propget]
+	HRESULT Folders([out, retval] ISimpleDictionary** pVal);
+	[id(0x00000004), propget]
+	HRESULT DeveloperID([out, retval] long* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0049-4669-6C65-53797374656D),
+  dual,
+  oleautomation
+]
+interface IFileSystem : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT Packages([out, retval] ISimpleDictionary** pVal);
+	[id(0x00000002)]
+	HRESULT LoadPackage(
+					[in] BSTR Path, 
+					[in] BSTR Package, 
+					[out, retval] IPackage** pVal);
+	[id(0x00000003)]
+	HRESULT RemovePackage([in] BSTR Path);
+	[id(0x00000004)]
+	HRESULT BuildPath(
+					[in] BSTR Path, 
+					[in, optional, defaultvalue("")] BSTR Name, 
+					[out, retval] BSTR* pbstrResult);
+	[id(0x00000005)]
+    HRESULT CopyFile(
+					[in] BSTR Source, 
+					[in] BSTR Destination, 
+					[in, optional, defaultvalue(-1)] VARIANT_BOOL OverWriteFiles);
+	[id(0x00000006)]
+	HRESULT CreateFolder([in] BSTR FolderSpec);
+	[id(0x00000007)]
+    HRESULT DeleteFile(
+					[in] BSTR FileSpec, 
+					[in, optional, defaultvalue(0)] VARIANT_BOOL bForce);
+    [id(0x00000008)]
+    HRESULT DeleteFolder([in] BSTR FolderSpec);
+	[id(0x00000009)]
+    HRESULT FileExists(
+					[in] BSTR FileSpec, 
+					[out, retval] VARIANT_BOOL* pfExists);
+	[id(0x0000000a)]
+    HRESULT GetBaseName(
+					[in] BSTR Path, 
+					[out, retval] BSTR* pbstrResult);
+    [id(0x0000000b)]
+    HRESULT GetExtensionName(
+					[in] BSTR Path, 
+					[out, retval] BSTR* pbstrResult);
+	[id(0x0000000c)]
+    HRESULT GetFile(
+					[in] BSTR FilePath, 
+					[out, retval] IFile** ppfile);
+	[id(0x0000000d)]
+	HRESULT GetFileName(
+					[in] BSTR Path, 
+					[out, retval] BSTR* pbstrResult);
+	[id(0x0000000e)]
+    HRESULT GetFolder(
+					[in] BSTR FolderPath, 
+					[out, retval] IFolder** ppfolder);
+	[id(0x0000000f)]
+	HRESULT GetFullPathName(
+					[in] BSTR Path, 
+					[out, retval] BSTR* pbstrResult);
+	[id(0x00000010)]
+    HRESULT GetParentFolderName(
+					[in] BSTR Path, 
+					[out, retval] BSTR* pbstrResult);
+	[id(0x00000011)]
+	HRESULT GetTempName(
+					[in, optional, defaultvalue("")] BSTR Path, 
+					[out, retval] BSTR* pbstrResult);
+	[id(0x00000012)]
+    HRESULT IsFolder(
+					[in] BSTR FolderSpec, 
+					[out, retval] VARIANT_BOOL* pfExists);
+    [id(0x00000013)]
+	HRESULT MapPath(
+					[in] BSTR Path, 
+					[out, retval] BSTR* pbstrResult);
+    [id(0x00000014)]
+    HRESULT MoveFile(
+					[in] BSTR Source, 
+					[in] BSTR Destination, 
+					[in, optional, defaultvalue(0)] VARIANT_BOOL bUntilReboot);
+	[id(0x00000015)]
+	HRESULT SetFileAttributes(
+					[in] BSTR Path, 
+					[in] short attr);
+};
+
+[
+  odl,
+  uuid(94659465-0000-4952-6563-6F7264736574),
+  dual,
+  oleautomation
+]
+interface IRecordset : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Value(
+					[in, optional] VARIANT VarKey, 
+					[out, retval] VARIANT* pvar);
+	[id(0x00000000), propput]
+	HRESULT Value(
+					[in] VARIANT VarKey, 
+					[in] VARIANT pvar);
+	[id(0x00000001)]
+	HRESULT Move([in] long pos);
+	[id(0x00000002)]
+	HRESULT MoveFirst(void);
+	[id(0x00000003)]
+	HRESULT MoveLast(void);
+	[id(0x00000004)]
+	HRESULT MoveNext(void);
+	[id(0x00000005)]
+	HRESULT MovePrevious(void);
+	[id(0x00000006)]
+	HRESULT Load([in] VARIANT VarSrc);
+	[id(0x00000007)]
+	HRESULT Save([in] VARIANT VarDesc);
+	[id(0x00000008)]
+	HRESULT AddNew(void);
+	[id(0x00000009)]
+	HRESULT Update(void);
+	[id(0x0000000a), propget]
+	HRESULT BOF([out, retval] VARIANT_BOOL* pvar);
+	[id(0x0000000b), propget]
+	HRESULT EOF([out, retval] VARIANT_BOOL* pvar);
+	[id(0x0000000c), propget]
+	HRESULT AbsolutePosition([out, retval] long* pvar);
+	[id(0x0000000c), propput]
+	HRESULT AbsolutePosition([in] long pvar);
+	[id(0x0000000d), propget]
+	HRESULT ResultCount([out, retval] long* pvar);
+	[id(0x0000000e), propget]
+	HRESULT RecordCount([out, retval] long* pvar);
+	[id(0x0000000f), propget]
+	HRESULT FirstPosition([out, retval] long* pvar);
+	[id(0x00000010), propget]
+	HRESULT Fields([out, retval] IStringList** ppFields);
+	[id(0x00000011), propget]
+	HRESULT NextRecordset([out, retval] IRecordset** ppRS);
+	[id(0x00000012), propget]
+	HRESULT ReadTimes([out, retval] long* pVal);
+	[id(0x00000013), propget]
+	HRESULT ReadBytes([out, retval] double* pVal);
+	[id(0x00000014), propget]
+	HRESULT WriteTimes([out, retval] long* pVal);
+	[id(0x00000015), propget]
+	HRESULT WriteBytes([out, retval] double* pVal);
+	[id(0x00000016), propget]
+	HRESULT ExecTime([out, retval] double* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0049-4461-746162617365),
+  dual,
+  oleautomation
+]
+interface IDatabase : IDispatch {
+	[id(0x00000001)]
+	HRESULT Open(
+					[in] BSTR Path, 
+					[in, optional, defaultvalue(2)] short Sync);
+	[id(0x00000002)]
+	HRESULT Close(void);
+	[id(0x00000003)]
+	HRESULT Execute(
+					[in] BSTR strCommand, 
+					[in, optional, defaultvalue(0)] long start, 
+					[in, optional, defaultvalue(-1)] long len, 
+					[out, retval] IRecordset** ppRS);
+	[id(0x00000004)]
+	HRESULT GetTable(
+					[in] BSTR strTable, 
+					[out, retval] IRecordset** ppRS);
+	[id(0x00000005)]
+	HRESULT BeginTrans(void);
+	[id(0x00000006)]
+	HRESULT CommitTrans(void);
+	[id(0x00000007)]
+	HRESULT RollbackTrans(void);
+	[id(0x00000008)]
+	HRESULT Shrink(void);
+	[id(0x00000009), propget]
+	HRESULT CommandTimeout([out, retval] short* pVal);
+	[id(0x00000009), propput]
+	HRESULT CommandTimeout([in] short pVal);
+	[id(0x0000000a), propget]
+	HRESULT Synchronous([out, retval] short* pVal);
+	[id(0x0000000a), propput]
+	HRESULT Synchronous([in] short pVal);
+	[id(0x0000000b), propget]
+	HRESULT TotalReadTimes([out, retval] long* pVal);
+	[id(0x0000000c), propget]
+	HRESULT TotalReadBytes([out, retval] double* pVal);
+	[id(0x0000000d), propget]
+	HRESULT TotalWriteTimes([out, retval] long* pVal);
+	[id(0x0000000e), propget]
+	HRESULT TotalWriteBytes([out, retval] double* pVal);
+	[id(0x0000000f), propget]
+	HRESULT TotalExecTime([out, retval] double* pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0049-4572-726F-725472616365),
+  dual,
+  oleautomation
+]
+interface IErrorTrace : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT Name([out, retval] BSTR* pVal);
+	[id(0x00000002), propget]
+	HRESULT StartTime([out, retval] DATE* pVal);
+	[id(0x00000003)]
+	HRESULT Write([in] BSTR strText);
+	[id(0x00000004)]
+	HRESULT ReadAll([out, retval] BSTR* pVal);
+	[id(0x00000005)]
+	HRESULT Clear(void);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0049-5375-624D61746368),
+  dual,
+  oleautomation
+]
+interface ISubMatch : IDispatch {
+	[id(0x00000000), propget]
+	HRESULT Value([out, retval] BSTR *pVal);
+	[id(0x00000001), propget]
+	HRESULT FirstIndex([out, retval] long *pVal);
+	[id(0x00000002), propget]
+	HRESULT Length([out, retval] long *pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0000-494D61746368),
+  dual,
+  oleautomation
+]
+interface IMatch : IDispatch {
+	[id(0x00000010), propget]
+	HRESULT SubMatches([out, retval] IStringList **pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0000-0049-526567457870),
+  dual,
+  oleautomation
+]
+interface IRegExp : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT Pattern([out, retval] BSTR *pVal);
+	[id(0x00000001), propput]
+	HRESULT Pattern([in] BSTR Val);
+	[id(0x00000002), propget]
+	HRESULT Global([out, retval] VARIANT_BOOL *pVal);
+	[id(0x00000002), propput]
+	HRESULT Global([in] VARIANT_BOOL Val);
+	[id(0x00000003), propget]
+	HRESULT IgnoreCase([out, retval] VARIANT_BOOL *pVal);
+	[id(0x00000003), propput]
+	HRESULT IgnoreCase([in] VARIANT_BOOL Val);
+	[id(0x00000004)]
+	HRESULT Execute(
+					[in] BSTR strText,
+					[out, retval] IStringList **pVal);
+	[id(0x00000005)]
+	HRESULT Replace(
+					[in] BSTR strText1,
+					[in] BSTR strText2,
+					[out, retval] BSTR *pVal);
+	[id(0x00000006)]
+	HRESULT Test(
+					[in] BSTR strText,
+					[out, retval] VARIANT_BOOL *pVal);
+};
+
+[
+  odl,
+  uuid(94650000-0000-0053-6865-6C6C4C696E6B),
+  dual,
+  oleautomation
+]
+interface IBShellLink : IDispatch {
+	[id(0x00000001), propput]
+	HRESULT Arguments([in] BSTR Val);
+	[id(0x00000001), propget]
+	HRESULT Arguments([out, retval] BSTR *pVal);
+	[id(0x00000002), propput]
+	HRESULT Description([in] BSTR Val);
+	[id(0x00000002), propget]
+	HRESULT Description([out, retval] BSTR *pVal);
+	[id(0x00000003), propput]
+	HRESULT Hotkey([in] int Val);
+	[id(0x00000003), propget]
+	HRESULT Hotkey([out, retval] int *pVal);
+	[id(0x00000004), propput]
+	HRESULT IconLocation([in] BSTR Val);
+	[id(0x00000004), propget]
+	HRESULT IconLocation([out, retval] BSTR *pVal);
+	[id(0x00000005), propput]
+	HRESULT IDList([in] BSTR Val);
+	[id(0x00000005), propget]
+	HRESULT IDList([out, retval] BSTR *pVal);
+	[id(0x00000006), propput]
+	HRESULT Path([in] BSTR Val);
+	[id(0x00000006), propget]
+	HRESULT Path([out, retval] BSTR *pVal);
+	[id(0x00000007), propput]
+	HRESULT ShowCmd([in] int Val);
+	[id(0x00000007), propget]
+	HRESULT ShowCmd([out, retval] int *pVal);
+	[id(0x00000008), propput]
+	HRESULT WorkingDirectory([in] BSTR Val);
+	[id(0x00000008), propget]
+	HRESULT WorkingDirectory([out, retval] BSTR *pVal);
+
+	[id(0x00000009)]
+	HRESULT Load([in] BSTR strFileName);
+	[id(0x0000000A)]
+	HRESULT Save([in] BSTR strFileName);
+	[id(0x0000000B)]
+	HRESULT Resolve(
+					[in] int hWnd,
+					[in] int dwFlag);
+};
+
+[
+  odl,
+  uuid(94659465-0000-4943-6163-68654974656D),
+  dual,
+  oleautomation
+]
+interface ICacheItem : IDispatch {
+	[id(0x00000001), propget]
+	HRESULT Value([out, retval] VARIANT* pvar);
+	[id(0x00000001), propput]
+	HRESULT Value([in] VARIANT pvar);
+	[id(0x00000001), propputref]
+	HRESULT Value([in] VARIANT pvar);
+	[id(0x00000002), propget]
+	HRESULT Key([out, retval] VARIANT* pvar);
+	[id(0x00000003), propget]
+	HRESULT Timeout([out, retval] long *pVal);
+	[id(0x00000003), propput]
+	HRESULT Timeout([in] long Val);
+	[id(0x00000004), propget]
+	HRESULT Expires([out, retval] long *pVal);
+	[id(0x00000004), propput]
+	HRESULT Expires([in] long Val);
+	[id(0x00000005)]
+    HRESULT IsExpired([out, retval] VARIANT_BOOL *pVal);
+};
+
+[
+  odl,
+  uuid(94659465-0000-0049-4361-6368654D616E),
+  dual,
+  oleautomation
+]
+interface ICacheMan : IDispatch {
+	[id(0x00000000)]
+	HRESULT GetCache(
+					[in] VARIANT VarKey, 
+					[in, optional, defaultvalue(1)] VARIANT_BOOL bAppend, 
+					[out, retval] ICacheItem **pvar);
+	[id(0x00000001), propget]
+	HRESULT Size([out, retval] long *pVal);
+	[id(0x00000001), propput]
+	HRESULT Size([in] long Val);
+	[id(0x00000002), propget]
+	HRESULT Count([out, retval] long *pVal);
+	[id(0x00000003), propget]
+	HRESULT Timeout([out, retval] long *pVal);
+	[id(0x00000003), propput]
+	HRESULT Timeout([in] long Val);
+	[id(0x00000004)]
+	HRESULT RemoveKey([in] VARIANT VarKey);
+	[id(0x00000005)]
+	HRESULT RemoveAll(void);
+};
+
+[uuid(94659465-9465-9465-9465-000000000000)]
+library BoxLibrary
+{
+	importlib("stdole2.tlb");
+
+	[uuid(94650000-0000-0000-426F-78436C617373)]
+	coclass BoxClass
+	{
+		interface IHttpRequest;
+
+		interface IStringList;
+		interface IUploadList;
+		interface IUploadData;
+		interface IArguments;
+		interface IRequestDictionary;
+
+		interface IReadCookie;
+		interface IWriteCookie;
+
+		interface IBrowserCap;
+
+		interface IVariantStruct;
+		interface IVariantList;
+		interface IVariantDictionary;
+		interface IQueue;
+
+		interface ISimpleDictionary;
+
+		interface IBaseStream;
+		interface IFileStream;
+		interface ICommStream;
+		interface IConsole;
+		interface IPipeLine;
+
+		interface IFile;
+		interface IFolder;
+		interface IFileSystem;
+		interface IPackage;
+
+		interface IEncoding;
+		interface ISysInfo;
+		interface IIdentity;
+
+		interface IMessageColl;
+		interface IMessageManager;
+
+		interface IHash;
+		interface IRSA;
+		interface IECC;
+		interface IRandom;
+		interface ICipher;
+
+		interface IWindow;
+		interface IHTWindow;
+
+		interface IUDPSocket;
+		interface IUDPPacket;
+
+		interface IDatabase;
+		interface IRecordset;
+
+		interface IErrorTrace;
+
+		interface ISubMatch;
+		interface IMatch;
+		interface IRegExp;
+
+		interface IProcess;
+		interface IPipe;
+	};
+};

@@ -1,0 +1,300 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\NBR.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\NBR.ico"
+IDI_NBLFILE             ICON                    "res\\nbLib.ico"
+IDI_CERT                ICON                    "res\\icon1.ico"
+IDI_BOXFILE             ICON                    "res\\nbFile.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,8,4302,0
+ PRODUCTVERSION 2,9,4302,0
+ FILEFLAGSMASK 0x17L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "NetBox Deployment Wizard"
+            VALUE "FileVersion", "1, 8, 4302, 0"
+            VALUE "LegalCopyright", "Copyright (C) 2012 Netbox Project."
+            VALUE "NetBox Homepage", "http://www.9465.net"
+            VALUE "ProductVersion", "2, 9, 4302, 0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SYSINFO DIALOGEX 0, 0, 313, 194
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "",IDOK,256,173,50,14
+    CONTROL         "",IDC_SILIST,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,299,160
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 244, 58
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About NBDW"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,13,20,20
+    LTEXT           "NetBox Deployment Wizard Version 1.8",IDC_STATIC,40,10,133,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2011 Netbox Project",IDC_STATIC,40,23,119,8
+    DEFPUSHBUTTON   "OK",IDOK,187,7,50,16,WS_GROUP
+    LTEXT           "http://www.9465.net",IDC_STATIC,40,36,74,8
+END
+
+IDD_NBR_DIALOG DIALOGEX 0, 0, 326, 374
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_ACCEPTFILES | WS_EX_APPWINDOW
+CAPTION "NetBox Deployment Wizard Version 1.8"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         145,IDC_NAME,"Static",SS_BITMAP | SS_REALSIZEIMAGE,7,7,137,18
+    CONTROL         "",IDC_HR1,"Static",SS_ETCHEDHORZ,23,25,297,1
+    CONTROL         146,IDC_LOGO,"Static",SS_BITMAP,277,7,29,28
+    LTEXT           "",IDT_SRCFOLDER,7,40,50,8
+    COMBOBOX        IDC_SRCFOLDER,58,37,180,134,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "",IDC_FOLDER,247,36,73,14
+    CONTROL         "",IDC_SOURCE,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,56,313,89
+    LTEXT           "",IDT_FILETYPE,7,155,50,8
+    COMBOBOX        IDC_SELECT,58,152,180,118,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "+",IDC_ADD,246,152,36,13
+    PUSHBUTTON      "-",IDC_REMOVE,284,152,36,13
+    CONTROL         "",IDC_HR2,"Static",SS_ETCHEDHORZ,7,173,313,1
+    LTEXT           "",IDT_OUTFILE,7,184,50,8
+    EDITTEXT        IDC_OUTPUT,58,182,180,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "",IDC_BROWSER,247,181,73,14
+    CONTROL         "",IDC_HR3,"Static",SS_ETCHEDHORZ,7,202,313,1
+    LTEXT           "",IDT_PROTYPE,7,208,50,8
+    CONTROL         "",IDC_APPLICATION,"Button",BS_AUTORADIOBUTTON,63,208,52,8
+    CONTROL         "",IDC_CONSOLE,"Button",BS_AUTORADIOBUTTON,120,208,52,8
+    CONTROL         "",IDC_LIBRARY,"Button",BS_AUTORADIOBUTTON,177,208,52,8
+    LTEXT           "",IDT_STARTUP,7,224,50,8
+    COMBOBOX        IDC_STARTUP,58,222,165,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDOK,"Button",BS_OWNERDRAW | WS_TABSTOP,234,208,86,28
+    CONTROL         "",IDC_HR4,"Static",SS_ETCHEDHORZ,7,242,313,1
+    PUSHBUTTON      "",IDC_SYSINFO,7,354,90,14
+    CONTROL         138,IDC_PBNB,"Static",SS_BITMAP,205,356,47,12
+    PUSHBUTTON      "",IDCANCEL,262,354,58,14
+    LTEXT           "Privileges",IDT_PRI,171,252,50,8
+    COMBOBOX        IDC_PRI,222,250,98,33,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Icon",IDT_ICON,7,252,50,8
+    COMBOBOX        IDC_ICONFILE,58,250,98,73,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_HR6,"Static",SS_ETCHEDHORZ,7,269,313,1
+    LTEXT           "FileDescription",IDT_FILEDESCRIPTION,7,278,50,8
+    EDITTEXT        IDC_FILEDESCRIPTION,58,276,262,12,ES_AUTOHSCROLL
+    LTEXT           "FileVersion",IDT_FILEVERSION,7,295,50,8
+    EDITTEXT        IDC_FILEVERSION,58,293,98,12,ES_AUTOHSCROLL
+    LTEXT           "ProductName",IDT_PRODUCTNAME,7,312,50,8
+    EDITTEXT        IDC_PRODUCTNAME,58,310,262,12,ES_AUTOHSCROLL
+    LTEXT           "ProductVersion",IDT_PRODUCTVERSION,171,295,50,8
+    EDITTEXT        IDC_PRODUCTVERSION,222,293,98,12,ES_AUTOHSCROLL
+    LTEXT           "LegalCopyright",IDT_LEGALCOPYRIGHT,7,329,50,8
+    EDITTEXT        IDC_LEGALCOPYRIGHT,58,327,262,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_HR7,"Static",SS_ETCHEDHORZ,8,345,312,1
+    CONTROL         "Embed VBScript",IDC_EMBEDVBS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,108,358,65,10
+END
+
+IDD_LOG DIALOGEX 0, 0, 312, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_THICKFRAME
+CAPTION "Building..."
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_LOG,7,7,298,151,ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_VSCROLL
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,247,164,58,14
+END
+
+IDD_LANGUAGE DIALOGEX 0, 0, 138, 102
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select Language:"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,44,81,50,14,WS_DISABLED
+    LISTBOX         IDC_LANGUAGE,7,7,124,67,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_SYSINFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 306
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 187
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 237
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 51
+    END
+
+    IDD_NBR_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 320
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 368
+    END
+
+    IDD_LOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 305
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 178
+    END
+
+    IDD_LANGUAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 131
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 95
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_PBNB                BITMAP                  "res\\pbnb.bmp"
+IDB_BUILD               BITMAP                  "res\\build.bmp"
+IDB_NAME                BITMAP                  "res\\name.bmp"
+IDB_LOGO                BITMAP                  "res\\logo.bmp"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\NBR.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
